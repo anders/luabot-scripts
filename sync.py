@@ -4,6 +4,7 @@ import urllib
 import json
 import re
 import subprocess
+from glob import glob
 
 def main():
   req = urllib.urlopen('http://portal.cloud1.codebust.com/u/anders/scripts.lua?json')
@@ -24,6 +25,7 @@ def main():
   except:
     pass
 
+  # Add new or modified scripts.
   for mod in j:
     assert re.match(r'^[a-z]*$', mod)
     
@@ -43,6 +45,15 @@ def main():
           f.write(resp)
         
         subprocess.check_call(['git', 'add', path], stdout=fnull)
+
+  # Find out if a script was deleted or not.
+  # Done by finding Lua scripts that weren't in the list fetched earlier.
+  # If a deleted script is found, git rm it.
+  for mod in j:
+    for path in glob(os.path.join(root, mod) + '/*.lua'):
+      name = os.path.splitext(os.path.basename(path))[0]
+      if not name in j[mod]:
+        subprocess.check_call(['git', 'rm', path], stdout=fnull)
 
   #print 'committing'
   subprocess.call(['git', 'commit', '--author', 'L. Bot <luabot@codebust.com>', '-m', 'Sync.'], stdout=fnull, stderr=fnull)
