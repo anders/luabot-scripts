@@ -1,8 +1,7 @@
-local unicode = require 'unicode'
+--- U(codepoint, fast?) -> UTF-8 encoded codepoint; description
+--- @param fast don't look up character info in the Unicode database
 
--- returns character, description as two values
--- because 2 olde funcs expect c = etc.U(x, [fast]) to return a char
--- fast means don't look up unicode info, just return the char
+local unicode = require 'unicode'
 
 -- initialize important subsystem
 plugin._april_fools()
@@ -59,7 +58,7 @@ if fast then return c end
 local desc, cat = unicode.getUnicodeInfo(n)
 if cat == 'Character not found' then cat = nil end -- hack
 
--- dont print control characters, but do allow private use chars
+-- Don't print control characters, but do allow private use chars.
 if cat and cat:sub(1, 1) == 'C' and cat ~= 'Co' then
   return '', ('U+%04X%s'):format(n, desc and ', ' .. desc or '')
 else
