@@ -7,23 +7,24 @@ import subprocess
 from glob import glob
 
 def main():
+  root = os.path.dirname(os.path.realpath(__file__))
+
   req = urllib.urlopen('http://portal.cloud1.codebust.com/u/anders/scripts.lua?json')
   resp = req.read()
   req.close()
 
   j = json.loads(resp)
 
-  root = os.path.dirname(os.path.realpath(__file__))
-
+  # UNIX timestamp of the last sync commit.
   lastrun = 0
-
-  fnull = open(os.devnull, 'w')
 
   try:
     p = subprocess.Popen(['git', 'log', '-1', 'master', '--format=%ct', '--grep', 'Sync.'], stdout=subprocess.PIPE)
     lastrun = int(p.communicate()[0])
   except:
     pass
+
+  fnull = open(os.devnull, 'w')
 
   # Add new or modified scripts.
   for mod in j:
