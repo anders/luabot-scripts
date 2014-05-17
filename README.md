@@ -10,4 +10,3 @@ script was run.
 ## Bugs
   * It does not deal with case-insensitive file systems. Script names may
     conflict and wreak havoc on the history.
-  * It does not check if a script was deleted.
