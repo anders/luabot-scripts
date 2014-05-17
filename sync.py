@@ -41,7 +41,6 @@ def main():
         resp = req.read()
         with open(path, 'w') as f:
           f.write(resp)
-        os.utime(path, (-1, j[mod][fun]['mtime']))
         
         subprocess.check_call(['git', 'add', path], stdout=fnull)
 
