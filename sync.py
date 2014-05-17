@@ -16,6 +16,8 @@ def main():
 
   lastrun = 0
 
+  fnull = open(os.devnull, 'w')
+
   try:
     p = subprocess.Popen(['git', 'log', '-1', 'master', '--format=%ct', '--grep', 'Sync.'], stdout=subprocess.PIPE)
     lastrun = int(p.communicate()[0])
@@ -41,11 +43,13 @@ def main():
           f.write(resp)
         os.utime(path, (-1, j[mod][fun]['mtime']))
         
-        subprocess.check_call(['git', 'add', path])
+        subprocess.check_call(['git', 'add', path], stdout=fnull)
 
   #print 'committing'
-  subprocess.call(['git', 'commit', '--author', 'L. Bot <luabot@codebust.com>', '-m', 'Sync.'])
-  subprocess.call(['git', 'push', '-u', 'origin', 'master'])   
+  subprocess.call(['git', 'commit', '--author', 'L. Bot <luabot@codebust.com>', '-m', 'Sync.'], stdout=fnull, stderr=fnull)
+  subprocess.call(['git', 'push', '-u', 'origin', 'master'], stdout=fnull, stderr=fnull)
+
+  fnull.close()
 
 
 if __name__ == '__main__':
