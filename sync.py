@@ -33,11 +33,11 @@ def main():
           f.write(resp)
         os.utime(path, (-1, j[mod][fun]['mtime']))
         
-        subprocess.call(['git', 'add', path])
+        subprocess.check_call(['git', 'add', path])
 
-  # print 'committing'
+  #print 'committing'
   subprocess.call(['git', 'commit', '--author', 'L. Bot <luabot@codebust.com>', '-m', 'Sync.'])
-   
+
 
 if __name__ == '__main__':
   main()
