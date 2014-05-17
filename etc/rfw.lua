@@ -1,0 +1,12 @@
+return etc.gaywords(etc.lacist((arg[1] or etc.getOutput(etc.fml, ...))
+  :gsub("%f[%a]girlfriend%f[%A]", "boyfriend")
+  :gsub("%f[%a]Girlfriend%f[%A]", "Boyfriend")
+  :gsub("%f[%a]she%f[%A]", "he")
+  :gsub("%f[%a]She%f[%A]", "He")
+  :gsub("%f[%a]Her%f[%A]", "Him")
+  :gsub("%f[%a]her%f[%A]", "him")
+  :gsub("%f[%a]wife%f[%A]", "husband")
+  :gsub("%f[%a]Wife%f[%A]", "Husband")
+  :gsub("%f[%a]girl%f[%A]", "boy")
+  :gsub("%f[%a]Girl", "Boy")
+)) or ""

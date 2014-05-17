@@ -1,0 +1,1 @@
+return dbotscript([[%D|dmd|The D Programming Language|Phobos% %sucks|doesn't fit requirements of the market|doesn't scale|is not fast enough|is bloated|is full of bugs|is something nobody cares about% and %kills little kittens|makes little children cry|will waste all of your time|makes you appreciate C++|even dbot thinks it sux|doesn't rox|is petty and amateurish%.]])
