@@ -37,6 +37,7 @@ def main():
 
   #print 'committing'
   subprocess.call(['git', 'commit', '--author', 'L. Bot <luabot@codebust.com>', '-m', 'Sync.'])
+  subprocess.call(['git', 'push', '-u', 'origin', 'master'])   
 
 
 if __name__ == '__main__':
