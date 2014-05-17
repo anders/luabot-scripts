@@ -14,6 +14,14 @@ def main():
 
   root = os.path.dirname(os.path.realpath(__file__))
 
+  lastrun = 0
+
+  try:
+    p = subprocess.Popen(['git', 'log', '-1', 'master', '--format=%ct', '--grep', 'Sync.'], stdout=subprocess.PIPE)
+    lastrun = int(p.communicate()[0])
+  except:
+    pass
+
   for mod in j:
     assert re.match(r'^[a-z]*$', mod)
     
@@ -25,7 +33,7 @@ def main():
       
       path = os.path.join(root, mod, fun + '.lua')
       
-      if not os.path.exists(path) or os.path.getmtime(path) < j[mod][fun]['mtime']:
+      if not os.path.exists(path) or lastrun < j[mod][fun]['mtime']:
         # print 'getting script %s.%s' % (mod, fun)
         req = urllib.urlopen(j[mod][fun]['url'])
         resp = req.read()
