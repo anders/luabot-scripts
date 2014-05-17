@@ -1,1 +1,0 @@
-return ('butt '):rep(20)

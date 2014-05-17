@@ -2,7 +2,7 @@ local funnyfuncs = arg[2] or {
   etc.tr,
   etc.o,
   etc.ermahgerd,
-  etc.benis,
+  etc.benis2 or etc.benis,
   etc.xxx,
   etc.mess,
   etc.y, -- WHY!
