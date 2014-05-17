@@ -26,7 +26,7 @@ def main():
       path = os.path.join(root, mod, fun + '.lua')
       
       if not os.path.exists(path) or os.path.getmtime(path) < j[mod][fun]['mtime']:
-        print 'getting script %s.%s' % (mod, fun)
+        # print 'getting script %s.%s' % (mod, fun)
         req = urllib.urlopen(j[mod][fun]['url'])
         resp = req.read()
         with open(path, 'w') as f:
@@ -35,7 +35,7 @@ def main():
         
         subprocess.call(['git', 'add', path])
 
-  print 'committing'
+  # print 'committing'
   subprocess.call(['git', 'commit', '--author', 'L. Bot <luabot@codebust.com>', '-m', 'Sync.'])
    
 
