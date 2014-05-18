@@ -1,4 +1,3 @@
-local limit = tonumber(arg[1]) or 5000
 local t = {}
 t.title = "Values of Botstocks"
 t.vlabel = "Value in CBC"

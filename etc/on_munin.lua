@@ -1,4 +1,9 @@
-assert(allCodeTrusted() and Event and Munin)
+-- assert(allCodeTrusted() and Event and Munin)
+Cache.munin_last = Munin.line
+if Event.name == "munin-connect" then
+  Munin.write("# munin node at ludebot\n")
+  return
+end
 local cmd, param = Munin.line:match("^([^ ]+) ?(.*)")
 if cmd then
   local plugins = {
