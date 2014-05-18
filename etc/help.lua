@@ -41,7 +41,8 @@ else
       return x .. " help:", gh
     else
       if etc.islua(x) == 1 then
-        return x .. " is part of the Lua API:", "http://www.lua.org/manual/5.1/manual.html#pdf-" .. x
+        local a, b = pcall(etc.luaref, x)
+        return x .. " is part of the Lua API:", (b or ""), "http://www.lua.org/manual/5.1/manual.html#pdf-" .. x
       else
         local gt = _G[x]
         if gt ~= nil then

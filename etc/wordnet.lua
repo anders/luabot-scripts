@@ -23,6 +23,7 @@ end
 
 local xw = w:lower():gsub(" +", "_")
 
+--[=[ -- This file doesn't exist in WN anymore?
 -- sense.index:
 -- http://wordnet.princeton.edu/man/senseidx.5WN.html
 -- http://wordnet.princeton.edu/man/lexnames.5WN.html
@@ -44,6 +45,7 @@ if sinfo then
     end
   end
 end
+--]=]
 
 local r1, r2, r3, r4
 local rank = -1
