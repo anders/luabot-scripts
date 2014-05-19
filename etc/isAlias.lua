@@ -1,1 +1,0 @@
-return etc.isalias(...)

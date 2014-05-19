@@ -43,6 +43,9 @@ local function dolog(levelnum, levelname, ...)
     -- M.url = etc.debuglog(M.funcname or "-", levelname, ...)
     local msg = etc.stringprint(...)
     local entry = etc.logformat(msg, nil, M.funcname, levelname)
+    if levelnum >= Level.ERROR and setLastError then
+      setLastError(entry)
+    end
     M.url = etc.debuglograw(entry)
   end
 end
