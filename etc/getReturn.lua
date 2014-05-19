@@ -1,7 +1,9 @@
 local a, b = ...
 if not a then
   if b then
-    return "Error: " .. tostring(b)
+    b = tostring(b)
+    setLastError("Function returned " .. tostring(a) .. ": " .. b) -- THIS MAY GET MOVED to getOutput or on_cmd!
+    return "Error: " .. b
   end
 end
 -- return ...

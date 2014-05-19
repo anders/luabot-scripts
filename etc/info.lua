@@ -33,7 +33,9 @@ end
 
 if allowChans[chan:lower()] then
   assert(type(arg[1]) == "string", "String value expected")
-  etc.set('#infoline ' .. arg[1])
+  -- etc.set('#infoline ' .. arg[1])
+  print("We are having difficulties honoring your request, so please enter the following:")
+  print("'set #infoline " .. arg[1])
 else
   print(nick .. " * info not allowed on this channel")
 end

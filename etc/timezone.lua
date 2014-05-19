@@ -149,7 +149,7 @@ local Time = require 'time'
 
 local iscmd = #arg < 2
 local person, format, now, butt = (arg[1] or nick):match('([^%s]+)'),
-                             arg[2] or '%Y-%m-%d %H:%M:%S',
+                             arg[2] or '%c' or '%Y-%m-%d %H:%M:%S',
                              arg[3] or os.time(), arg[4]
 
 local function file_exists(path)

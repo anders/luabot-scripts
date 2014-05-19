@@ -6,17 +6,28 @@ for i, pkgname in ipairs{"etc", "plugin"} do
   end
 end
 
+local sort_whut = tonumber(Web.GET.sort) or 2
+local sort_desc = Web.GET.desc == "true" and true or false
+
 table.sort(t, function(a, b)
-  local r = b[2] < a[2]
-  if b[2] == a[2] then
-    -- r = a[1] < b[1]
-    r = b[4] < a[4]
+  assert(b[sort_whut], "Invalid sort field")
+  if sort_desc then b, a = a, b end
+  local r = b[sort_whut] < a[sort_whut]
+  if b[sort_whut] == a[sort_whut] then
+    r = b[4] < a[4] -- fall back to mtime
   end
   return r
 end)
 
-Web.write("<html><body><table border='1'>")
-Web.write("<thead><tr><th>Function<th>#Calls</th><th>Last Called</th></th><th>Modified time</th><th>Owner</th></tr></thead>")
+Web.write('<html><body><table border="1">')
+Web.write('<thead><tr>')
+Web.write('<th><a href="?sort=1&desc='..tostring(not sort_desc)..'">Function</a></th>')
+Web.write('<th><a href="?sort=2&desc='..tostring(not sort_desc)..'">#Calls</a></th>')
+Web.write('<th><a href="?sort=3&desc='..tostring(not sort_desc)..'">Last Called</a></th>')
+Web.write('<th><a href="?sort=4&desc='..tostring(not sort_desc)..'">Modified time</a></th>')
+Web.write('<th><a href="?sort=5&desc='..tostring(not sort_desc)..'">Owner</a></th>')
+Web.write('</tr></thead>')
+
 local now = os.time()
 for i, f in ipairs(t) do
   Web.write("<tr>")

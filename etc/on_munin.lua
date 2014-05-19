@@ -6,10 +6,7 @@ if Event.name == "munin-connect" then
 end
 local cmd, param = Munin.line:match("^([^ ]+) ?(.*)")
 if cmd then
-  local plugins = {
-    "cbcworth",
-    "botstocks",
-  }
+  local plugins = etc.munin_conf().plugins
   local function getplugin(name)
     for i = 1, #plugins do
       if plugins[i] == name then

@@ -1,5 +1,5 @@
 local amount = tonumber(arg[1], 10)
-assert(amount>=0 and amount<=1000)
+assert(amount>=0 and amount<=100000 and math.floor(amount)==amount, 'no swag yolo')
 amount = tostring(amount)
 
 

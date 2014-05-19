@@ -14,7 +14,8 @@ local function getOnOff(s)
 end
 
 local function tolabel(s)
-  return safestr(s):gsub("[^%w]", "")
+  s = safestr(s):gsub("[^%w]", "")
+  return s
 end
 
 -- Running both code paths so you can debug easier...
