@@ -49,12 +49,12 @@ local ResultsPage = function(cmdaction, from, to, params)
 
     -- might be a list...
     local route = journey.RouteLinks.RouteLink[1] or journey.RouteLinks.RouteLink
-    local from = route.From.Name['#text']
-    local to = route.To.Name['#text']
+    local to = route.From.Name['#text']
+    local from = route.To.Name['#text']
     local route_line = route.Line.Name['#text']
     local dist = tonumber(journey.Distance['#text']) / 1000
     
-    print(dep_time.."-"..arr_time..": "..from.." → "..to.." ("..route_line..") "..('%.1f km, %d changes, %d zones'):format(dist, changes, zones))
+    print(dep_time.."-"..arr_time..": "..from.." → "..to.." ("..route_line..") "..('%.1f km, %d transfer(s), %d zone(s)'):format(dist, changes, zones))
   end
 end
 
