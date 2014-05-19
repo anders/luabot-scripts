@@ -1,5 +1,8 @@
+local LOG = plugin.log(_funcname);
+
+LOG.trace("wrapping input")
+
 if not arg[1] then
-  local LOG = plugin.log(_funcname);
   LOG.debug("input is nil")
   return ''
 end
@@ -39,6 +42,8 @@ local result = flags.result -- Want the result returned rather than printed.
 assert(type(cont) == "string", "--continue=value must be a string")
 assert(#cont < linelength, "--continue=\"" .. cont .. "\" is too long for --linelength=" .. linelength)
 
+LOG.trace("maxlines:", maxlines)
+
 if maxlines < 1 then
   local LOG = plugin.log(_funcname);
   LOG.debug("max lines set to", maxlines)
@@ -48,7 +53,52 @@ end
 -- TODO: don't break in middle of utf-8 sequence unless notutf8.
 
 if merge then
-  str = str:gsub("[\r\n]+", mergelinesep)
+  -- str = str:gsub("[\r\n]+", mergelinesep) -- Naive and ugly.
+  local lines = {}
+  for line in str:gmatch("[^\r\n]+") do
+    lines[#lines + 1] = line
+  end
+  while #lines > maxlines do
+    local shortline = 0
+    local mergewith = 0
+    local shortlen = math.huge
+    for i = 1, #lines do
+      if #lines[i] < shortlen then
+        local prevlen = math.huge
+        local nextlen = math.huge
+        if lines[i - 1] then
+          prevlen = #lines[i - 1]
+        end
+        if lines[i + 1] then
+          nextlen = #lines[i + 1]
+        end
+        if prevlen <= nextlen then
+          mergewith = i - 1
+        elseif prevlen > nextlen then
+          mergewith = i + 1
+        end
+        shortlen = #lines[i]
+        shortline = i
+      end
+    end
+    if shortline == 0 or not lines[mergewith] then
+      LOG.debug("Naive and ugly.")
+      str = str:gsub("[\r\n]+", mergelinesep)
+      break
+    end
+    assert(shortline ~= mergewith)
+    assert(shortline == mergewith - 1 or shortline == mergewith + 1)
+    LOG.trace("Merging line " .. shortline .. " with " .. mergewith)
+    if mergewith < shortline then
+      lines[mergewith] = lines[mergewith] .. mergelinesep .. lines[shortline]
+    else --if mergewith > shortline then
+      lines[mergewith] = lines[shortline] .. mergelinesep .. lines[mergewith]
+    end
+    for i = shortline, #lines do
+      lines[i] = lines[i + 1]
+    end
+  end
+  str = table.concat(lines, mergelinesep)
 end
 
 local output = print
