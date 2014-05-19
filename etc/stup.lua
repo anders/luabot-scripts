@@ -2,7 +2,7 @@ if Editor then
   return
 end
 
-etc.sm(Cache, '~goat', arg,
+etc.SM(Cache, '~goat', arg,
 function(...)
   print("Give me an A!")
 end,

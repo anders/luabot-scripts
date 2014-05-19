@@ -1,4 +1,4 @@
--- State Machine. Also etc.sm
+-- State Machine.
 -- Usage: (Cache, name, argtable, functions...)
 -- Returns the state index and whether or not it is the last state.
 -- name is a cache name to use.
