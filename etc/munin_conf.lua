@@ -2,7 +2,8 @@ return {
   plugins = {
     "cbcworth",
     "botstocks",
-    -- "memusage", -- works then breaks everything. fun!
+    "memusage",
+    "threads",
     -- "dbotusers", -- breaks munin for unknown reason.
   };
 }
