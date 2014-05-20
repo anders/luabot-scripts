@@ -14,8 +14,16 @@ if tt == "table" then
     end
   end
 elseif tt == "string" then
+  --[[
   for i = 1, #t do
     local x = func(t:sub(i, i))
+    if x then
+      result[#result + 1] = x
+    end
+  end
+  --]]
+  for ch in etc.codepoints(t) do
+    local x = func(ch)
     if x then
       result[#result + 1] = x
     end

@@ -1,4 +1,4 @@
-if io.fs.exists('/pub/scripts/etc/_foobar.lua') then etc._foobar(_G) end -- Hacker Games.
+if etc._foobar then etc._foobar(_G) end -- Hacker Games.
 if Editor then return end
 
 local r = require 'RandomLua'

@@ -1,3 +1,5 @@
+-- Usage: assert(not require("spam").detect(Cache, "reason_name", times, in_seconds))
+
 -- max per seconds.
 local function detect(Cache, name, max, seconds)
   local last = Cache['spam.' .. name]
