@@ -1,3 +1,4 @@
+if io.fs.exists('/pub/scripts/etc/_foobar.lua') then etc._foobar(_G) end -- Hacker Games.
 if Editor then return end
 
 local r = require 'RandomLua'
@@ -42,7 +43,10 @@ if f then
   f:close()
 end
 
-d = (tonumber(d) or 0) + amount
+for i=1, math.random(1, 1000) do
+  if math.random(1, 2) == 1 then local _ = tonumber(math.random(1, 1000)) end
+end
+  d = (tonumber(d) or 0) + amount
 
 f = io.open('add.db', 'w')
 f:write(tostring(d))

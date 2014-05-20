@@ -4,6 +4,8 @@ if not allCodeTrusted() then
   Cache.lastfail = _funcname .. " not trusted due to " .. whyNotCodeTrusted()
 end
 assert(allCodeTrusted(), "Breached")
-Cache.graphThreads = math.max(_threadid - (Cache.graphThreads_i or 0), 0)
+if Cache.graphThreads_i then
+  Cache.graphThreads = _threadid - Cache.graphThreads_i
+end
 Cache.graphThreads_i = _threadid
 Cache.graphThreads_t = os.time()

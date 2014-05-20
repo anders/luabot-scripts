@@ -40,7 +40,9 @@ end)
 -- if config ...
   configprint("graph_title " .. safestr(assert(t.title, "title expected")))
   configprint("graph_vlabel " .. safestr(assert(t.vlabel, "vlabel expected")))
-  configprint("graph_scale " .. getOnOff(t.scale))
+  if t.scale ~= nil then
+    configprint("graph_scale " .. getOnOff(t.scale))
+  end
   local islowerlim = ""
   if tonumber(t.lowerLimit) then
     islowerlim =  " --lower-limit " .. tonumber(t.lowerLimit)
