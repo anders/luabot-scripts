@@ -37,6 +37,11 @@ def main():
 
     fnull = open(os.devnull, 'w')
 
+    # Lists of changed scripts.
+    added = []
+    deleted = []
+    changed = []
+
     # Add new or modified scripts.
     for mod in j:
         assert re.match(r'^[a-z]*$', mod)
@@ -48,6 +53,7 @@ def main():
             assert re.match(r'^[a-zA-Z0-9_]+$', fun)
 
             path = os.path.join(root, mod, fun + '.lua')
+            new = not os.path.exists(path)
 
             if not os.path.exists(path) or lastrun < j[mod][fun]['mtime']:
                 req = urllib.urlopen(j[mod][fun]['url'])
@@ -55,6 +61,10 @@ def main():
                 with open(path, 'w') as f:
                     f.write(resp)
 
+                if new:
+                    added.append(mod + '.' + fun)
+                else:
+                    changed.append(mod + '.' + fun)
                 subprocess.check_call([GIT, 'add', path], stdout=fnull)
 
     # Find out if a script was deleted or not.
@@ -64,10 +74,35 @@ def main():
         for path in glob(os.path.join(root, mod) + '/*.lua'):
             name = os.path.splitext(os.path.basename(path))[0]
             if name not in j[mod]:
+                deleted.append(mod + '.' + name)
                 subprocess.check_call([GIT, 'rm', path], stdout=fnull)
 
+    # Build a commit message listing all changed scripts.
+    commit_message = ['Sync.']
+
+    added.sort()
+    changed.sort()
+    deleted.sort()
+
+    if added:
+        commit_message.append('\nAdded:')
+        for name in added:
+            commit_message.append('  ' + name)
+
+    if changed:
+        commit_message.append('\nChanged:')
+        for name in changed:
+            commit_message.append('  ' + name)
+
+    if deleted:
+        commit_message.append('\nDeleted:')
+        for name in changed:
+            commit_message.append('  ' + name)
+
+    commit_message = '\n'.join(commit_message)
+
     subprocess.call([GIT, 'commit', '--author', AUTHOR_NAME, '-m',
-                     'Sync.'], stdout=fnull, stderr=fnull)
+                     commit_message], stdout=fnull, stderr=fnull)
     subprocess.call([GIT, 'push', '-u', REMOTE_NAME, BRANCH_NAME],
                     stdout=fnull, stderr=fnull)
 
