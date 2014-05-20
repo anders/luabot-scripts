@@ -61,10 +61,11 @@ def main():
                 with open(path, 'w') as f:
                     f.write(resp)
 
+                name = '%s.%s' % (mod, fun)
                 if new:
-                    added.append(mod + '.' + fun)
+                    added.append(name)
                 else:
-                    changed.append(mod + '.' + fun)
+                    changed.append(name)
                 subprocess.check_call([GIT, 'add', path], stdout=fnull)
 
     # Find out if a script was deleted or not.
@@ -74,30 +75,20 @@ def main():
         for path in glob(os.path.join(root, mod) + '/*.lua'):
             name = os.path.splitext(os.path.basename(path))[0]
             if name not in j[mod]:
-                deleted.append(mod + '.' + name)
+                deleted.append('%s.%s' % (mod, name))
                 subprocess.check_call([GIT, 'rm', path], stdout=fnull)
 
     # Build a commit message listing all changed scripts.
     commit_message = ['Sync.']
 
-    added.sort()
-    changed.sort()
-    deleted.sort()
-
-    if added:
-        commit_message.append('\nAdded:')
-        for name in added:
-            commit_message.append('  ' + name)
-
-    if changed:
-        commit_message.append('\nChanged:')
-        for name in changed:
-            commit_message.append('  ' + name)
-
-    if deleted:
-        commit_message.append('\nDeleted:')
-        for name in changed:
-            commit_message.append('  ' + name)
+    for diff, name in ((added,   'Added'),
+                       (changed, 'Changed'),
+                       (deleted, 'Deleted')):
+        if diff:
+            diff.sort()
+            commit_message.append('\n%s:' % name)
+            for name in diff:
+                commit_message.append('  %s' % name)
 
     commit_message = '\n'.join(commit_message)
 
