@@ -1,6 +1,8 @@
 -- death to non-metric
 if Web then return end
 
+require("spam").detect(Cache, "weather", 4, 10)
+
 plugin._april_fools()
 
 local json = require 'json'
