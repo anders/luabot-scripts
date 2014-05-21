@@ -11,6 +11,8 @@ local n = 1
 while true do
   local line, nick = _getHistory(n)
   if not line then break end
+
+  line = etc.stripCodes(line)
   
   if not line:find(etc.cmdprefix..'se?d?[^%w]') and line:match(search) then
     line = line:gsub('\031', '') -- strip underline

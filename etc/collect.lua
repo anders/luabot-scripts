@@ -2,7 +2,9 @@
 
 local t = arg[1]
 local func = arg[2]
-assert(type(func) == "function", "Need function")
+if not func then
+  func = function(...) return ... end
+end
 local tt = type(t)
 
 local result = {}

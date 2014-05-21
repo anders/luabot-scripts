@@ -2,7 +2,12 @@ print("_G = _G or {}")
 
 
 local function doscope(sparent, scope, cond)
-  for k, v in pairs(scope) do
+  local keys = {}
+  for k, v in pairs(scope) do keys[#keys + 1] = k end
+  table.sort(keys)
+
+  for _, k in ipairs(keys) do
+    local v = scope[k]
     if not cond or cond(k, v) then
       local xk
       if type(k) == "number" then
