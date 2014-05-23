@@ -15,7 +15,8 @@ for i = 1, max do
   local msg = h[1]
   local want = math.random(2, 4)
   local getting = false
-  for w in msg:gmatch("[%w_%-'\194-\244\128-\191]+") do
+  msg = msg:gsub("\003%d?%d?,?%d?%d?", "")
+  for w in msg:gmatch("[%w_%-%|'\194-\244\128-\191]+") do
     if w == "http" or w == "https" then
       break
     end

@@ -39,7 +39,9 @@ end
 
 local num_calls, last_call, mtime, owner_id = _getCallInfo(mod, func)
 local script_url = ("%st/%s?module=%s&name=%s"):format(boturl, this, urlEncode(mod), urlEncode(func))
-local script_info = ("(owned by %s, %d line%s)"):format(getname(owner_id), line_count, line_count > 1 and 's' or '')
+--local mtime_date = os.date("!%Y-%m-%d", mtime)
+local dur = etc.duration(os.time() - mtime)
+local script_info = ("(owned by %s, %d line%s, edited %s ago)"):format(getname(owner_id), line_count, line_count > 1 and 's' or '', dur)
 if edit then
   local read_only = account ~= owner_id and "[read only] " or ""
   sendNotice(nick, read_only..script_url.." "..script_info)
