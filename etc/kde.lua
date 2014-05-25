@@ -1,0 +1,1 @@
+return (arg[1]:gsub("[^%s%pk]+", "k%1"):gsub("k≖", "≖"))
