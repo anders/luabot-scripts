@@ -1,4 +1,5 @@
--- http://ftp.unicode.org/Public/3.0-Update/UnicodeData-3.0.0.html
+-- http://unicode.org/Public/UNIDATA/UnicodeData.txt
+-- Was: http://ftp.unicode.org/Public/3.0-Update/UnicodeData-3.0.0.html
 local a = tonumber(arg[1])
 if a then
   local b = etc.binarySearchFileLines("/shared/unicode_data.txt", function(line)
