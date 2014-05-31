@@ -1,4 +1,4 @@
--- State Machine.
+-- State Machine. This code is extremely experimental. Consider using plugin.game states.
 -- Usage: (Cache, name, argtable, functions...)
 -- Returns the state index and whether or not it is the last state.
 -- name is a cache name to use.

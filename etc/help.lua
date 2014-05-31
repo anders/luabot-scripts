@@ -5,22 +5,73 @@ Help = {} -- This variable will be set, you can check for it to respond to help.
 -- You can set Help.handled = true to fully control the help output.
 -- Note: do not use the Usage comment directive if you intend to run code.
 
+local LOG = plugin.log(_funcname);
 
 if not arg[1] then
   local t = etc.find("*", true)
-  for i = 1, 5 do
-    local r = math.random(#t)
-    t[i], t[r] = t[r], t[i]
+  local nfound = 0
+  local maxtries = 20
+  for i = 1, maxtries do
+    if nfound < 5 then
+      local r = math.random(#t)
+      local isbad = t[r]:find("^on_") or t[r]:find("^cron_")
+      local code = getCode('etc', t[r])
+      local hasusage = code:find("Usage", 1, true)
+      local foolish = code:find("[Dd]eprecated") or code:find("[Ee]xperiment")
+      local desperate = i >= ((maxtries - 7) - nfound)
+      local lonely = i >= (maxtries - nfound)
+      if lonely or (not isbad and hasusage and (not foolish or desperate)) then
+        nfound = nfound + 1
+        t[nfound], t[r] = t[r], t[nfound]
+      end
+    end
   end
   local s = ""
   for i = 1, 5 do
-    s = s .. " 'help \2" .. t[i] .. "\2"
+    s = s .. " 'help '\2" .. t[i] .. "\2"
   end
-  return "What do you want help with? I have so many commands, here's a few: 'help \2help\2 'help \2find\2" .. s
+  return "What do you want help with? I have so many commands, here's a few: 'help '\2help\2 'help '\2find\2" .. s
 elseif arg[1] == "find" or arg[1] == "'find" then
   return "Use the find command to find commands by name! 'find cat - Use wildcards like * and ?, or enclose in quotes to be more specific."
 else
   local x = arg[1]
+  if arg[2] == '-tryagain' then
+    x = x:match("[^%.']+$") or x
+    local nbwithin = #x * 1.5 + 2
+    local nbest = nbwithin
+    local best = nil
+    local bestmod = 'etc'
+    for imod, mod in ipairs{'etc', 'plugin', 'tests'} do
+      local trying = _G[mod].find(x, true)
+      for i = 1, #trying do
+        local xd = math.abs(#x - #trying[i])
+        -- Penalty if not starting/ending with same char.
+        if x:sub(1, 1):lower() ~= trying[i]:sub(1, 1):lower()
+            and x:sub(-1, -1):lower() ~= trying[i]:sub(-1, -1):lower() then
+          xd = xd + 2
+        end
+        xd = xd + imod - 1 -- More unlikely each module.
+        if xd < nbwithin then
+          LOG.trace("Could possibly be", mod, trying[i])
+        end
+        if xd < nbest then
+          nbest = xd
+          best = trying[i]
+          bestmod = mod
+          LOG.debug("Getting closer with", bestmod, best, "@", nbest)
+        end
+      end
+    end
+    if best then
+      local what
+      if bestmod == 'etc' then
+        what = "'" .. best
+      else
+        what = bestmod .. "." .. best
+      end
+      return 'Looking up ' .. what .. ' instead', "-", etc.help(what)
+    end
+  end
   local tx = type(x)
   local func
   if tonumber(x) then
@@ -84,6 +135,9 @@ else
         -- return nil, "Sorry, I don't know about " .. x .. ", did you mean '" .. x
         return "Looking up '" .. x .. " instead", "-", etc.getReturn(etc.help("'" .. x))
       else
+        if tx == "string" and arg[2] ~= '-tryagain' then
+          return etc.help(x, '-tryagain')
+        end
         return nil, "Sorry, I don't know about " .. x
       end
     end
@@ -115,22 +169,34 @@ else
   os.remove = function() return nil, "Permission denied (help)" end
   os.rename = function() return nil, "Permission denied (help)" end
   
-  local a, b = pcall(etc.getOutput, func)
-  if not a then
-    return nil, "I tried to call " .. x .. " but it failed with: " .. b
+  -- local a, b = pcall(etc.getOutput, func)
+  local a, b = pcall(etc.getOutput, function(x) return guestloadstring("select(1, ...)()")(x) end, func)
+  local handled = Help and Help.handled
+  Help = nil -- Clear it so I can call things normally, like etc.on_src.
+  if not a or (type(b) == "string" and b:find("^Error: ")) then
+    local xtrafail = ""
+    local fowner = owner(func)
+    if fowner then
+      xtrafail = " (" .. nick .. " * please let " .. (getname(fowner) or fowner) .. " know this happened)"
+    end
+    return nil, "I tried to call " .. x .. " but it failed with: " .. b .. xtrafail
   end
   local xs
   if b then
-    if Help and Help.handled then
+    if handled then
       return b
     end
     -- If it says Usage near the beginning then I'm happy...
     if type(b) == "string" and b:find("^.?.?.?.?.?.?.?.?.?.?.?.?[Uu]sage") then
       return b
     end
-    xs = "gave me: " .. tostring(b):match("^[^\r\n]*")
+    if type(b) == "table" or (type(b) == "string" and b:find("^table: 0x")) then
+      xs = "gave me a table, check it out: " .. (etc.on_src(x or "") or ("use " .. etc.cmdchar .. etc.cmdchar))
+    else
+      xs = "gave me: " .. tostring(b):match("^[^\r\n]*")
+    end
   else
-    xs = "didn't return anything"
+    xs = "didn't return anything; check it out: " .. (etc.on_src(x or "") or ("use " .. etc.cmdchar .. etc.cmdchar))
   end
   return "I don't know much about " .. x .. " but when I called it, it", xs
 end
