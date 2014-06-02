@@ -1,4 +1,3 @@
-
 -- *** CONSIDER USING STORAGE! *** plugin.storage
 
 -- Lua data serializer.
@@ -98,7 +97,6 @@ local function entrytable(k, v, level, file)
 	file:write("},\n")
 end
 
-
 function entry(k, v, level, file)
 	local ktype, vtype = type(k), type(v)
 	if vtype == "table" then
@@ -110,6 +108,8 @@ function entry(k, v, level, file)
 				file:write("[", k, "]=", v, ",\n")
 			elseif vtype == "string" then
 				file:write(string.format("[%s]=%q,\n", k, v))
+			elseif vtype == "boolean" then
+				file:write(string.format("[%s]=%s,\n", k, tostring(v)))
 			end
 		elseif ktype == "string" then
 			if k:find("^%a[%a%d_]*$") then
@@ -117,12 +117,16 @@ function entry(k, v, level, file)
 					file:write(k, "=", v, ",\n")
 				elseif vtype == "string" then
 					file:write(string.format("%s=%q,\n", k, v))
+				elseif vtype == "boolean" then
+					file:write(string.format("%s=%s,\n", k, tostring(v)))
 				end
 			else
 				if vtype == "number" then
 					file:write(string.format("[%q]=%s,\n", k, v))
 				elseif vtype == "string" then
 					file:write(string.format("[%q]=%q,\n", k, v))
+				elseif vtype == "boolean" then
+					file:write(string.format("[%q]=%s,\n", k, tostring(v)))
 				end
 			end
 		end
