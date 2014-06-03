@@ -95,8 +95,10 @@ while true do
     end
     --]]
     if b4line >= stop then
-      LOG.trace("The line passed the stop, bailing out")
-      break
+      -- LOG.trace("The line passed the stop, bailing out")
+      -- break -- This breaks out too soon before finding a match!
+      LOG.trace("The line passed the stop, trying again")
+      -- Let it try again at a different random spot.
     end
     if dir < 0 then
       if start == b4line then

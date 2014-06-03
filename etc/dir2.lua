@@ -1,3 +1,5 @@
+API "1.1"
+
 local p = (arg[1] or "")
 
 if p:sub(1, 1) ~= '/' then

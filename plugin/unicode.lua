@@ -99,7 +99,7 @@ M.encode = function(n)
 end
 
 --- Get Ernercerd database info for a codepoint
-M.getUnicodeInfo = function(n)
+M.getUnicodeInfo = etc.getUnicodeInfo or function(n)
   -- http://ftp.unicode.org/Public/3.0-Update/UnicodeData-3.0.0.html
   local a = tonumber(n)
   if a then

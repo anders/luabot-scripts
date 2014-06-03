@@ -33,9 +33,9 @@ post.repl = post.repl or [[
 1=%1; 2=%2
 ]]
 
-if #post.pattern == 0 then post.pattern = nil end
-if #post.data == 0 then post.data = nil end
-if #post.repl == 0 then post.repl = nil end
+if #post.pattern == 0 or post.pattern:match("^%s+$") then post.pattern = nil end
+if #post.data == 0 or post.data:match("^%s+$") then post.data = nil end
+if #post.repl == 0 or post.repl:match("^%s+$") then post.repl = nil end
 
 if post.pattern and post.data then
   matches = {post.data:match(post.pattern)}

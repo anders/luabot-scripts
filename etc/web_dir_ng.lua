@@ -1,11 +1,15 @@
+API "1.1"
+
 if type(arg[1]) ~= "table" or not arg[1].GET then
   error("Argument expected")
 end
 
 local Web = arg[1]
-local fs
+local fs = io.fs
 
 local p = Web.GET["p"]
+local u = "ROOT"
+--[[
 local u = Web.GET["u"]
 
 if u and u ~= "" then
@@ -18,6 +22,7 @@ if p and p ~= ""  then
     fs = getUserFS(u)
   end
 end
+]]
 
 if not p or p == "" then
   p = "/"
@@ -108,7 +113,7 @@ Web.write[[
 
 do
   local up = ""
-  local a, b = ("/user/" .. u .. p):match("^(.*)/[^/]+/?$")
+  local a, b = (p):match("^(.*)/[^/]+/?$")
   if a and a ~= "" and a ~= "/user" then
     up = fixText(a)
   end
@@ -134,7 +139,7 @@ fs.list(p, function(path, attribs)
   end
   local attr = fs.attributes(path) or {}
   local date = attr.modification and os.date('%Y-%m-%d %H:%M:%S', attr.modification) or '-'
-  local ul = urlEncode("/user/" .. u .. path):gsub("%%2F", "/")
+  local ul = urlEncode(path):gsub("%%2F", "/")
   
   if attr.mode == 'directory' then
     Web.write('<tr><td class="n"><a href="?p='..ul..'">'..fixText(name)..'</a>/</td><td class="m">'..date..'</td><td class="s">- &nbsp;</td><td class="t">Directory</td></tr>')

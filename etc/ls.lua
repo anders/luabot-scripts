@@ -27,11 +27,7 @@ else
       files = assert(fs.glob(path))
     end
   else
-    local fs = guestloadstring("return io.fs")()
-    if path:sub(1, 1) ~= '/' then
-      -- If relative, relative to this user's home.
-      path = "/user/" .. nick .. "/home/" .. path
-    end
+    local fs = getUserFS(nick)
     files = assert(fs.glob(path))
   end
 end

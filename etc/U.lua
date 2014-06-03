@@ -1,3 +1,5 @@
+ local LOG = plugin.log(_funcname)
+
 -- Temporary:
 
 local hist = _getHistory(0) or ""
