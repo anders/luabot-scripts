@@ -1,26 +1,37 @@
+API "1.1"
+
 local path = arg[1] or '.'
 
 local files
 if type(path) == "table" then
   files = path
 else
-  local fs
-  local u, p = path:match("^/user/([^/]+)(/?.*)")
-  if u then
-    fs = assert(getUserFS(u))
-    if p == "" then
-      p = "/"
-    end
-    path = p
-    -- print("DEBUG:", "looking for", path)
-    files = assert(fs.glob(path))
-    if files and #files > 0 then
-      for i, v in ipairs(files) do
-        files[i] = "/user/" .. u .. v
+  if _apiver == 1.0 then
+    local fs
+    local u, p = path:match("^/user/([^/]+)(/?.*)")
+    if u then
+      fs = assert(getUserFS(u))
+      if p == "" then
+        p = "/"
       end
+      path = p
+      -- print("DEBUG:", "looking for", path)
+      files = assert(fs.glob(path))
+      if files and #files > 0 then
+        for i, v in ipairs(files) do
+          files[i] = "/user/" .. u .. v
+        end
+      end
+    else
+      fs = assert(getUserFS(nick))
+      files = assert(fs.glob(path))
     end
   else
-    fs = assert(getUserFS(nick))
+    local fs = guestloadstring("return io.fs")()
+    if path:sub(1, 1) ~= '/' then
+      -- If relative, relative to this user's home.
+      path = "/user/" .. nick .. "/home/" .. path
+    end
     files = assert(fs.glob(path))
   end
 end
