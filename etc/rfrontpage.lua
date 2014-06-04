@@ -3,13 +3,16 @@
 require "serializer"
 local obj = serializer.load(io, "rfrontpage.dat")
 
+local isrand
 local function getlist()
   local slist = nil
   for name, v in pairs(obj) do
-    if not slist then
-      slist = name
-    else
-      slist = slist .. "+" .. name
+    if not isrand or math.random(1, 4) == 1 then
+      if not slist then
+        slist = name
+      else
+        slist = slist .. "+" .. name
+      end
     end
   end
   return slist
@@ -17,6 +20,11 @@ end
 
 if arg[1] == "list" then
   return (getlist() or "(frontpage)")
+elseif arg[1] == "link" then
+  return "http://reddit.com/r/" .. (getlist() or "")
+elseif arg[1] == "rand" or arg[1] == "-random" then
+  isrand = true
+  arg[1] = nil
 end
 
 if arg[1] and arg[1] ~= "" then

@@ -28,11 +28,11 @@ if not arg[1] then
   end
   local s = ""
   for i = 1, 5 do
-    s = s .. " 'help '\2" .. t[i] .. "\2"
+    s = s .. " " .. etc.cmdprefix .. t[i]
   end
-  return "What do you want help with? I have so many commands, here's a few: 'help '\2help\2 'help '\2find\2" .. s
+  return "What do you want help with? I have so many commands, here's a few: " .. etc.cmdprefix .. "help " .. etc.cmdprefix .. "find" .. s
 elseif arg[1] == "find" or arg[1] == "'find" then
-  return "Use the find command to find commands by name! 'find cat - Use wildcards like * and ?, or enclose in quotes to be more specific."
+  return "Use the find command to find commands by name! " .. etc.cmdprefix .. "find cat - Use wildcards like * and ?, or enclose in quotes to be more specific."
 else
   local x = arg[1]
   if arg[2] == '-tryagain' then
