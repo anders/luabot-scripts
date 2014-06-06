@@ -1,3 +1,6 @@
+API "1.1"
+-- Usage: 'info <new_infoline> - sets your on-join infoline. Use 'info by itself to see it (quick rejoin won't work). Can also set it as ={code} with custom code.
+
 if not chan then
   return
 end
@@ -8,13 +11,13 @@ if Event or not arg[1] then
   if allowChans[chan:lower()] then
     local infoline = etc.get('#infoline')
     if infoline then
-      --[[
-      -- TODO: Don't remove _G but also don't run in my env...
       local ilcode = infoline:match("^={(.*)}$")
       if ilcode then
-        infoline = assert(loadstring(ilcode))()
+        local realprint = print
+        print = function() end
+        infoline = etc.getReturn(assert(guestloadstring("return " .. ilcode))())
+        print = realprint
       end
-      --]]
       infoline = infoline:match("([^\r\n]+)")
       if infoline:len() > 150 + 3 then
         infoline = infoline:sub(1, 150) .. "..."
