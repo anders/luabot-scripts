@@ -42,20 +42,23 @@ local benisify = function(s)
     function(s) return s:gsub('([qk]+)$', function()
       return ('g'):rep(rand(1, 5))
     end) end,
-    -- commented out :D:D:D:D:D crap, too much of it ;p
-    -- function(s)
-    --   local endswith = s:find('[?!.]$')
-    --   local repf = function(x)
-    --     local ret = x:rep(rand(2, 5)) .. ' '
-    --       for i = 1, rand(2, 5) do
-    --         ret = ret .. (':'):rep(rand(1, 2)) .. ('D'):rep(rand(1, 4))
-    --       end
-    --       return ret
-    --     end
-    --     s = s:gsub('[?!.]+', repf)
-    --     if not endswith then return s:gsub('$', repf) end
-    --   return s
-    -- end
+    --[[ commented out :D:D:D:D:D crap, too much of it ;p
+    function(s)
+      local endswith = s:find('[?!.]$')
+      local repf = function(x)
+        local ret = x:rep(rand(2, 5)) .. ' '
+          for i = 1, rand(2, 5) do
+            ret = ret .. (':'):rep(rand(1, 2)) .. ('D'):rep(rand(1, 4))
+          end
+          return ret
+        end
+        s = s:gsub('[?!.]+', repf)
+        if not endswith then return s:gsub('$', repf) end
+      return s
+    end]]
+    function(s)
+      return s.." "..(':'):rep(rand(1, 2)) .. ('D'):rep(rand(1, 4))
+    end
 }, s)
 end
 
