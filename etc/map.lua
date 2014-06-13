@@ -1,3 +1,5 @@
+-- 2014-06-13: nicklist() broken in Web
+
 --[[
 
 local s = ...
@@ -13,7 +15,7 @@ local geocode = plugin.geocode()
 local json = plugin.json()
 
 if Web then
-  local chan = Web.GET.chan or '#clowngames'
+  -- local chan = Web.GET.chan or '#clowngames'
 
   Web.write('<!DOCTYPE html>\n')
   Web.write('<html>\n')
@@ -34,7 +36,8 @@ if Web then
   Web.write('<script type="text/javascript">\n')
   
   local markerdata = {}
-  for k, v in ipairs(nicklist(chan)) do
+  for k, v in ipairs(os.list("uvars")) do
+    v = v:match("uvars/([^.]+).json")
     local pos = etc.get('location.coords', v)
     if pos then
       local lat, lon = pos:match('([^,]+),([^,]+)')
