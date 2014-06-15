@@ -5,7 +5,9 @@ local UNICODE_DATA_PATH = '/shared/unicode_data.txt'
 local M = {}
 
 --- Lua 5.3 utf8.charpatt
-M.charpatt = '\91%z\45\127\194\45\244\93\91\128\45\191\93\42'
+-- Lua 5.2 no likey the nilly %z
+M.charpatt = "[\1-\127\194-\244][\128-\191]*"
+-- M.charpatt = "[%z-\127\194-\244][\128-\191]*"
 
 --- Searches for a Unicode codepoint by name, returns code and some other info you probably shouldn't rely on (use getUnicodeInfo instead)
 --- @param plain Plaintext search instead of Lua pattern
@@ -126,6 +128,25 @@ M.getUnicodeInfo = etc.getUnicodeInfo or function(n)
     end
   end
   return false, "Character not found"
+end
+
+--- Truncates a UTF-8 string to a length (in bytes). Assumes valid UTF-8.
+M.truncate = function(str, to_len)
+  local len = 0
+  for cp, pos in str:gmatch("("..M.charpatt..")()") do
+    if pos - 1 <= to_len then
+      len = pos - 1
+    else
+      break
+    end
+  end
+  return str:sub(1, len)
+end
+
+if Editor then
+  assert(M.truncate("Test", 2) == "Te", "assert 1")
+  assert(M.truncate("\231\179\158", 2) == "", "assert 2")
+  assert(M.truncate("\231\179\158:", 3) == "\231\179\158", "assert 3")
 end
 
 return M
