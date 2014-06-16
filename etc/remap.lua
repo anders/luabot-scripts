@@ -10,9 +10,9 @@ local tr = {}
 for ch in etc.codepoints(s) do
   local found = false
   for ti = 1, math.min(#t1, #t2) do
-    if ch == t1[i] then
+    if ch == t1[ti] then
       found = true
-      tr[#tr + 1] = t2[i]
+      tr[#tr + 1] = t2[ti]
       break
     end
   end
