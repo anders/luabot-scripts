@@ -5,7 +5,7 @@ local UNICODE_DATA_PATH = '/shared/unicode_data.txt'
 local M = {}
 
 --- Lua 5.3 utf8.charpatt
--- Lua 5.2 no likey the nilly %z
+-- Lua 5.1 no likey the nilly %z
 M.charpatt = "[\1-\127\194-\244][\128-\191]*"
 -- M.charpatt = "[%z-\127\194-\244][\128-\191]*"
 
@@ -43,7 +43,8 @@ M.decode = function(stream, i)
   i = i or 1
 
   local msB = stream:byte(i)
-  local b2, b1, b0 
+  local b2, b1, b0
+  local n
 
   if msB < 0x80 then
     return msB, i + 1
@@ -54,7 +55,11 @@ M.decode = function(stream, i)
     if not (b0 > 0x7f and b0 < 0xbf) then
       return false, 'expected 1 continuation byte'
     end
-    return (msB - 0xc0) * 0x40 + b0 % 0x40, i + 2
+    local res = (msB - 0xc0) * 0x40 + b0 % 0x40
+    if res < 0x80 or res > 0x7ff then
+      return false, "overlong encoding"
+    end
+    return res, i + 2
   elseif msB < 0xf0 then
     b1, b0 = stream:byte(i + 1, i + 2)
     if not (b0 > 0x7f and b0 < 0xbf) and (b1 > 0x7f and b1 < 0xbf) then
@@ -64,6 +69,9 @@ M.decode = function(stream, i)
     if 0xd800 <= res and res <= 0xdfff then 
       return false, 'UTF-16 surrogate lead are not valid codepoints'
     end
+    if res < 0x800 or res > 0xffff then
+      return false, "overlong encoding"
+    end
     return res, i + 3
   elseif msB < 0xf8 then
     b2, b1, b0 = stream:byte(i + 1, i + 3)
@@ -71,16 +79,17 @@ M.decode = function(stream, i)
       return false, 'expected 3 continuation bytes'
     end
     local res = (msB - 0xf0) * 0x40000 + b2 % 0x40 * 0x1000 + b1 % 0x40 * 0x40 + b0 % 0x40
-    if res < 0x110000 then
-      return res, i + 4
+    if res < 0x10000 or res > 0x1fffff then
+      return false, "overlong encoding"
     end
+    return res, i + 4
   end
   return false, 'invalid UTF-8 character'
 end
 
 M.encode = function(n)
-  if not ((0xd800 > n or n > 0xdfff) and n < 0x110000) then
-    return false, 'bad codepoint '..n
+  if (n >= 0xd800 and n <= 0xdfff) or n > 0x1fffff then
+    return false, 'Bad code point '..n
   end
   
   if n < 0x80 then
