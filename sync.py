@@ -17,7 +17,11 @@ REMOTE_NAME = 'origin'
 
 
 def main():
-    root = os.path.dirname(os.path.realpath(__file__))
+    script_path = os.path.realpath(__file__)
+    if os.path.exists(script_path.upper()):
+        raise Exception("Case insensitive filesystems are not supported.")
+
+    root = os.path.dirname(script_path)
 
     req = urllib.urlopen(SCRIPTS_URL)
     resp = req.read()
