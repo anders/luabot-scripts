@@ -13,7 +13,11 @@ if Web.GET['mod'] and Web.GET['fun'] then
   local f = assert(io.open('/pub/scripts/'..mod:match('[^/%.]+')..'/'..fun:match('[^/%.]+')..'.lua'))
   local data = f:read('*a')
   f:close()
+  data = data:gsub('\r\n', '\n')
   Web.write(data)
+  
+  -- add trailing \n if missing
+  if data:sub(-1) ~= "\n" then Web.write("\n") end
   return
 end
 
