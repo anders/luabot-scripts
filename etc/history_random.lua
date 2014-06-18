@@ -11,4 +11,8 @@ local nhistory = (function()
   return i
 end)()
 
-return _getHistory(math.random(nhistory))
+local msg, nick, time = _getHistory(math.random(nhistory))
+if not msg then
+  return nil, nick
+end
+return etc.duration(os.time() - time, 1) .. " ago <" .. nick .. "> " .. msg
