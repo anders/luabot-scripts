@@ -28,7 +28,7 @@ if account == 2 then
   amount = 2
   timelimit = 0
 elseif account == 4 then
-  timelimit = 10
+  amount = 0.5
 end
 
 local t = io.fs.attributes('add.db')

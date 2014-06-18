@@ -8,8 +8,9 @@ local geocode = require "geocode"
 
 -- original world list lacks some locations
 local additional_places = {
-  {48.40,  9.98, "http://www.yr.no/place/Germany/Baden-Württemberg/Ulm/forecast.xml"},
-  {59.86,  5.74, "http://www.yr.no/place/Norway/Hordaland/Kvinnherad/Husnes/forecast.xml"}
+  {48.40,   9.98, "http://www.yr.no/place/Germany/Baden-Württemberg/Ulm/forecast.xml"},
+  {59.86,   5.74, "http://www.yr.no/place/Norway/Hordaland/Kvinnherad/Husnes/forecast.xml"},
+  {36.35, 138.60, "http://www.yr.no/place/Japan/Other/Karuizawa-machi/forecast.xml"},
 }
 
 local query = arg[1]
@@ -92,5 +93,29 @@ table.sort(urls, function(a, b)
 end)
 
 local lat, lng, url, dist = unpack(urls[1])
-print(("lat: %f lon: %f url: %s dist: %f km"):format(unpack(urls[1])))
 
+if account ~= 2 then
+  print(("lat: %f lon: %f url: %s dist: %f km"):format(unpack(urls[1])))
+  return
+end
+
+local xml = require "xml"
+
+local persed = xml.parse(assert(httpGet(url)))
+
+local loc = persed.weatherdata.location
+local cur = persed.weatherdata.observations.weatherstation[1]
+
+-- -- 17:46:54 <@luabot> Ulm, BW, Germany: 21°C (feels like 25°C), wind: 6 m/s (60°), humidity: 38%, precipitation: 0 mm, cloud coverage: 25% (Partly Cloudy)
+local buf = {}
+buf[#buf + 1] = "\2"..loc.name["#text"]..", "..loc.country["#text"]..":\2 "
+buf[#buf + 1] = cur.temperature.value.."°C, "
+if cur.windSpeed and cur.windDirection then
+  buf[#buf + 1] = ("\2wind:\2 %d m/s (%d°), "):format(cur.windSpeed.mps, cur.windDirection.deg)
+end
+buf[#buf + 1] = "\2station:\2 "..cur.name
+
+print(table.concat(buf))
+
+-- 17:46:54 <@luabot> Ulm, BW, Germany: 21°C (feels like 25°C), wind: 6 m/s (60°), humidity: 38%, precipitation: 0 mm, cloud coverage: 25% (Partly Cloudy)
+-- http://www.yr.no/place/Germany/Baden-Württemberg/Ulm/forecast.xml

@@ -6,7 +6,7 @@ local M = {}
 
 --- Lua 5.3 utf8.charpatt
 -- Lua 5.1 no likey the nilly %z
-M.charpatt = "[\1-\127\194-\244][\128-\191]*"
+M.charpatt = "[%z\1-\127\194-\244][\128-\191]*"
 -- M.charpatt = "[%z-\127\194-\244][\128-\191]*"
 
 --- Searches for a Unicode codepoint by name, returns code and some other info you probably shouldn't rely on (use getUnicodeInfo instead)
