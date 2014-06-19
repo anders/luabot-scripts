@@ -10,10 +10,11 @@ return etc.lawk(arg[1], function(code, chunkname)
       return "etc.stringprint(unpack(arg))"
     else
       -- Comma operator to disallow assignment...
-      return "(0,arg[" .. sn .. "-1])"
+      -- return "(0,arg[" .. sn .. "-1])" -- Not supported yet...
+      return "_arg(arg," .. sn .. "-1)"
     end
   end)
-  code = "arg=arguments[0]; \t " .. code
+  code = "arg=arguments[0]; var _arg = function(a,b){return a[b]} \t " .. code
   LOG.trace("Compiling", chunkname or "code", code)
   return etc.jxcompile(code, chunkname)
 end);
