@@ -5,6 +5,7 @@ API "1.1"
 
 local LOG = plugin.log(_funcname);
 
+local compilefunc = arg[2]
 arg, io.stdin = etc.stdio(arg)
 local args = { etc.getArgs(arg) } -- args[1] are flags
 
@@ -113,14 +114,20 @@ local function getCode(firsttok)
     return assert(nil, "Code expected, found " .. (firsttok or "EOF"))
   end
   local code = { }
-  -- Since lua doesn't use { } for code, don't deal with nesting them.
+  -- Let's handle nested braces so that other languages can be used.
+  local nbraces = 1
   while true do
     local tok = nextToken()
     if not tok then
       return assert(nil, "Unterminated code, expected }")
     end
-    if tok == "}" then
-      break
+    if tok == "{" then
+      nbraces = nbraces + 1
+    elseif tok == "}" then
+      nbraces = nbraces - 1
+      if nbraces < 1 then
+        break
+      end
     end
     code[#code + 1] = tok
     if not tok:find("^%p") then
@@ -136,6 +143,9 @@ end
 local function compile(code, chunkname)
   if not code then
     code = "print($0)"
+  end
+  if compilefunc then
+    return assert(compilefunc(code, chunkname))
   end
   code = code:gsub("%$(%d+)", function(sn)
     if sn == "0" then
@@ -158,14 +168,14 @@ local function nextPart(firsttok)
   if firsttok == "{" and not filesremain then
     local code = assert(getCode(firsttok))
     LOG.debug("Code:", code)
-    searches[#searches + 1] = { "", compile(code, "lawk code") }
+    searches[#searches + 1] = { "", compile(code, "awk code") }
   elseif firsttok == "BEGIN" and not filesremain then
     assert(not begincode, "BEGIN already found")
-    begincode = compile(assert(getCode()), "lawk BEGIN")
+    begincode = compile(assert(getCode()), "awk BEGIN")
     LOG.debug("BEGIN Code:", begincode)
   elseif firsttok == "END" and not filesremain then
     assert(not endcode, "END already found")
-    endcode = compile(assert(getCode()), "lawk END")
+    endcode = compile(assert(getCode()), "awk END")
     LOG.debug("END Code:", endcode)
   elseif firsttok:sub(1, 1) == '/' then
     -- Pattern.
@@ -176,7 +186,7 @@ local function nextPart(firsttok)
     local pat = firsttok:sub(2, -2)
     LOG.debug("Search:", firsttok)
     LOG.debug("Code:", code)
-    searches[#searches + 1] = { pat, compile(code, "lawk pattern") }
+    searches[#searches + 1] = { pat, compile(code, "awk pattern") }
   else
     -- File?
     filesremain = true
