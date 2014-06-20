@@ -1,5 +1,5 @@
 API "1.1"
--- Usage: etc.listfile(list) - list is either an array or a function called back for each index starting at 1 until it returns nil/false. Returns a file object which can read through the list.
+-- Usage: etc.listfile(list) - Turn any list into a file! list is either an array or a function called back for each index starting at 1 until it returns nil/false. Returns a file object which can read through the list.
 
 local getItem = arg[1]
 if type(getItem) == "table" then
@@ -19,6 +19,9 @@ return {
     if not fmt or fmt == "*l" or fmt == "*L" then
       self._i = self._i + 1
       local line = getItem(self._i)
+      if not line then
+        return false
+      end
       if fmt == "*L" then
         return line .. "\n"
       else

@@ -1,7 +1,8 @@
 API "1.1"
 -- Usage: etc.historyfileopen(fmt) - fmt is optional, defaults to "%t <%n> %m"; returns a file object to read from the history.
 
-local f, err = etc.listfile(function(i)
+local self, err
+self, err = etc.listfile(function(i)
   local msg, nick, time = _getHistory(i)
   if not msg then
     return nil
@@ -25,10 +26,10 @@ local f, err = etc.listfile(function(i)
   end) .. ex
 end)
 
-if not f then
-  return f, err
+if not self then
+  return self, err
 end
 
-f._msgfmt = arg[1] or "%t <%n> %m"
+self._msgfmt = arg[1] or "%t <%n> %m"
 
-return f
+return self
