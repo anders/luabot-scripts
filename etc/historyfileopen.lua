@@ -8,9 +8,6 @@ self, err = etc.listfile(function(i)
     return nil
   end
   local ex = ""
-  if fmt == "*L" then
-    ex = "\n"
-  end
   return self._msgfmt:gsub("%%(.)", function(x)
     if x == "t" then
       return etc.duration(os.time() - time, 1) .. " ago"

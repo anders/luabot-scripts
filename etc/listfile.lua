@@ -1,6 +1,10 @@
 API "1.1"
 -- Usage: etc.listfile(list) - Turn any list into a file! list is either an array or a function called back for each index starting at 1 until it returns nil/false. Returns a file object which can read through the list.
 
+if type(arg[1]) == "string" then
+  return _createStringFile(arg[1])
+end
+
 local getItem = arg[1]
 if type(getItem) == "table" then
   local array = arg[1]
