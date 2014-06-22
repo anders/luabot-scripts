@@ -20,10 +20,11 @@ local t = os.date('!*t', bdayts)
 
 local diff = os.difftime(now, bdayts)
 local years = diff / 3600 / 24 / 365.242
+local gs = diff / 1000000000
 
 local months = {
   'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
   'September', 'October', 'November', 'December'
 }
 
-print(('%s was born on %s %d, %d (%d years ago)'):format(input, months[t.month], t.day, t.year, years))
+print(('%s was born on %s %d, %d (%d years, %0.2f Gs ago)'):format(input, months[t.month], t.day, t.year, years, gs))

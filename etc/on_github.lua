@@ -15,4 +15,29 @@ if Web then
   return
 end
 
-return "hello, world"
+local event = "push" or arg[1]
+
+local f = assert(io.open("github.json", "r"))
+local data = assert(f:read("*a"))
+data = assert(json.decode(data))
+
+-- etc.output(data)
+
+-- Notice(GitHub): [luabot-scripts] anders pushed 1 new commit to master: http://git.io/WMzlow
+-- Notice(GitHub): luabot-scripts/master eb66efa L. Bot: Sync....
+
+
+print(("[%s] %s pushed %d new commit(s) to %s: %s"):format(
+  data.repository.name,
+  data.pusher.name,
+  #data.commits,
+  data.ref,
+  data.head_commit.url))
+for k, v in ipairs(data.commits) do
+  print(("%s/%s %s %s: %s"):format(
+    data.repository.name, data.ref,
+    v.id:sub(1, 7),
+    v.author.name,
+    v.message:gsub("\n", " | ")
+  ))
+end
