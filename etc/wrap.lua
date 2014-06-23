@@ -31,7 +31,7 @@ end
 
 -- local notutf8 = flags.p or flags["not-utf8"]
 local maxlines = tonumber(flags.maxLines) or tonumber(flags["max-lines"]) or Output.maxLines or 4
-local linelength = tonumber(flags.linelength) or tonumber(flags["line-length"]) or tonumber(flags.linelen) or 400
+local linelength = tonumber(flags.linelength) or tonumber(flags["line-length"]) or tonumber(flags.linelen) or Output.maxLineLength or 400
 local merge = flags.m or flags.merge or flags["merge-if-wrap"]
 local mergelinesep = flags["merge-line-separator"] or flags.mergelineseparator or flags.mergelinesep or '\t'
 local basic = flags.basic or flags.b -- Basic wrap? otherwise break on words.

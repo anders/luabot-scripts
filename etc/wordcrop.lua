@@ -5,7 +5,7 @@ if not arg[1] then
 end
 
 local s = arg[1]
-local max = arg[2] or 400
+local max = arg[2] or Output.maxLineLength or 400
 
 local origlen = s:len()
 if origlen > max then
