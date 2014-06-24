@@ -26,7 +26,7 @@ M.location = "global"
 M.name = "Untitled Game"
 ---
 M.bufferOutput = true
---- Game is forgotten if idle this long.
+--- Game is forgotten if idle this long. Max is 1 day.
 M.gameTimeout = 60 * 5
 
 M.wantReenter = true
@@ -94,7 +94,8 @@ local function _Minit(G, cmdname, gamename, basedir)
   
   io.fs.mkdir(basedir)
   
-  Private.game_fn = basedir .. "/" .. safename(cmdname) .. "." .. safename(dest)
+  Private.game_fn = basedir .. "/" .. safename(cmdname)
+    .. "." .. safename(network) .. "-" .. safename(dest)
   
   if M.bufferOutput then
     Private.game_output = {}
@@ -146,6 +147,8 @@ end
 
 --- Called automatically as players use game commands.
 function M.save(keep)
+  local basedir = Private.game_fn:match("[^/]+$")
+  
   local io = Private.game_G.io
   assert(Private.game_fn and Private.game_data, "Game not loaded")
   if keep == false then
@@ -167,6 +170,11 @@ function M.save(keep)
     io.fs.rename(Private.game_fn .. ".saving", Private.game_fn)
     io.fs.remove(Private.game_fn .. ".prev")
   end
+  
+  -- Expire/delete 1 day old game data, no matter the game.
+  -- Make sure this doesn't decrease so that it doesn't stop games in progress.
+  etc.expireFiles(Private.game_G.io, basedir, 60 * 60 * 24)
+  
   return true
 end
 
