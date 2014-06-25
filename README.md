@@ -6,7 +6,5 @@ script was run.
 ## Dependencies
   * Python 2.7
   * git
-
-## Bugs
-  * It does not deal with case-insensitive file systems. Script names may
-    conflict and wreak havoc on the history.
+  * Case-sensitive file system. The script will refuse to run if a
+    case-insensitive FS is detected.
