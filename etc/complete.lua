@@ -17,7 +17,7 @@ for k, v in ipairs(d[2]) do
   out[#out + 1] = html2text(completion).."?"
 end
 
-return #out > 0 and table.concat(out, " ") or "No completions :-("
+return #out > 0 and table.concat(out, " ") or (query.." "..etc.getOutput(etc.k).."?")
 
 --[[
 

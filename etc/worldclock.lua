@@ -4,17 +4,18 @@ local time = require "time"
 local now = os.time()
 
 local places = {
-  ["Los Angeles"] = "America/Los_Angeles",
-  ["New York"] = "America/New_York",
-  ["Stockholm"] = "Europe/Stockholm",
-  ["Tokyo"] = "Asia/Tokyo",
-  ["Sydney"] = "Australia/Sydney",
-  ["London"] = "Europe/London",
+  {"Los Angeles", "America/Los_Angeles"},
+  {"New York", "America/New_York"},
+  {"London", "Europe/London"},
+  {"Stockholm", "Europe/Stockholm"},
+  {"Tokyo", "Asia/Tokyo"},
+  {"Sydney", "Australia/Sydney"},
 }
 
 local buf = {}
 
-for place, zone in pairs(places) do
+for _, placezone in pairs(places) do
+  local place, zone = placezone[1], placezone[2]
   local tz = time.zoneinfo(zone, now)
   local localtime = os.date("!%H:%M", now + tz.offset)
   buf[#buf + 1] = ("\2%s:\2 %s"):format(place, localtime)
