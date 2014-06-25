@@ -77,6 +77,34 @@ local function _templateGame()
 end
 
 
+local function userCallback(name, ...)
+  local G = Private.game_G
+  local GPriv = G.Private
+  if type(GPriv.game) == "table" then
+    local GPrivGame = GPriv.game
+    if GPrivGame[name] then
+      return true, GPrivGame[name](...)
+    end
+  end
+  if GPriv[name] then
+    return true, GPriv[name](...)
+  end
+  if G[name] then
+    LOG.trace("Callback not in Private scope:", name)
+    return true, G[name](...)
+  end
+  return false
+end
+
+local function userCallback2(name1, name2, ...)
+  local tresult = { userCallback(name1, ...) }
+  if not tresult[1] then
+    tresult = { userCallback(name2, ...) }
+  end
+  return unpack(tresult)
+end
+
+
 local function _Minit(G, cmdname, gamename, basedir)
   if type(cmdname) == "string" then
     cmdname = cmdname:match("[^'%.]+$")
@@ -136,10 +164,7 @@ end
 function M.init(G, cmdname, gamename, basedir)
   local ok, str = _Minit(G, cmdname, gamename, basedir)
   if ok then
-    local f = G.Private.game_load or G.game_load
-    if f then
-      f(Private.game_control, str)
-    end
+    userCallback("game_load", Private.game_control, str)
   end
   return ok, str
 end
@@ -225,7 +250,7 @@ function M.flushOutput(maybe_more)
 end
 
 
-local function addPlayer(who)
+local function addPlayer(who, check)
   who = who or nick
   if #Private.game_data.players >= M.maxPlayers then
     return false, 'Too many players'
@@ -235,12 +260,25 @@ local function addPlayer(who)
   if p then
     return false, 'Already in the game'
   end
-  if not p then
+  assert(not p)
+  if check then
+    local a, b = userCallback("game_player_joining", Private.game_control, who)
+    if a and (b == false or type(b) == "string") then
+      return false, b or 'Not allowed'
+    end
+  end
+  do
     local index = #Private.game_data.players + 1
     p = { nick = who, index = index }
     Private.game_data.players[index] = p
   end
+  userCallback("game_player_added", Private.game_control, p)
   return true
+end
+
+
+local function addPlayerCheck(who)
+  return addPlayer(who, true)
 end
 
 
@@ -259,12 +297,7 @@ end
 
 local function playerTurn()
   local p = getPlayerData(Private.game_data.curplayer)
-  do
-    local f = Private.game_G.Private.game_wait_turn or Private.game_G.game_wait_turn
-    if f then
-      f(Private.game_control, p)
-    end
-  end
+  userCallback("game_wait_turn", Private.game_control, p)
   --[[if p.isBot then
     -- Used to do game_bot_turn, but moved to expect.
   end--]]
@@ -377,15 +410,11 @@ function M.expect(...)
     -- return
     -- Moved from nextTurn:
     LOG.debug("bot's turn:", p.nick or '???')
-    local bpf = Private.game_G.Private.game_bot_turn or Private.game_G.game_bot_turn
-    if bpf then
-      LOG.debug("game_bot_turn")
-      bpf(Private.game_control, p, function(...)
+    userCallback("game_bot_turn", Private.game_control, p, function(...)
           nick = p.nick -- Important, switch to the bot's nick now!
           M.print("<" .. p.nick .. ">", ...)
           M.handleCmd(...)
         end, Private.game_data.expecting)
-    end
     return
   end
   return M.reenter(...)
@@ -468,6 +497,9 @@ Private.game_control = {
 
 
 --- Must call this with ... and don't expect the function ever to return.
+--- Callback game_player_joining(game_control, nick) is called when a player is trying to enter the game (NOT called for bots) and allows returning a reason string to disallow.
+--- Callback game_player_added(game_control, player) is called for all players added to the game, including bots.
+--- Callback game_start(game_control) is called when the game is started.
 function M.handleCmd(...)
   assert(Private.game_fn and Private.game_data, "Game not loaded")
   local wasexpecting = Private.game_data.expecting
@@ -482,7 +514,7 @@ function M.handleCmd(...)
   LOG.debug("handleCmd nick=" .. nick .. " action=" .. act .. " all:", ...)
   if act == "join" then
     if not Private.game_data.curplayer then
-      local a, b = addPlayer()
+      local a, b = addPlayerCheck()
       if not a then
         M.print("Sorry, " .. nick .. ": " .. tostring(b))
       else
@@ -507,24 +539,14 @@ function M.handleCmd(...)
     end
   elseif act == "start" then
     if not Private.game_data.curplayer then
-      local botsf = G.Private.game_bots or G.game_bots
-      if botsf then
-        -- game_control, playerCount, addBot(botname)
-        botsf(Private.game_control, M.getPlayerCount(), function(botname)
+      userCallback("game_bots", Private.game_control, M.getPlayerCount(), function(botname)
             if addPlayer(botname) then
               local p = getPlayerData(botname)
               p.isBot = true
             end
           end)
-      end
       if M.getPlayerCount() >= M.minPlayers then
-        local startmsg
-        do
-          local f = G.Private.game_start or G.game_start
-          if f then
-            startmsg = f(Private.game_control)
-          end
-        end
+        local a, startmsg = userCallback("game_start", Private.game_control)
         if startmsg ~= false then
           M.print(startmsg or ("The game of " .. M.name .. " has just started!"))
         end
@@ -551,27 +573,24 @@ function M.handleCmd(...)
       return
     end
     if wasexpecting then
-      local f = G.Private.game_timeout or G.game_timeout
-      if f then
-        f(game_control, wasexpecting)
-      else--[[if Private.game_data.curplayer then
+      local a = userCallback("game_timeout", Private.game_control, wasexpecting)
+      if not a then
+        --[[if Private.game_data.curplayer then
         M.print(Private.game_data.players[Private.game_data.curplayer].nick .. " * "
           .. "Your turn is timing out, please acknowledge your turn by using the full command: "
           .. etc.cmdchar .. Private.game_cmdname .. " " .. tostring(wasexpecting or '') .. " ... or your preferred action")
-      --]]end
+        --]]
+      end
     end
   elseif act == "" then
     M.print("This is the game " .. M.name .. " - To start playing, type " .. etc.cmdchar .. Private.game_cmdname .. " join")
   else
     local f = G.Private["game_" .. act] or G["game_" .. act]
     local ok = false
-    if f then
-      local p = getPlayerData(Private.game_data.curplayer)
-      if p then
-        if nick:lower() == p.nick:lower() then
-          ok = true
-          f(Private.game_control, getPlayerData(Private.game_data.curplayer), params)
-        end
+    local p = getPlayerData(Private.game_data.curplayer)
+    if p then
+      if nick:lower() == p.nick:lower() then
+        ok = userCallback2("cmd_game_" .. act, "game_" .. act, Private.game_control, getPlayerData(Private.game_data.curplayer), params)
       end
     end
     if not ok and not reenter then
