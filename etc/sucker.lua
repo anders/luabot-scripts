@@ -10,8 +10,14 @@ require 'game'
 require 'game.cards'
 
 
+function game_player_added(game_control, player)
+  -- player.bluffability = math.random()
+  -- player.bluffdetect = math.random()
+  player.points = 100
+end
+
+
 function game_start(game_control)
-  game_control.dealCards(7)
 end
 
 
