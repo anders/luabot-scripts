@@ -32,7 +32,7 @@ end
 
 local outt = {}
 
-for _, mod in ipairs{'etc', 'plugin', 'tests'} do
+for _, mod in ipairs{'etc', 'plugin', 'util', 'tests'} do
   if not Web.GET.json then
     Web.write('<h2>'..mod..'</h2>')
     Web.write('<table border="1" width="100%">')
