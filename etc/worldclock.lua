@@ -8,6 +8,7 @@ local places = {
   {"New York", "America/New_York"},
   {"London", "Europe/London"},
   {"Stockholm", "Europe/Stockholm"},
+  {"Helsinki", "Europe/Helsinki"},
   {"Tokyo", "Asia/Tokyo"},
   {"Sydney", "Australia/Sydney"},
 }
