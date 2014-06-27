@@ -1,7 +1,7 @@
 -- arg[1] = true if wanting standard error to be the 2nd return value.
 -- arg[2] = function
 -- arg[3+] = arguments for function
-assert(type(arg[1]) == "boolean", "Broken API")
+assert(type(arg[1]) ~= "function", "Broken API")
 assert(type(arg[2]) == "function", "Function expected")
 
 Output = Output or {}
@@ -64,7 +64,7 @@ print = _go_print1
 -- etc.popPrint(_go_print)
 local result = ssss
 local result2
-if arg[1] then
+if arg[1] == true then
   -- Want stderr arg.
   if not gosssst[1] and gosssst[2] then
     result2 = tostring(gosssst[2])
@@ -75,8 +75,10 @@ if not result and not result2 then
     _go_print("Error:", unpack(gosssst, 2))
     result = ssss
   else
-    _go_print(unpack(gosssst))
-    result = ssss
+    if arg[1] ~= 1.2 then
+      _go_print(unpack(gosssst))
+      result = ssss
+    end
   end
 end
 Output.piped = _opiped1
@@ -86,6 +88,13 @@ Output.maxLines = _omaxLines
 Output.printType = _oprintType
 if result2 ~= nil then
   return result, result2
+end
+if arg[1] == 1.2 and #gosssst > 0 then
+  if result ~= nil then
+    return unpack(gosssst), result
+  else
+    return unpack(gosssst)
+  end
 end
 if result ~= nil then
   return result
