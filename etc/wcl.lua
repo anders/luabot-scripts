@@ -1,3 +1,5 @@
+-- Usage: reduced-functionality 'wc -l (this function is deprecated)
+
 local s = arg[1]
 assert(type(s) == "string", "Expected string")
 local n = 0
