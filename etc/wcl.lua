@@ -1,4 +1,4 @@
--- Usage: reduced-functionality 'wc -l (this function is deprecated)
+-- Usage: (deprecated) reduced-functionality 'wc -l
 
 local s = arg[1]
 assert(type(s) == "string", "Expected string")
