@@ -1,7 +1,7 @@
--- U+200B, ZERO WIDTH SPACE:
+-- U+200B, ZERO WIDTH SPACE: "\226\128\139"
 local s = arg[1] or ''
 local nl = arg[2] -- nicklist
-local zwsp = arg[3] or "\226\128\139"
+local zwsp = arg[3] or "\226\128\142" -- LTR
 
 if type(nl) == "string" then
   nl = nicklist(nl)
