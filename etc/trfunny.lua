@@ -39,8 +39,17 @@ else
   
     -- LocalCache.tr = arg[1]:sub(1, 200)
     
+    local wantraw = false
     return etc.translateWords(arg[1] or "", function(w)
-      return lookup[w:lower()]
+      if w == '-raw' then
+        wantraw = true
+        return "raw:"
+      end
+      local nw = lookup[w:lower()]
+      if nw and not wantraw then
+        nw = dbotscript(nw, w)
+      end
+      return nw
     end)
     
   end
