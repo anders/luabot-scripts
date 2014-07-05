@@ -11,5 +11,5 @@ return {
   etc.y, -- WHY!
   etc.funword,
   etc.swag,
-  function(x) return etc.stutter(x, true) end,
+  etc.stutter_much,
 }

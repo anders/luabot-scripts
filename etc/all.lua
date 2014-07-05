@@ -38,17 +38,33 @@ elseif type(foo) == "string" then
     func = etc[foo]
     assert(func, "Function not found: '" .. foo)
   end
+elseif type(foo) == "table" then
+  func = foo
+else
+  return error("Unexpected: " .. type(foo))
 end
 local result = ""
-for i, n in ipairs(all) do
+local maxi = #all
+if type(func) == "table" then
+  maxi = math.max(maxi, #func)
+end
+for i = 1, maxi do
   if type(n) ~= "string" then
     n = tostring(n)
   end
   local r, s, serr
-  if extra then
-    r, s = pcall(etc.getOutput, true, func, extra, n)
+  local callfunc = func
+  local n
+  if type(func) == "table" then
+    callfunc = func[(i - 1) % #func + 1]
+    n = all[(i - 1) % #all + 1]
   else
-    r, s = pcall(etc.getOutput, true, func, n)
+    n = all[i]
+  end
+  if extra then
+    r, s = pcall(etc.getOutput, true, callfunc, extra, n)
+  else
+    r, s = pcall(etc.getOutput, true, callfunc, n)
   end
   if s then
     s = tostring(s):gsub("[\r\n]", "")
