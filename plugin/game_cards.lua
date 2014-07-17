@@ -5,18 +5,6 @@ local game = require 'game';
 game.cards = M
 
 
---- Deal cards to all players. want_jokers = false by default.
-function Private.game_control.dealCards(how_many_each_player, how_many_decks, want_jokers)
-  assert(not Private.game_data.deck, "Cannot deal cards a second time")
-  local deck = etc.getCardsIndexed(tonumber(how_many_decks) or 1, want_jokers)
-  for i = 1, #Private.game_data.players do
-    Private.game_data.players[i].hand = etc.getCardsToIndex(deck:draw(how_many_each_player))
-  end
-  Private.game_data.deck = etc.getCardsToIndex(deck)
-  Private.game_data.discard = ""
-end
-
-
 local function getCardsHelper(root, name)
   local h = etc.getCardsFromIndex(root[name])
   local hobj = h
@@ -99,6 +87,28 @@ local function getCardsHelper(root, name)
     return c
   end
   return hobj
+end
+
+
+--- General create deck function but doesn't give cards to the players.
+--- Defaults: how_many_decks = 1, want_jokers = false.
+function Private.game_control.createDeck(how_many_decks, want_jokers)
+  assert(not Private.game_data.deck, "Cannot create deck a second time")
+  local deck = etc.getCardsIndexed(tonumber(how_many_decks) or 1, want_jokers)
+  Private.game_data.deck = etc.getCardsToIndex(deck)
+  Private.game_data.discard = ""
+  return deck
+end
+
+
+--- Create deck and deal initial cards to all players.
+function Private.game_control.dealCards(how_many_each_player, how_many_decks, want_jokers)
+  local deck = Private.game_control.createDeck(how_many_decks, want_jokers)
+  for i = 1, #Private.game_data.players do
+    Private.game_data.players[i].hand = etc.getCardsToIndex(deck:draw(how_many_each_player))
+  end
+  Private.game_data.deck = etc.getCardsToIndex(deck)
+  Private.game_data.discard = ""
 end
 
 
