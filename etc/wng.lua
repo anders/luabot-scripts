@@ -126,9 +126,9 @@ cache.auto(cacheKey, CACHE_DURATION, function()
     
     local tmp = {}
     tmp[#tmp + 1] = ('\002%s:\002 %d°C'):format(place, T)
-    
+
     local perceived = (T <= 10 and V >= 1 and math.abs(T - chillIndex) > 1.5) and chillIndex or
-                      (T >= 18 and math.abs(T - heatIndex) > 1.5) and heatIndex
+                      (T >= 27 and R >= 40 and math.abs(T - heatIndex) > 1.5) and heatIndex
     
     if perceived then
       tmp[#tmp + 1] = (' (feels like %d°C)'):format(round(perceived))
