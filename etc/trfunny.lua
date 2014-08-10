@@ -21,7 +21,12 @@ else
     require "spam"
     spam.detect(Cache, "trfunny", 20, 2)
     a = a:lower()
-    if a:len() > 16 or c:len() > 16 then
+    local maxwordlen = 16
+    local maxnewlen = maxwordlen
+    if c:find("%%.*%%") then
+      maxnewlen = maxwordlen * 4
+    end
+    if a:len() > maxwordlen or c:len() > maxnewlen then
       error(etc.trfunny("Word too long for " .. a))
     end
     if a == c then
