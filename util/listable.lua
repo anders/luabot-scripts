@@ -29,16 +29,25 @@ function lobj:serialize()
     return table.concat(tstr, ",")
 end
 
---- Find a object in this list by ID or object. Returns the index.
-function lobj:find(object)
-    local id = object
-    if type(object) ~= "number" then
-        id = assert(decompose(object), "Unable to decompose object")
+--- Find a object in this list by object or index. Returns the index.
+--- Equality is determined by decomposed ID, or the provided comparer returning 0.
+function lobj:find(object, comparer)
+    if type(object) == "number" then
+      return object -- Index.
     end
-    for i = 1, #list do
-        if decompose(list[i]) == id then
-            return i
-        end
+    local id = assert(decompose(object), "Unable to decompose object")
+    if comparer then
+      for i = 1, #list do
+          if 0 == comparer(list[i], object) then
+              return i
+          end
+      end
+    else
+      for i = 1, #list do
+          if decompose(list[i]) == id then
+              return i
+          end
+      end
     end
     return false
 end
