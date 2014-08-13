@@ -52,29 +52,59 @@ function lobj:find(object, comparer)
     return false
 end
 
+function lobj:_rawRemove(object, wantChange)
+  local i = self:find(object)
+  if i then
+    local c = h[i]
+    table.remove(h, i)
+    if wantChange then
+      self:onChange()
+    end
+    return c
+  end
+  return nil
+end
+
 --- Find and remove a object.
 function lobj:remove(object)
-    local i = self:find(object)
-    if i then
-      local c = h[i]
-      table.remove(h, i)
-      return c
-    end
-    return nil
+    return self:_rawRemove(object, true)
 end
 
 --- testfunc called for each object, object removed if function returns true.
 function lobj:removeif(testfunc)
     local i = 1
+    local changed = false
     while h[i] do
       repeat
         if testfunc(h[i]) then
-          self:remove(i)
+          self:_rawRemove(i, false)
+          changed = true
         else
             i = i + 1
         end
       until true
     end
+    if changed then
+      self:onChange()
+    end
+end
+
+-- Add. index is optional
+function lobj:add(object, index)
+  table.insert(self, index or (#self + 1), object)
+  self:onChange()
+end
+
+--- Replace the object at the specified index. Does call onChange.
+function lobj:replace(index, object)
+  assert(self[index], "Cannot replace missing item")
+  self[index] = object
+  self:onChange()
+end
+
+--- Called when the list changes via add or remove methods. Override to extend behavior.
+--- Note that the table.* functions or manually modifying the array do not trigger changes.
+function lobj:onChange()
 end
 
 return lobj
