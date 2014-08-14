@@ -1,14 +1,16 @@
--- Usage: util.listable(list, create, decompose, type) - list is an array of objects or a string of decomposed IDs, create is a function used to create an object, decompose will turn an object back into its ID, and type is an optional type name for type checking.
+-- Usage: util.listable(list, create, decompose, listType) - list is an array of objects or a string of decomposed IDs, create is a function used to create an object, decompose will turn an object back into its ID, and listType is an optional type name for type checking.
 
--- Note: this is not finished or tested yet.
+-- Example: list=util.listable("55,66", function(x) return string.char(x) end, function(x) return string.byte(x) end); list:add("f") print(list:serialize())
 
-assert(type(list) == "string" or type(lits) == "table", "Invalid list")
+local list, create, decompose, listType = ...
 
-local lobj = { type = type or "unknown", create = create, decompose = decompose }
+assert(type(list) == "string" or type(list) == "table", "Invalid list")
+
+local lobj = { listType = listType or "unknown", create = create, decompose = decompose }
 
 if type(list) == "string" then
     local i = 0
-    for sid in list:match("[^,]+") do
+    for sid in list:gmatch("[^,]+") do
         local id = tonumber(sid)
         assert(id, "Unable to determine ID of " .. sid)
         i = i + 1
@@ -23,28 +25,25 @@ end
 --- Return serialized string.
 function lobj:serialize()
     local tstr = {}
-    for i = 1, #list do
-        tstr[#tstr + 1] = tostring(decompose(list[i]))
+    for i = 1, #self do
+        tstr[#tstr + 1] = tostring(decompose(self[i]))
     end
     return table.concat(tstr, ",")
 end
 
---- Find a object in this list by object or index. Returns the index.
+--- Find a object in this list by object. Returns the index.
 --- Equality is determined by decomposed ID, or the provided comparer returning 0.
 function lobj:find(object, comparer)
-    if type(object) == "number" then
-      return object -- Index.
-    end
     local id = assert(decompose(object), "Unable to decompose object")
     if comparer then
-      for i = 1, #list do
-          if 0 == comparer(list[i], object) then
+      for i = 1, #self do
+          if 0 == comparer(self[i], object) then
               return i
           end
       end
     else
-      for i = 1, #list do
-          if decompose(list[i]) == id then
+      for i = 1, #self do
+          if decompose(self[i]) == id then
               return i
           end
       end
@@ -52,32 +51,40 @@ function lobj:find(object, comparer)
     return false
 end
 
-function lobj:_rawRemove(object, wantChange)
-  local i = self:find(object)
-  if i then
-    local c = h[i]
-    table.remove(h, i)
+function lobj:_rawRemoveAt(i, wantChange)
+  -- if i then
+    local c = self[i]
+    table.remove(self, i)
     if wantChange then
       self:onChange()
     end
     return c
-  end
-  return nil
+  -- end
+  -- return nil
 end
 
 --- Find and remove a object.
 function lobj:remove(object)
-    return self:_rawRemove(object, true)
+    local i = self:find(object)
+    if i then
+      return self:_rawRemoveAt(i, true)
+    end
+    return nil
+end
+
+--- Remove object at the specified index.
+function lobj:removeAt(i)
+  return self:_rawRemoveAt(i, true)
 end
 
 --- testfunc called for each object, object removed if function returns true.
-function lobj:removeif(testfunc)
+function lobj:removeIf(testfunc)
     local i = 1
     local changed = false
-    while h[i] do
+    while self[i] do
       repeat
-        if testfunc(h[i]) then
-          self:_rawRemove(i, false)
+        if testfunc(self[i]) then
+          self:_rawRemoveAt(i, false)
           changed = true
         else
             i = i + 1
