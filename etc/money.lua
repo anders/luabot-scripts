@@ -171,7 +171,10 @@ local names = {
   ZAR = 'South African Rand',
   ZMK = 'Zambian Kwacha',
   ZMW = 'Zambian Kwacha',
-  ZWL = 'Zimbabwean Dollar'
+  ZWL = 'Zimbabwean Dollar',
+  
+  IMP = "Isle of Man Pound",
+  GGP = "Guernsey Pound",
 }
 
 -- 'money 34.563 SEK USD
