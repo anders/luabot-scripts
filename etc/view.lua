@@ -27,7 +27,11 @@ if not io.fs.exists(script_path) then
 end
 ]]
 
-local f = assert(io.open(script_path, "r"), "No such script.")
+local f = io.open(script_path, "r")
+if not f then
+  -- error("No such script")
+  return
+end
 local script = assert(f:read("*a"))
 f:close()
 
