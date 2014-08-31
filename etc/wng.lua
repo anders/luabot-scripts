@@ -93,7 +93,7 @@ if cache.isCached(cacheKey) then
 end
 
 local function reekize(s)
-  if user_cc_locale.measurement == 'US' then
+  if true or user_cc_locale.measurement == 'US' then
     return (s:gsub('(%-?%d+)°C', function(T)
       return T..'°C / '..round(weather.c2f(T))..'°F'
     end))
