@@ -16,6 +16,9 @@ local map = {
   ["ɔ"]="oh",
   ["ɒ"]="ah",
   ["ɜ"]="i",
+  ["ʧ"]="ch",
+  ["ɑ"]="ah",
+  ["j"]="y",
 }
 
 local arg = { etc.pronounce(...) }
@@ -26,4 +29,4 @@ local s = arg[1]
 for k, v in pairs(map) do
   s = s:gsub(k, v)
 end
-return s
+return s:gsub("eee", "ay") or ''
