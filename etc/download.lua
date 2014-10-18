@@ -1,6 +1,11 @@
 -- Usage: 'download <URL> [<path>] [<io>]
 -- This function can also be called from Web and will display and process a form.
 
+local LOG = plugin.log(_funcname);
+if Web and Web.GET['trace'] then
+  Output.logLevel = 'TRACE'
+  LOG.trace("download trace")
+end
 
 local autoweb
 if not arg[1] and Web then
