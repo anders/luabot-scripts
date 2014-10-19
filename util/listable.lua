@@ -22,6 +22,11 @@ elseif type(list) == "table" then
     end
 end
 
+--- Create a new list based on this one. Uses the provided list or creates it empty.
+function lobj:create(list)
+  return util.listable(list or "", self.create, self.decompose, self.listType)
+end
+
 --- Return serialized string.
 function lobj:serialize()
     local tstr = {}
@@ -56,7 +61,7 @@ function lobj:_rawRemoveAt(i, wantChange)
     local c = self[i]
     table.remove(self, i)
     if wantChange then
-      self:onChange()
+      self:_onChange()
     end
     return c
   -- end
@@ -92,21 +97,50 @@ function lobj:removeIf(testfunc)
       until true
     end
     if changed then
-      self:onChange()
+      self:_onChange()
     end
 end
 
 -- Add. index is optional
 function lobj:add(object, index)
   table.insert(self, index or (#self + 1), object)
-  self:onChange()
+  self:_onChange()
 end
 
 --- Replace the object at the specified index. Does call onChange.
 function lobj:replace(index, object)
   assert(self[index], "Cannot replace missing item")
   self[index] = object
-  self:onChange()
+  self:_onChange()
+end
+
+--- Freeze the change notifications in the case that many items will be modified. Reference counted.
+function lobj:freeze()
+  self._frozen = (self._frozen or 0) + 1
+end
+
+--- Unfreeze the change notifications; if any changes were made while frozen, onChange is called.
+function lobj:unfreeze()
+  if self._frozen then
+    self._frozen = self._frozen - 1
+    if self._frozen <= 0 then
+      self._frozen = nil
+      local n = self._frozenChanges or 0
+      self._frozenChanges = nil
+      if n > 0 then
+        lobj:onChange()
+      end
+    end
+  end
+end
+
+-- Internal, do not rely on this.
+function lobj:_onChange()
+  if self._frozen then
+    self._frozenChanges = (self._frozenChanges or 0) + 1
+  else
+    self:onChange()
+  end
 end
 
 --- Called when the list changes via add or remove methods. Override to extend behavior.

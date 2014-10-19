@@ -250,6 +250,13 @@ function M.flushOutput(maybe_more)
 end
 
 
+local playerMT = {
+  __tostring = function(self)
+    return self.nick
+  end;
+}
+
+
 local function addPlayer(who, check)
   who = who or nick
   if #Private.game_data.players >= M.maxPlayers then
@@ -285,12 +292,20 @@ end
 local function getPlayerData(who)
   who = who or nick
   if type(who) == "number" then
-    return Private.game_data.players[who]
+    local player = Private.game_data.players[who]
+    if not getmetatable(player) then
+      setmetatable(player, playerMT)
+    end
+    return player
   elseif type(who) == "table" then
     assert(who.nick, "Invalid player")
     return who
   else
-    return Private.game_data.players[who:lower()]
+    local player = Private.game_data.players[who:lower()]
+    if not getmetatable(player) then
+      setmetatable(player, playerMT)
+    end
+    return player
   end
 end
 
