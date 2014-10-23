@@ -115,7 +115,7 @@ for k, link in ipairs(parsed.data.children) do
   if link.data.num_comments > 1 or link.data.num_comments == 0 then
     s = 's'
   end
-  local tmp = stringx.fmtstr('%s(%d) /r/%s -- $B%s$B -%s (submitted by %s, link: %s, %d comment%s)', nsfw, link.data.score, link.data.subreddit or '?', link.data.title, "" or link.data.url, link.data.author, link.data.newlink, link.data.num_comments, s)
+  local tmp = stringx.fmtstr('%s(%d) /r/%s: $B%s$B: %s (submitted by %s, %d comment%s)', nsfw, link.data.score, link.data.subreddit or '?', link.data.title, link.data.newlink, link.data.author, link.data.num_comments, s)
   for k, url in pairs(ret) do
     if tmp and url.url and url.short then
       tmp = stringx.replace(tmp, url.url, url.short)
