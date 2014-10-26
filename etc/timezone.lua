@@ -196,7 +196,7 @@ if not butt then
 
   local name = tz.zone
 
-  print(name..': '..localtime..(tz.dst and ' (DST)' or ''))
+  print(name..' ('..(tz.code or 'WTF')..'): '..localtime..(tz.dst and ' (DST)' or ''))
 else
   if not tz then
     return false, 'No such timezone/user.'

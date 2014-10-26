@@ -20,10 +20,13 @@ for k, v in pairs(Level) do
 end
 --]]
 
+---
 M.Level = etc.clone(Level)
 
 local level
+local printlevel
 
+---
 function M.setLevel(x)
   if type(x) == "number" then
     level = x
@@ -32,8 +35,19 @@ function M.setLevel(x)
   end
 end
 
-M.setLevel(Output.logLevel or Level.DEBUG) -- Default.
+--- Automatically directly print this level. This is bounded by the normal level.
+function M.setPrintLevel(x)
+  if type(x) == "number" then
+    printlevel = x
+  elseif type(x) == "string" then
+    printlevel = assert(Level[x], "No such level " .. x)
+  end
+end
 
+M.setLevel(Output.logLevel or Level.DEBUG) -- Default.
+M.setPrintLevel(Level.FATAL) -- Default.
+
+--- boolean
 function M.isTraceEnabled()
   return level <= Level.TRACE
 end
@@ -47,29 +61,38 @@ local function dolog(levelnum, levelname, ...)
       setLastError(entry)
     end
     M.url = etc.debuglograw(entry)
+    if levelnum >= printlevel then
+      directprint(entry)
+    end
   end
 end
 
+---
 function M.trace(...)
   dolog(Level.TRACE, "TRACE", ...)
 end
 
+---
 function M.debug(...)
   dolog(Level.DEBUG, "DEBUG", ...)
 end
 
+---
 function M.info(...)
   dolog(Level.INFO, "INFO", ...)
 end
 
+---
 function M.warn(...)
   dolog(Level.WARN, "WARN", ...)
 end
 
+---
 function M.error(...)
   dolog(Level.ERROR, "ERROR", ...)
 end
 
+---
 function M.fatal(...)
   dolog(Level.FATAL, "FATAL", ...)
 end
