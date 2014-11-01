@@ -11,5 +11,4 @@ if type(arg[1]) ~= "string" then
   return nil, "Which graph?" .. graphs
 end
 
--- return boturl .. "u/" .. urlEncode(getname(owner())) .. "/graph.lua?plugin=" .. urlEncode(arg[1])
 return etc.graphs(...)
