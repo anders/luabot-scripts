@@ -2,9 +2,10 @@ API "1.1"
 
 local t = {}
 
-local olderthan = tonumber(arg[1]) or (60 * 60 * 24 * 2)
+local olderthan = tonumber(arg[1]) or (60 * 60 * 24 * 1)
+local wantscores = arg[2] == '-wantscores'
 
-for i, pkgname in ipairs{"etc", "plugin"} do
+for i, pkgname in ipairs{"etc"} do
   for ii, fname in ipairs(_G[pkgname].find("*", true)) do
     t[#t + 1] = { pkgname .. "." .. fname, _getCallInfo(pkgname, fname) }
   end
@@ -19,7 +20,7 @@ local function getscore(x)
   if tdiff < olderthan then
     return -ncalls
   else
-    return ncalls
+    return ncalls + (tdiff / (60 * 60))
   end
 end
 
@@ -29,5 +30,9 @@ end)
 
 for i = 1, math.min(100, #t) do
   local x = t[i]
-  print(x[1], getscore(x))
+  if wantscores then
+    print(x[1], math.floor(getscore(x)))
+  else
+    print(x[1])
+  end
 end
