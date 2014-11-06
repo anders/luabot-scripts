@@ -1,4 +1,4 @@
-return etc.getOutput(etc.j, ...)
+return etc.getOutput(etc.je, ...)
   :gsub("[aeouAEOU]", function (x) return x .. x end)
   :gsub("y", "g")
   :gsub("Y", "G")
