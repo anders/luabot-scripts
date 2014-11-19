@@ -16,6 +16,8 @@ local dumb_names = {
   "Kool-Aid",
   "Butterfinger",
   "Starburst",
+  "Gummy Bear",
+  "Root Beer",
 }
 
 local version = ("%d.%d"):format(math.random(6, 9), math.random(0, 9))
