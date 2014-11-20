@@ -3,13 +3,15 @@ local fn, fnerr = etc.userfile(arg[1])
 if not fn then
   return fn, fnerr
 end
-local io
-if fn:find("/pub/scripts/", 1, true) == 1
-    or fn:find("/shared/", 1, true) == 1
-    then
-  io = assert(guestloadstring("return io"))()
-else
-  io = assert(godloadstring("return io"))()
+local io = arg[4]
+if not io then
+  if fn:find("/pub/scripts/", 1, true) == 1
+      or fn:find("/shared/", 1, true) == 1
+      then
+    io = assert(guestloadstring("return io"))()
+  else
+    io = assert(godloadstring("return io"))()
+  end
 end
 if arg[3] == '-fast' then
   io._fast = true
