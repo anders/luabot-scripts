@@ -8,10 +8,12 @@ if Web then
   f:write(Web.data)
   f:close()
   
+  chan = "#clowngames"
+  
   Output.mode = "irc"
   Output.printType = "irc"
   _clown()
-  print("wrote github.json, event: "..event)
+  sendNotice(chan, "wrote github.json, event: "..event)
   return
 end
 
@@ -27,14 +29,14 @@ data = assert(json.decode(data))
 -- Notice(GitHub): luabot-scripts/master eb66efa L. Bot: Sync....
 
 
-print(("[%s] %s pushed %d new commit(s) to %s: %s"):format(
+sendNotice(chan, ("[%s] %s pushed %d new commit(s) to %s: %s"):format(
   data.repository.name,
   data.pusher.name,
   #data.commits,
   data.ref,
   data.head_commit.url))
 for k, v in ipairs(data.commits) do
-  print(("%s/%s %s %s: %s"):format(
+  sendNotice(chan, ("%s/%s %s %s: %s"):format(
     data.repository.name, data.ref,
     v.id:sub(1, 7),
     v.author.name,
