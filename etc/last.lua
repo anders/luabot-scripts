@@ -6,7 +6,7 @@ local history = function(n)
   local msg, user, ts = _getHistory(n)
   if user and msg then
     if not nonick then
-      return ('<%s> %s'):format(user, msg)
+      return msg
     else
       return msg
     end
