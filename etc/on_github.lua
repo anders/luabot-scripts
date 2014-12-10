@@ -13,7 +13,7 @@ if Web then
   Output.mode = "irc"
   Output.printType = "irc"
   _clown()
-  sendNotice(chan, "wrote github.json, event: "..event)
+  -- sendNotice(chan, "wrote github.json, event: "..event)
   return
 end
 
