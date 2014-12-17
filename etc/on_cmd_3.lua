@@ -1,5 +1,7 @@
 API "1.1"
 
+-- lots of bugs to be ironed out
+
 local lpeg = require "lpeg"
 
 local function unescape_string(s)
