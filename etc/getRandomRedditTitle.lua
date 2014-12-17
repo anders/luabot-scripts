@@ -25,7 +25,10 @@ local function joke(subreddit, limit)
   end
 end
 
-local result = joke(assert(arg[1], 'subreddit expected'), arg[2] or 10) or 'not funny'
+local result = joke(assert(arg[1], 'subreddit expected'), arg[2] or 10)
+if not result then
+  return false, "Can't find anything"
+end
 if arg[3] ~= '-preserve' then
   result = etc.cram(result, ". "):gsub(" *([%.!%?,]) *%. *", "%1 "):gsub("[%. !%?,]+$", ".")
 end

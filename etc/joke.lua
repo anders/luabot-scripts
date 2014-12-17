@@ -1,5 +1,9 @@
 API "1.1"
 
-return etc.getRandomRedditTitle(
+local x, y = etc.getRandomRedditTitle(
   pickone{ 'joke', 'jokes', 'dadjokes', 'meanjokes', 'cleanjokes', }
   )
+if not x then
+  return x, y
+end
+return x
