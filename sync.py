@@ -11,7 +11,8 @@ SCRIPTS_URL = "http://portal.cloud1.codebust.com/u/anders/scripts.lua?json"
 
 # git settings
 GIT = "git"
-AUTHOR_NAME = "L. Bot <luabot@codebust.com>"
+AUTHOR_NAME = "L. Bot"
+AUTHOR_EMAIL = "luabot@codebust.com"
 BRANCH_NAME = "master"
 REMOTE_NAME = "origin"
 
@@ -73,8 +74,13 @@ def main():
 
     commit_message = "Sync."
 
-    subprocess.call([GIT, "commit", "--author", AUTHOR_NAME, "-m",
-                     commit_message], stdout=fnull, stderr=fnull)
+    os.environ["GIT_AUTHOR_NAME"] = AUTHOR_NAME
+    os.environ["GIT_AUTHOR_EMAIL"] = AUTHOR_EMAIL
+    os.environ["GIT_COMMITTER_NAME"] = AUTHOR_NAME
+    os.environ["GIT_COMMITTER_EMAIL"] = AUTHOR_EMAIL
+
+    subprocess.call([GIT, "commit", "-m", commit_message],
+                    stdout=fnull, stderr=fnull)
     subprocess.call([GIT, "push", "-u", REMOTE_NAME, BRANCH_NAME],
                     stdout=fnull, stderr=fnull)
 
