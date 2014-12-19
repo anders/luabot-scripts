@@ -1,3 +1,4 @@
+-- a direct port of "sunriset.c"
 local PI = 3.1415926535897932384
 
 local __daylen__
@@ -39,14 +40,14 @@ main = function(lat, lon, year, month, day)
   }
 
   local to_epoch = function(t)
-    local YOLO = 3600
+    -- used to add 3600, but maybe "isdst" should be checked instead
     local function get_timezone()
       local now = os.time()
       return os.difftime(now, os.time(os.date("!*t", now)))
     end
     timezone = get_timezone()
     
-    return os.time{year=year, month=month, day=day, hour=0, min=0, sec=0} + t * 3600 + timezone + YOLO
+    return os.time{year=year, month=month, day=day, hour=0, min=0, sec=0} + t * 3600 + timezone
   end
 
   rs, rise, set = __sunriset__(year, month, day, lon, lat, -35.0 / 60.0, 1)
