@@ -2,20 +2,92 @@ API "1.1"
 
 local json = require "json"
 
--- http://pokeapi.co/api/v1/pokemon/151/
--- http://pokeapi.co/api/v1/pokemon/mew/
+local LANG_ES = 7
+local LANG_EN = 9
 
-local query = assert(arg[1], "need pokemon ID or name")
+local LANG = LANG_EN
 
-local function fmt_types(t)
-  local tmp = {}
-  for k, v in ipairs(t) do
-    tmp[#tmp + 1] = v.name:sub(1, 1):upper() .. v.name:sub(2)
+local BASE_URL = "http://pokedexd.sjofn.rfw.name/"
+
+local function query(sql, ...)
+  -- &param=.. for prepared statements
+  local url = BASE_URL.."?q="..urlEncode(sql)
+  for i=1, select("#", ...) do
+    local param = tostring(select(i, ...))
+    url = url.."&param="..urlEncode(param)
   end
-  return table.concat(tmp, ", ")
+  local resp = assert(httpGet(url))
+  local d = assert(json.decode(resp))
+  assert(d.success, d.error)
+  return d
 end
 
-local resp = assert(httpGet("http://pokeapi.co/api/v1/pokemon/"..query.."/"))
-local d = json.decode(resp)
+local t = {}
+for w in arg[1]:gmatch("[^%s]+") do t[#t + 1] = w end
 
-print(("#%03d %s (%s)"):format(d.national_id, d.name, fmt_types(d.types)))
+local function info(name)
+  local res = query([[
+    select p.species_id, sn.name
+    from pokemon p
+    inner join pokemon_species_names sn on p.species_id = sn.pokemon_species_id
+    where sn.local_language_id = ? and sn.name like ?
+    group by p.species_id
+    order by sn.name asc
+  ]], LANG, name.."%")
+
+  if #res.result.rows < 1 then
+    print("no results")
+    return
+  end
+
+  print("#"..res.result.rows[1][1]..": "..res.result.rows[1][2])
+end
+
+local function move(name)
+  local res = query([[
+    select m.id, mn.name, m.power, m.accuracy, tn.name, m.damage_class_id, m.priority
+    from moves m
+    inner join move_names mn on m.id = mn.move_id
+    inner join type_names tn on tn.type_id = m.type_id
+    where tn.local_language_id = ? and mn.local_language_id = ? and mn.name like ?
+    order by mn.name asc
+  ]], LANG, LANG, name.."%")
+  
+  if #res.result.rows < 1 then
+    print("no results")
+    return
+  end
+  
+  -- name, power, accuracy, priority, type, crit rate
+  
+  local id, name, power, accuracy, type, dmg_class_id, priority =
+    unpack(res.result.rows[1], 1, #res.result.cols)
+
+  local t = {}
+  
+  if power then t[#t+1] = "Power: "..power end
+  if accuracy then t[#t+1] = "Accuracy: "..accuracy end
+  
+  t[#t+1] = "Type: "..type
+  
+  local classes = {"Status", "Physical", "Sp.Atk."}
+  if dmg_class_id and dmg_class_id > 0 then
+    t[#t+1] = "Class: "..(classes[dmg_class_id] or "???")
+  end
+  
+  if priority then t[#t+1] = "Priority: "..priority end
+  
+  print(name..": "..table.concat(t, "; "))
+end
+
+local rest = table.concat(t, " ", 2)
+if t[1] == "move" then
+  move(rest)
+elseif t[1] == "ability" then
+  ability(rest)
+elseif t[1] == "info" then
+  info(rest)
+else
+  --print("unknown subcommand, assuming you meant 'pokemon info "..t[1])
+  info(table.concat(t, " "))
+end

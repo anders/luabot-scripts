@@ -224,7 +224,7 @@ end
 -- @return object, int The object (true, false or nil) and the position at which the next character should be 
 -- scanned.
 function decode_scanConstant(s, startPos)
-  local consts = { ["true"] = true, ["false"] = false, ["null"] = nil }
+  local consts = { ["true"] = true, ["false"] = false, ["null"] = false }
   local constNames = {"true","false","null"}
 
   for i,k in base.pairs(constNames) do
