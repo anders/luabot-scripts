@@ -25,7 +25,6 @@ local function query(sql, ...)
 end
 
 local t = {}
-arg[1] = arg[1] or ""
 for w in arg[1]:gmatch("[^%s]+") do t[#t + 1] = w end
 
 local function sort_types(type_list)
@@ -35,10 +34,6 @@ local function sort_types(type_list)
     t[tonumber(slot)] = name
   end
   return t
-end
-
-local function help()
-  print("Commands: info [pokemon], ability [name], move [name]")
 end
 
 local function ability(name)
@@ -76,10 +71,10 @@ local function info(name)
           psn.local_language_id = ? and
           an.local_language_id = ? and
           psft.language_id = ? and
-          psn.name like ?
+          (psn.name like ? or p.species_id = ?)
     group by p.id
     order by psn.name asc
-  ]], LANG, LANG, LANG, LANG, name.."%")
+  ]], LANG, LANG, LANG, LANG, name.."%", name)
 
   if #res.result.rows < 1 then
     print("no results")
@@ -142,10 +137,7 @@ local function move(name)
 end
 
 local rest = table.concat(t, " ", 2)
-if t[1] == "help" then
-  help()
-  return
-elseif t[1] == "move" then
+if t[1] == "move" then
   move(rest)
 elseif t[1] == "ability" then
   ability(rest)
@@ -153,7 +145,5 @@ elseif t[1] == "info" then
   info(rest)
 else
   --print("unknown subcommand, assuming you meant 'pokemon info "..t[1])
-  local rest = table.concat(t, " ")
-  if #rest < 1 then help() return end
-  info(rest)
+  info(table.concat(t, " "))
 end
