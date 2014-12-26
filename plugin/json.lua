@@ -47,6 +47,7 @@ local base = _G
 -- Public
 local encode
 local decode
+local decode1
 local null
 
 
@@ -74,6 +75,26 @@ local unichr = function(n)
       error(("FIXME: can't encode codepoint U+%04x"):format(n))
     end
   end
+end
+
+-- Array type which supports null/undefined/nil holes.
+local ArrayMT = {
+    __index = function(t, k)
+        local v = rawget(t, k)
+        if v == null then
+            return nil
+        end
+    end;
+    __newindex = function(t, k, v)
+        if v == nil then
+            v = null
+        end
+        rawset(t, k, v)
+    end;
+}
+
+local function create_array()
+    return setmetatable({}, ArrayMT)
 end
 
 -----------------------------------------------------------------------------
@@ -139,6 +160,23 @@ end
 -- and the position of the first character after
 -- the scanned JSON object.
 function decode(s, startPos)
+    local result, pos = decode1(s, startPos)
+    if result then
+        if type(result) == "table" then
+            for i = 1, #result do
+                if result[i] == null then
+                    result[i] = nil
+                end
+            end
+        elseif result == null then
+            result = nil
+        end
+    end
+    return result, pos
+end
+
+
+function decode1(s, startPos)
   startPos = startPos and startPos or 1
   startPos = decode_scanWhitespace(s,startPos)
   
@@ -185,7 +223,7 @@ end
 -- @param startPos The starting position for the scan.
 -- @return table, int The scanned array as a table, and the position of the next character to scan.
 function decode_scanArray(s,startPos)
-  local array = {}	-- The return value
+  local array = create_array() -- The return value
   local stringLen = string.len(s)
   base.assert(string.sub(s,startPos,startPos)=='[','decode_scanArray called but array does not start at position ' .. startPos .. ' in string:\n'..s )
   startPos = startPos + 1
@@ -202,7 +240,7 @@ function decode_scanArray(s,startPos)
     end
     base.assert(startPos<=stringLen, 'JSON String ended unexpectedly scanning array.')
     object, startPos = decode(s,startPos)
-    table.insert(array,object)
+    array[#array + 1] = object
   until false
 end
 
@@ -224,7 +262,7 @@ end
 -- @return object, int The object (true, false or nil) and the position at which the next character should be 
 -- scanned.
 function decode_scanConstant(s, startPos)
-  local consts = { ["true"] = true, ["false"] = false, ["null"] = false }
+  local consts = { ["true"] = true, ["false"] = false, ["null"] = nil }
   local constNames = {"true","false","null"}
 
   for i,k in base.pairs(constNames) do
