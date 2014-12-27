@@ -136,6 +136,54 @@ local function move(name)
   print(("\02%s:\02 %s (%s)"):format(name, text, table.concat(t, ", ")))
 end
 
+local function damage(s)
+  local damage_type, target_type, target_type_2 = s:match("(%w+)%s+(%w+)/?(.*)")
+
+  local res = query([[
+    select damage_factor, tn_damage.name, tn_target.name from type_efficacy te
+    inner join type_names tn_target on te.target_type_id = tn_target.type_id
+    inner join type_names tn_damage on te.damage_type_id = tn_damage.type_id
+    where tn_target.local_language_id = ? and tn_damage.local_language_id = ? and
+          tn_damage.name like ? and
+          (tn_target.name like ? or tn_target.name like ?)
+  ]], LANG, LANG, damage_type, target_type, target_type_2)
+
+  local factor = 1.0
+  local damage
+  local target = {}
+
+  for i, row in ipairs(res.result.rows) do
+    local subfactor, damage_name, target_name = unpack(row)
+    damage = damage_name
+    target[#target + 1] = target_name
+    factor = factor * (subfactor / 100)
+  end
+
+  print(("\02%s vs. %s:\02 %.0f%%"):format(damage, table.concat(target, "/"), factor * 100))
+end
+
+local function item(name)
+  local res = query([[
+    select in_.name, i.cost, replace(ift.flavor_text, X'0A', ' ')
+    from item_names in_
+    inner join items i on in_.item_id = i.id
+    inner join item_flavor_text ift on in_.item_id = ift.item_id
+    where in_.local_language_id = ? and
+          ift.language_id = ? and
+          in_.name like ?
+    group by in_.item_id
+    order by in_.name asc
+  ]], LANG, LANG, name.."%")
+
+  if #res.result.rows < 1 then
+    print("no results")
+    return
+  end
+
+  local name, cost, text = unpack(res.result.rows[1])
+  print(("\02%s:\02 %s (₱%s)"):format(name, text, cost))
+end
+
 local rest = table.concat(t, " ", 2)
 if t[1] == "move" then
   move(rest)
@@ -143,6 +191,10 @@ elseif t[1] == "ability" then
   ability(rest)
 elseif t[1] == "info" then
   info(rest)
+elseif t[1] == "damage" then
+  damage(rest)
+elseif t[1] == "item" then
+  item(rest)
 else
   --print("unknown subcommand, assuming you meant 'pokemon info "..t[1])
   info(table.concat(t, " "))
