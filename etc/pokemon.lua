@@ -98,7 +98,7 @@ end
 local function move(name)
   -- Extreme Speed: The user charges the target at blinding speed. This move always goes first. (Normal, atk. 80, acc. 100%, prio. 2)
   local res = query([[
-    select m.id, mn.name, m.power, m.accuracy, tn.name, m.damage_class_id, m.priority, replace(mft.flavor_text, X'0A', ' ')
+    select m.id, mn.name, m.pp, m.power, m.accuracy, tn.name, m.damage_class_id, m.priority, replace(mft.flavor_text, X'0A', ' ')
     from moves m
     inner join move_names mn on m.id = mn.move_id
     inner join type_names tn on tn.type_id = m.type_id
@@ -118,7 +118,7 @@ local function move(name)
   
   -- name, power, accuracy, priority, type, crit rate
   
-  local id, name, power, accuracy, type, dmg_class_id, priority, text =
+  local id, name, pp, power, accuracy, type, dmg_class_id, priority, text =
     unpack(res.result.rows[1], 1, #res.result.cols)
 
   local t = {}
@@ -134,7 +134,7 @@ local function move(name)
     
   if priority then t[#t+1] = "prio. "..priority end
   
-  print(("\02%s:\02 %s (%s)"):format(name, text, table.concat(t, ", ")))
+  print(("\02%s:\02 %s (%s PP, %s)"):format(name, text, pp, table.concat(t, ", ")))
 end
 
 local function damage(s)
