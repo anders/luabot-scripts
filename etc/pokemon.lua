@@ -11,8 +11,14 @@ local LANG = LANG_EN
 
 local BASE_URL = "http://pokedexd.sjofn.rfw.name/"
 
+local replacements = {
+  LANG = LANG,
+}
+
 local function query(sql, ...)
-  sql = sql:gsub("%$LANG%$", LANG)
+  sql = sql:gsub("%$(%w+)%$", function(key)
+    return tostring(replacements[key])
+  end)
   -- &param=.. for prepared statements
   local url = BASE_URL.."?q="..urlEncode(sql)
   for i=1, select("#", ...) do
@@ -39,14 +45,14 @@ end
 
 local function ability(name)
   local res = query([[
-    select an.name, replace(aft.flavor_text, X'0A', ' ')
-    from ability_names an
-    inner join ability_flavor_text aft on an.ability_id = aft.ability_id
-    where an.local_language_id = $LANG$ and
-          aft.language_id = $LANG$ and
+    SELECT an.name, REPLACE(aft.flavor_text, X'0A', ' ')
+    FROM ability_names an
+    INNER JOIN ability_flavor_text aft ON an.ability_id = aft.ability_id
+    WHERE an.local_language_id = $LANG$ AND
+          aft.language_id = $LANG$ AND
           an.name like ?
-    group by an.ability_id
-    order by an.name asc
+    GROUP BY an.ability_id
+    ORDER BY an.name ASC
   ]], name.."%")
 
   if #res.result.rows < 1 then
@@ -60,25 +66,25 @@ end
 
 local function info(name)
   local res = query([[
-    select p.species_id, psn.name, group_concat(pt.slot||':'||tn.name), group_concat(pa.slot||':'||an.name), replace(psft.flavor_text, X'0A', ' ')
-    from pokemon p
-    inner join pokemon_species_names psn on p.species_id = psn.pokemon_species_id
-    inner join pokemon_types pt on p.id = pt.pokemon_id
-    inner join type_names tn on pt.type_id = tn.type_id
-    inner join pokemon_abilities pa on p.id = pa.pokemon_id
-    inner join ability_names an on pa.ability_id = an.ability_id
-    inner join pokemon_species_flavor_text psft on p.id = psft.species_id
-    where tn.local_language_id = $LANG$ and
-          psn.local_language_id = $LANG$ and
-          an.local_language_id = $LANG$ and
-          psft.language_id = $LANG$ and
-          (psn.name like ? or p.species_id = ?)
-    group by p.id
-    order by psn.name asc
+    SELECT p.species_id, psn.name, GROUP_CONCAT(pt.slot||':'||tn.name), GROUP_CONCAT(pa.slot||':'||an.name), REPLACE(psft.flavor_text, X'0A', ' ')
+    FROM pokemon p
+    INNER JOIN pokemon_species_names psn ON p.species_id = psn.pokemon_species_id
+    INNER JOIN pokemon_types pt ON p.id = pt.pokemon_id
+    INNER JOIN type_names tn ON pt.type_id = tn.type_id
+    INNER JOIN pokemon_abilities pa ON p.id = pa.pokemon_id
+    INNER JOIN ability_names an ON pa.ability_id = an.ability_id
+    INNER JOIN pokemon_species_flavor_text psft ON p.id = psft.species_id
+    WHERE tn.local_language_id = $LANG$ AND
+          psn.local_language_id = $LANG$ AND
+          an.local_language_id = $LANG$ AND
+          psft.language_id = $LANG$ AND
+          (psn.name like ? OR p.species_id = ?)
+    GROUP BY p.id
+    ORDER BY psn.name asc
   ]], name.."%", name)
 
   if #res.result.rows < 1 then
-    print("no results")
+    print("No results")
     return
   end
 
@@ -98,21 +104,21 @@ end
 local function move(name)
   -- Extreme Speed: The user charges the target at blinding speed. This move always goes first. (Normal, atk. 80, acc. 100%, prio. 2)
   local res = query([[
-    select m.id, mn.name, m.pp, m.power, m.accuracy, tn.name, m.damage_class_id, m.priority, replace(mft.flavor_text, X'0A', ' ')
-    from moves m
-    inner join move_names mn on m.id = mn.move_id
-    inner join type_names tn on tn.type_id = m.type_id
-    inner join move_flavor_text mft on mft.move_id = m.id
-    where tn.local_language_id = $LANG$ and
-          mn.local_language_id = $LANG$ and
-          mft.language_id = $LANG$ and
-          mn.name like ?
-    group by m.id
-    order by mn.name asc
+    SELECT m.id, mn.name, m.pp, m.power, m.accuracy, tn.name, m.damage_class_id, m.priority, replace(mft.flavor_text, X'0A', ' ')
+    FROM moves m
+    INNER JOIN move_names mn ON m.id = mn.move_id
+    INNER JOIN type_names tn ON tn.type_id = m.type_id
+    INNER JOIN move_flavor_text mft ON mft.move_id = m.id
+    WHERE tn.local_language_id = $LANG$ AND
+          mn.local_language_id = $LANG$ AND
+          mft.language_id = $LANG$ AND
+          mn.name LIKE ?
+    GROUP BY m.id
+    ORDER BY mn.name asc
   ]], name.."%")
   
   if #res.result.rows < 1 then
-    print("no results")
+    print("No results")
     return
   end
   
@@ -148,12 +154,12 @@ local function damage(s)
   end
 
   local res = query([[
-    select damage_factor, tn_damage.name, tn_target.name from type_efficacy te
-    inner join type_names tn_target on te.target_type_id = tn_target.type_id
-    inner join type_names tn_damage on te.damage_type_id = tn_damage.type_id
-    where tn_target.local_language_id = $LANG$ and tn_damage.local_language_id = $LANG$ and
-          tn_damage.name like ? and
-          (tn_target.name like ? or tn_target.name like ?)
+    SELECT damage_factor, tn_damage.name, tn_target.name from type_efficacy te
+    INNER JOIN type_names tn_target ON te.target_type_id = tn_target.type_id
+    INNER JOIN type_names tn_damage ON te.damage_type_id = tn_damage.type_id
+    WHERE tn_target.local_language_id = $LANG$ and tn_damage.local_language_id = $LANG$ and
+          tn_damage.name LIKE ? AND
+          (tn_target.name LIKE ? or tn_target.name LIKE ?)
   ]], damage_type, target_type, target_type_2)
 
   local factor = 1.0
@@ -172,19 +178,19 @@ end
 
 local function item(name)
   local res = query([[
-    select in_.name, i.cost, replace(ift.flavor_text, X'0A', ' ')
-    from item_names in_
-    inner join items i on in_.item_id = i.id
-    inner join item_flavor_text ift on in_.item_id = ift.item_id
-    where in_.local_language_id = $LANG$ and
-          ift.language_id = $LANG$ and
-          in_.name like ?
-    group by in_.item_id
-    order by in_.name asc
+    SELECT in_.name, i.cost, REPLACE(ift.flavor_text, X'0A', ' ')
+    FROM item_names in_
+    INNER JOIN items i ON in_.item_id = i.id
+    INNER JOIN item_flavor_text ift ON in_.item_id = ift.item_id
+    WHERE in_.local_language_id = $LANG$ AND
+          ift.language_id = $LANG$ AND
+          in_.name LIKE ?
+    GROUP BY in_.item_id
+    ORDER BY in_.name ASC
   ]], name.."%")
 
   if #res.result.rows < 1 then
-    print("no results")
+    print("No results")
     return
   end
 

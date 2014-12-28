@@ -8,15 +8,22 @@ local sun_RA_dec
 local revolution
 local rev180
 local GMST0
-local main
-local printf
+local main, main2
+local to_epoch
 
 local sin, cos, tan, atan, asin, acos, atan2, sqrt, floor, abs =
   math.sin, math.cos, math.tan, math.atan, math.asin, math.acos,
   math.atan2, math.sqrt, math.floor, math.abs
 
-printf = function(s, ...)
-  print(s:format(...))
+to_epoch = function(t, year, month, day)
+  -- used to add 3600, but maybe "isdst" should be checked instead
+  local function get_timezone()
+    local now = os.time()
+    return os.difftime(now, os.time(os.date("!*t", now)))
+  end
+  timezone = get_timezone()
+  
+  return os.time{year=year, month=month, day=day, hour=0, min=0, sec=0} + t * 3600 + timezone
 end
 
 main = function(lat, lon, year, month, day)
@@ -39,38 +46,58 @@ main = function(lat, lon, year, month, day)
     astrlen = __daylen__(year, month, day, lon, lat, -18.0, 0)
   }
 
-  local to_epoch = function(t)
-    -- used to add 3600, but maybe "isdst" should be checked instead
-    local function get_timezone()
-      local now = os.time()
-      return os.difftime(now, os.time(os.date("!*t", now)))
-    end
-    timezone = get_timezone()
-    
-    return os.time{year=year, month=month, day=day, hour=0, min=0, sec=0} + t * 3600 + timezone
-  end
-
   rs, rise, set = __sunriset__(year, month, day, lon, lat, -35.0 / 60.0, 1)
   result.rs = rs
-  result.rise = to_epoch(rise)
-  result.set = to_epoch(set)
+  result.rise = to_epoch(rise, year, month, day)
+  result.set = to_epoch(set, year, month, day)
 
   civ, civ_start, civ_end = __sunriset__(year, month, day, lon, lat, -6.0, 0)
   result.civ = civ
-  result.civ_start = to_epoch(civ_start)
-  result.civ_end = to_epoch(civ_end)
+  result.civ_start = to_epoch(civ_start, year, month, day)
+  result.civ_end = to_epoch(civ_end, year, month, day)
 
   naut, naut_start, naut_end = __sunriset__(year, month, day, lon, lat, -12.0, 0)
   result.naut = naut
-  result.naut_start = to_epoch(naut_start)
-  result.naut_end = to_epoch(naut_end)
+  result.naut_start = to_epoch(naut_start, year, month, day)
+  result.naut_end = to_epoch(naut_end, year, month, day)
 
   astr, astr_start, astr_end = __sunriset__(year, month, day, lon, lat, -18.0, 0)
   result.astr = astr
-  result.astr_start = to_epoch(astr_start)
-  result.astr_end = to_epoch(astr_end)
+  result.astr_start = to_epoch(astr_start, year, month, day)
+  result.astr_end = to_epoch(astr_end, year, month, day)
 
   return result
+end
+
+-- slightly optimized
+main2 = function(lat, lon, year, month, day)
+  local rise, set, civ_start, civ_end, naut_start, naut_end, astr_start,
+      astr_end
+  local rs, civ, naut, astr
+
+  lat = assert(lat, 'need latitude')
+  lon = assert(lon, 'need longitude')
+
+  local d = os.date('!*t')
+  year = year or d.year
+  month = month or d.month
+  day = day or d.day
+
+  local daylen, civlen, nautlen, astrlen =
+    __daylen__(year, month, day, lon, lat, -35.0 / 60.0, 1),
+    __daylen__(year, month, day, lon, lat, -6.0, 0),
+    __daylen__(year, month, day, lon, lat, -12.0, 0),
+    __daylen__(year, month, day, lon, lat, -18.0, 0)
+
+  rs, rise, set = __sunriset__(year, month, day, lon, lat, -35.0 / 60.0, 1)
+  civ, civ_start, civ_end = __sunriset__(year, month, day, lon, lat, -6.0, 0)
+  naut, naut_start, naut_end = __sunriset__(year, month, day, lon, lat, -12.0, 0)
+  astr, astr_start, astr_end = __sunriset__(year, month, day, lon, lat, -18.0, 0)
+
+  return daylen,  rs,   to_epoch(rise, year, month, day),       to_epoch(set, year, month, day),
+         civlen,  civ,  to_epoch(civ_start, year, month, day),  to_epoch(civ_end, year, month, day),
+         nautlen, naut, to_epoch(naut_start, year, month, day), to_epoch(naut_end, year, month, day),
+         astrlen, astr, to_epoch(astr_start, year, month, day), to_epoch(astr_end, year, month, day)
 end
 
 __sunriset__ = function(year, month, day, lon, lat, altit, upper_limb)
@@ -201,4 +228,4 @@ GMST0 = function(d)
   return sidtim0
 end
 
-return {calc = main}
+return {calc = main, opt_calc = main2}

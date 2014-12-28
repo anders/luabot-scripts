@@ -44,11 +44,15 @@ end
 local num_calls, last_call, mtime, owner_id = _getCallInfo(mod, func)
 local script_url = ("%st/%s?module=%s&name=%s"):format(boturl, this, urlEncode(mod), urlEncode(func))
 local github_url = ("https://github.com/anders/luabot-scripts/blob/master/%s/%s.lua"):format(urlEncode(mod), urlEncode(func))
+
+local shortened = etc.shortenurl{script_url, github_url}
+script_url, github_url = unpack(shortened)
+
 local dur = etc.duration(os.time() - mtime)
 local script_info = ("(owned by %s, %d line%s, edited %s ago)"):format(getname(owner_id), line_count, line_count > 1 and 's' or '', dur)
 if edit then
   local read_only = account ~= owner_id and "[read only] " or ""
   sendNotice(nick, read_only..script_url.." "..script_info)
 else
-  return nick.." * "..script_url.." or "..github_url.." "..script_info
+  return nick.." * Editor: "..script_url.." or GitHub: "..github_url.." "..script_info
 end

@@ -1,6 +1,20 @@
 API "1.1"
 
-local sbasevalue, currency = etc.getOutput(etc.money, '1 XAU ' .. (arg[1] or 'USD')):match('= ([%d%.]+) (.+)')
+local sbasevalue, currency
+if arg[1] == '-cache' then
+  if Cache.xau_usd and Cache.xau_usd_time and (os.time() - Cache.xau_usd_time) < 60 * 60 * 12 then
+    currency = 'USD -cache'
+    sbasevalue = Cache.xau_usd
+  end
+  arg[1] = 'USD'
+end
+if not sbasevalue then
+  sbasevalue, currency = etc.getOutput(etc.money, '1 XAU ' .. (arg[1] or 'USD')):match('= ([%d%.]+) (.+)')
+  if (arg[1] or 'USD'):lower() == 'USD' then
+    Cache.xau_usd = sbasevalue
+    Cache.xau_usd_time = os.time()
+  end
+end
 local basevalue = tonumber(sbasevalue)
 
 local absTotal = 0
