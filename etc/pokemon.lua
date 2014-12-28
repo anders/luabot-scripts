@@ -132,8 +132,11 @@ local function move(name)
   if power then t[#t+1] = "pow. " .. power end
   if accuracy then t[#t+1] = "acc. " .. accuracy .. "%" end
     
-  if priority then t[#t+1] = "prio. "..priority end
-  
+  if priority then
+    local sign = priority > 0 and "+" or ""
+    t[#t+1] = "prio. "..sign..priority
+  end
+
   print(("\02%s:\02 %s (%s PP, %s)"):format(name, text, pp, table.concat(t, ", ")))
 end
 
