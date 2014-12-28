@@ -4,10 +4,12 @@ if Editor then return end
 
 local json = require "json"
 
-local LANG_ES = 7
-local LANG_EN = 9
+local languages = {
+  spanish = 7,
+  english = 9
+}
 
-local LANG = LANG_EN
+local LANG = languages.english
 
 local BASE_URL = "http://pokedexd.sjofn.rfw.name/"
 
@@ -16,9 +18,11 @@ local replacements = {
 }
 
 local function query(sql, ...)
+  -- look up $KEY$ in the table "replacements"
   sql = sql:gsub("%$(%w+)%$", function(key)
     return tostring(replacements[key])
   end)
+
   -- &param=.. for prepared statements
   local url = BASE_URL.."?q="..urlEncode(sql)
   for i=1, select("#", ...) do
@@ -50,7 +54,7 @@ local function ability(name)
     INNER JOIN ability_flavor_text aft ON an.ability_id = aft.ability_id
     WHERE an.local_language_id = $LANG$ AND
           aft.language_id = $LANG$ AND
-          an.name like ?
+          an.name LIKE ?
     GROUP BY an.ability_id
     ORDER BY an.name ASC
   ]], name.."%")
@@ -78,9 +82,9 @@ local function info(name)
           psn.local_language_id = $LANG$ AND
           an.local_language_id = $LANG$ AND
           psft.language_id = $LANG$ AND
-          (psn.name like ? OR p.species_id = ?)
+          (psn.name LIKE ? OR p.species_id = ?)
     GROUP BY p.id
-    ORDER BY psn.name asc
+    ORDER BY psn.name ASC
   ]], name.."%", name)
 
   if #res.result.rows < 1 then
@@ -114,7 +118,7 @@ local function move(name)
           mft.language_id = $LANG$ AND
           mn.name LIKE ?
     GROUP BY m.id
-    ORDER BY mn.name asc
+    ORDER BY mn.name ASC
   ]], name.."%")
   
   if #res.result.rows < 1 then
