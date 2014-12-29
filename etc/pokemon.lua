@@ -202,6 +202,26 @@ local function item(name)
   print(("\02%s:\02 %s%s"):format(name, text, cost > 0 and " (₱"..cost..")" or ""))
 end
 
+local function vs(x)
+  --[[
+
+get all moves for a pokemon by ID
+probably look at version groups (maybe they differ in generations)
+
+SELECT pm.move_id, m.power, m.damage_class_id, tn.name as type_name, mn.name AS move_name
+FROM pokemon_moves pm
+INNER JOIN moves m ON pm.move_id = m.id
+INNER JOIN type_names tn ON tn.type_id = m.type_id
+INNER JOIN move_names mn ON mn.move_id = m.id
+WHERE pm.pokemon_id=1 AND tn.local_language_id = 9 AND mn.local_language_id = 9
+GROUP BY m.id
+ORDER BY power DESC
+
+list best moves of pokemon A against B
+
+  ]]
+end
+
 local rest = table.concat(t, " ", 2)
 if t[1] == "move" then
   move(rest)
@@ -213,6 +233,8 @@ elseif t[1] == "damage" or t[1] == "dmg" then
   damage(rest)
 elseif t[1] == "item" then
   item(rest)
+elseif t[1] == "vs" then
+  vs(rest)
 else
   --print("unknown subcommand, assuming you meant 'pokemon info "..t[1])
   info(table.concat(t, " "))
