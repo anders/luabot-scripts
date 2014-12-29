@@ -475,6 +475,7 @@ local M = {
   encode_unsafe = encode, -- no pcall
   
   decode = function(s)
+    assert(s, "need something to decode")
     if s:sub(1, 1) ~= '{' and s:sub(1, 1) ~= '[' then
       return false, 'invalid JSON string: '..s:sub(1, 40)
     end
