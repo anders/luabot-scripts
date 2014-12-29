@@ -94,7 +94,7 @@ local function info(name)
   end
 
   local species_id, name, types, abilities, text = unpack(res.result.rows[1])
-  types = table.concat(sort_types(types), "/")
+  types = table.concat(sort_types(types), "／")
   sorted_abilities = sort_types(abilities)
 
   abilities = table.concat({sorted_abilities[1], sorted_abilities[2]}, "、")
@@ -178,7 +178,7 @@ local function damage(s)
     factor = factor * (subfactor / 100)
   end
 
-  print(("\02%s vs. %s：\02%.0f%%"):format(damage, table.concat(target, "/"), factor * 100))
+  print(("\02%s vs. %s：\02%.0f%%"):format(damage, table.concat(target, "／"), factor * 100))
 end
 
 local function item(name)
