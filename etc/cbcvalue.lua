@@ -10,7 +10,7 @@ if arg[1] == '-cache' then
 end
 if not sbasevalue then
   sbasevalue, currency = etc.getOutput(etc.money, '1 XAU ' .. (arg[1] or 'USD')):match('= ([%d%.]+) (.+)')
-  if (arg[1] or 'USD'):lower() == 'USD' then
+  if (arg[1] or 'USD'):upper() == 'USD' then
     Cache.xau_usd = sbasevalue
     Cache.xau_usd_time = os.time()
   end
