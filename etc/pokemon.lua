@@ -69,7 +69,6 @@ end
 
 local function pokemon_by_name(name, exact)
   if not exact then name = name.."%" end
-  exact = exact and "=" or "LIKE"
   local res = query([[
     SELECT p.species_id, psn.name, GROUP_CONCAT(pt.slot||':'||tn.name), GROUP_CONCAT(pa.slot||':'||an.name), REPLACE(psft.flavor_text, X'0A', ' ')
     FROM pokemon p
@@ -83,7 +82,7 @@ local function pokemon_by_name(name, exact)
           psn.local_language_id = $LANG$ AND
           an.local_language_id = $LANG$ AND
           psft.language_id = $LANG$ AND
-          (psn.name ]]..exact..[[ ? OR p.species_id = ?)
+          (psn.name LIKE ? OR p.species_id = ?)
     GROUP BY p.id
     ORDER BY psn.name ASC
     LIMIT 1
@@ -194,9 +193,18 @@ local function damage(s)
 end
 
 local function defense(s)
-  local poke = pokemon_by_name(s, true)
-  if poke then
-    s = table.concat(poke.types, "/")
+  local res = query([[
+    SELECT name FROM type_names
+    WHERE name LIKE ? AND local_language_id = $LANG$
+    LIMIT 1
+  ]], s)
+
+  -- only look up by pokemon name if argument is not already a type
+  if #res.result.rows == 0 then
+    local poke = pokemon_by_name(s)
+    if poke then
+      s = table.concat(poke.types, "/")
+    end
   end
 
   local target_type, target_type_2 = s:match("(%w+)/?(.*)")
@@ -214,6 +222,11 @@ local function defense(s)
           (tn_target.name LIKE ? or tn_target.name LIKE ?)
     GROUP BY te.damage_type_id
   ]], target_type, target_type_2 or target_type)
+
+  if #res.result.rows < 1 then
+    print("No results (wrong types or POKé Name?)")
+    return
+  end
 
   local damages = {}
   local target_name
@@ -245,7 +258,7 @@ local function defense(s)
     damage_names[#damage_names + 1] = ("%gx: %s"):format(factor / 100, table.concat(names, "/"))
   end
 
-  print(("\02%s receiving damage factors:\02 %s"):format(target_name, table.concat(damage_names, ", ")))
+  print(("\02%s receiving damage factors:\02 %s"):format(target_name or "N/A???", table.concat(damage_names, ", ")))
 end
 
 local function item(name)
