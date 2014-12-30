@@ -170,6 +170,48 @@ local function damage(s)
   print(("\02%s vs. %s:\02 %.0f%%"):format(damage, table.concat(target, "/"), factor * 100))
 end
 
+local function defense(s)
+  local target_type, target_type_2 = s:match("(%w+)/?(.*)")
+  if not target_type then
+    print("Usage: 'pokemon defense target-type[/target-type]")
+    return
+  end
+
+  local res = query([[
+    SELECT group_concat(damage_factor, ','), tn_damage.name, group_concat(tn_target.name, '/')
+    FROM type_efficacy te
+    INNER JOIN type_names tn_target ON te.target_type_id = tn_target.type_id
+    INNER JOIN type_names tn_damage ON te.damage_type_id = tn_damage.type_id
+    WHERE tn_target.local_language_id = $LANG$ and tn_damage.local_language_id = $LANG$ and
+          (tn_target.name LIKE ? or tn_target.name LIKE ?)
+    GROUP BY te.damage_type_id
+  ]], target_type, target_type_2 or target_type)
+
+  local damages = {}
+  local target_name
+
+  for i, row in ipairs(res.result.rows) do
+    local factors, damage_name, t = unpack(row)
+    target_name = t
+    
+    local factor = 1.0
+    for subfactor in factors:gmatch('[^,]+') do
+      factor = subfactor / 100 * factor
+    end
+    factor = factor * 100
+    
+    damages[factor] = damages[factor] or {}
+    damages[factor][#damages[factor] + 1] = damage_name
+  end
+
+  local damage_names = {}
+  for factor, names in pairs(damages) do
+    damage_names[#damage_names + 1] = ("%s @ %.0f%%"):format(table.concat(names, ", "), factor)
+  end
+
+  print(("\02%s defends against:\02 %s"):format(target_name, table.concat(damage_names, "; ")))
+end
+
 local function item(name)
   local res = query([[
     select in_.name, i.cost, replace(ift.flavor_text, X'0A', ' ')
@@ -201,6 +243,8 @@ elseif t[1] == "info" or t[1] == "mon" then
   info(rest)
 elseif t[1] == "damage" or t[1] == "dmg" then
   damage(rest)
+elseif t[1] == "defense" or t[1] == "def" then
+  defense(rest)
 elseif t[1] == "item" then
   item(rest)
 else

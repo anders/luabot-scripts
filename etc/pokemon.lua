@@ -4,25 +4,15 @@ if Editor then return end
 
 local json = require "json"
 
-local languages = {
-  spanish = 7,
-  english = 9
-}
+local LANG_ES = 7
+local LANG_EN = 9
 
-local LANG = languages.english
+local LANG = LANG_EN
 
 local BASE_URL = "http://pokedexd.sjofn.rfw.name/"
 
-local replacements = {
-  LANG = LANG,
-}
-
 local function query(sql, ...)
-  -- look up $KEY$ in the table "replacements"
-  sql = sql:gsub("%$(%w+)%$", function(key)
-    return tostring(replacements[key])
-  end)
-
+  sql = sql:gsub("%$LANG%$", LANG)
   -- &param=.. for prepared statements
   local url = BASE_URL.."?q="..urlEncode(sql)
   for i=1, select("#", ...) do
@@ -49,14 +39,14 @@ end
 
 local function ability(name)
   local res = query([[
-    SELECT an.name, REPLACE(aft.flavor_text, X'0A', ' ')
-    FROM ability_names an
-    INNER JOIN ability_flavor_text aft ON an.ability_id = aft.ability_id
-    WHERE an.local_language_id = $LANG$ AND
-          aft.language_id = $LANG$ AND
-          an.name LIKE ?
-    GROUP BY an.ability_id
-    ORDER BY an.name ASC
+    select an.name, replace(aft.flavor_text, X'0A', ' ')
+    from ability_names an
+    inner join ability_flavor_text aft on an.ability_id = aft.ability_id
+    where an.local_language_id = $LANG$ and
+          aft.language_id = $LANG$ and
+          an.name like ?
+    group by an.ability_id
+    order by an.name asc
   ]], name.."%")
 
   if #res.result.rows < 1 then
@@ -70,25 +60,25 @@ end
 
 local function info(name)
   local res = query([[
-    SELECT p.species_id, psn.name, GROUP_CONCAT(pt.slot||':'||tn.name), GROUP_CONCAT(pa.slot||':'||an.name), REPLACE(psft.flavor_text, X'0A', ' ')
-    FROM pokemon p
-    INNER JOIN pokemon_species_names psn ON p.species_id = psn.pokemon_species_id
-    INNER JOIN pokemon_types pt ON p.id = pt.pokemon_id
-    INNER JOIN type_names tn ON pt.type_id = tn.type_id
-    INNER JOIN pokemon_abilities pa ON p.id = pa.pokemon_id
-    INNER JOIN ability_names an ON pa.ability_id = an.ability_id
-    INNER JOIN pokemon_species_flavor_text psft ON p.id = psft.species_id
-    WHERE tn.local_language_id = $LANG$ AND
-          psn.local_language_id = $LANG$ AND
-          an.local_language_id = $LANG$ AND
-          psft.language_id = $LANG$ AND
-          (psn.name LIKE ? OR p.species_id = ?)
-    GROUP BY p.id
-    ORDER BY psn.name ASC
+    select p.species_id, psn.name, group_concat(pt.slot||':'||tn.name), group_concat(pa.slot||':'||an.name), replace(psft.flavor_text, X'0A', ' ')
+    from pokemon p
+    inner join pokemon_species_names psn on p.species_id = psn.pokemon_species_id
+    inner join pokemon_types pt on p.id = pt.pokemon_id
+    inner join type_names tn on pt.type_id = tn.type_id
+    inner join pokemon_abilities pa on p.id = pa.pokemon_id
+    inner join ability_names an on pa.ability_id = an.ability_id
+    inner join pokemon_species_flavor_text psft on p.id = psft.species_id
+    where tn.local_language_id = $LANG$ and
+          psn.local_language_id = $LANG$ and
+          an.local_language_id = $LANG$ and
+          psft.language_id = $LANG$ and
+          (psn.name like ? or p.species_id = ?)
+    group by p.id
+    order by psn.name asc
   ]], name.."%", name)
 
   if #res.result.rows < 1 then
-    print("No results")
+    print("no results")
     return
   end
 
@@ -108,21 +98,21 @@ end
 local function move(name)
   -- Extreme Speed: The user charges the target at blinding speed. This move always goes first. (Normal, atk. 80, acc. 100%, prio. 2)
   local res = query([[
-    SELECT m.id, mn.name, m.pp, m.power, m.accuracy, tn.name, m.damage_class_id, m.priority, replace(mft.flavor_text, X'0A', ' ')
-    FROM moves m
-    INNER JOIN move_names mn ON m.id = mn.move_id
-    INNER JOIN type_names tn ON tn.type_id = m.type_id
-    INNER JOIN move_flavor_text mft ON mft.move_id = m.id
-    WHERE tn.local_language_id = $LANG$ AND
-          mn.local_language_id = $LANG$ AND
-          mft.language_id = $LANG$ AND
-          mn.name LIKE ?
-    GROUP BY m.id
-    ORDER BY mn.name ASC
+    select m.id, mn.name, m.pp, m.power, m.accuracy, tn.name, m.damage_class_id, m.priority, replace(mft.flavor_text, X'0A', ' ')
+    from moves m
+    inner join move_names mn on m.id = mn.move_id
+    inner join type_names tn on tn.type_id = m.type_id
+    inner join move_flavor_text mft on mft.move_id = m.id
+    where tn.local_language_id = $LANG$ and
+          mn.local_language_id = $LANG$ and
+          mft.language_id = $LANG$ and
+          mn.name like ?
+    group by m.id
+    order by mn.name asc
   ]], name.."%")
   
   if #res.result.rows < 1 then
-    print("No results")
+    print("no results")
     return
   end
   
@@ -146,7 +136,7 @@ local function move(name)
     local sign = priority > 0 and "+" or ""
     t[#t+1] = "prio. "..sign..priority
   end
-
+  
   print(("\02%s:\02 %s (%s PP, %s)"):format(name, text, pp, table.concat(t, ", ")))
 end
 
@@ -158,12 +148,12 @@ local function damage(s)
   end
 
   local res = query([[
-    SELECT damage_factor, tn_damage.name, tn_target.name from type_efficacy te
-    INNER JOIN type_names tn_target ON te.target_type_id = tn_target.type_id
-    INNER JOIN type_names tn_damage ON te.damage_type_id = tn_damage.type_id
-    WHERE tn_target.local_language_id = $LANG$ and tn_damage.local_language_id = $LANG$ and
-          tn_damage.name LIKE ? AND
-          (tn_target.name LIKE ? or tn_target.name LIKE ?)
+    select damage_factor, tn_damage.name, tn_target.name from type_efficacy te
+    inner join type_names tn_target on te.target_type_id = tn_target.type_id
+    inner join type_names tn_damage on te.damage_type_id = tn_damage.type_id
+    where tn_target.local_language_id = $LANG$ and tn_damage.local_language_id = $LANG$ and
+          tn_damage.name like ? and
+          (tn_target.name like ? or tn_target.name like ?)
   ]], damage_type, target_type, target_type_2)
 
   local factor = 1.0
@@ -180,46 +170,76 @@ local function damage(s)
   print(("\02%s vs. %s:\02 %.0f%%"):format(damage, table.concat(target, "/"), factor * 100))
 end
 
+local function defense(s)
+  local target_type, target_type_2 = s:match("(%w+)/?(.*)")
+  if not target_type then
+    print("Usage: 'pokemon defense target-type[/target-type]")
+    return
+  end
+
+  local res = query([[
+    SELECT group_concat(damage_factor, ','), tn_damage.name, group_concat(tn_target.name, '/')
+    FROM type_efficacy te
+    INNER JOIN type_names tn_target ON te.target_type_id = tn_target.type_id
+    INNER JOIN type_names tn_damage ON te.damage_type_id = tn_damage.type_id
+    WHERE tn_target.local_language_id = $LANG$ and tn_damage.local_language_id = $LANG$ and
+          (tn_target.name LIKE ? or tn_target.name LIKE ?)
+    GROUP BY te.damage_type_id
+  ]], target_type, target_type_2 or target_type)
+
+  local damages = {}
+  local target_name
+
+  for i, row in ipairs(res.result.rows) do
+    local factors, damage_name, t = unpack(row)
+    target_name = t
+    
+    local factor = 1.0
+    for subfactor in factors:gmatch('[^,]+') do
+      factor = subfactor / 100 * factor
+    end
+    factor = factor * 100
+    
+    damages[factor] = damages[factor] or {}
+    damages[factor][#damages[factor] + 1] = damage_name
+  end
+
+  local keys = {}
+  for k, v in pairs(damages) do
+    keys[#keys + 1] = k
+  end
+  table.sort(keys, function(a, b) return a > b end)
+
+  local damage_names = {}
+  for _, factor in ipairs(keys) do
+    local names = damages[factor]
+    table.sort(names)
+    damage_names[#damage_names + 1] = ("%s @ %gx"):format(table.concat(names, "/"), factor / 100)
+  end
+
+  print(("\02%s defends against:\02 %s"):format(target_name, table.concat(damage_names, ", ")))
+end
+
 local function item(name)
   local res = query([[
-    SELECT in_.name, i.cost, REPLACE(ift.flavor_text, X'0A', ' ')
-    FROM item_names in_
-    INNER JOIN items i ON in_.item_id = i.id
-    INNER JOIN item_flavor_text ift ON in_.item_id = ift.item_id
-    WHERE in_.local_language_id = $LANG$ AND
-          ift.language_id = $LANG$ AND
-          in_.name LIKE ?
-    GROUP BY in_.item_id
-    ORDER BY in_.name ASC
+    select in_.name, i.cost, replace(ift.flavor_text, X'0A', ' ')
+    from item_names in_
+    inner join items i on in_.item_id = i.id
+    inner join item_flavor_text ift on in_.item_id = ift.item_id
+    where in_.local_language_id = $LANG$ and
+          ift.language_id = $LANG$ and
+          in_.name like ?
+    group by in_.item_id
+    order by in_.name asc
   ]], name.."%")
 
   if #res.result.rows < 1 then
-    print("No results")
+    print("no results")
     return
   end
 
   local name, cost, text = unpack(res.result.rows[1])
   print(("\02%s:\02 %s%s"):format(name, text, cost > 0 and " (₱"..cost..")" or ""))
-end
-
-local function vs(x)
-  --[[
-
-get all moves for a pokemon by ID
-probably look at version groups (maybe they differ in generations)
-
-SELECT pm.move_id, m.power, m.damage_class_id, tn.name as type_name, mn.name AS move_name
-FROM pokemon_moves pm
-INNER JOIN moves m ON pm.move_id = m.id
-INNER JOIN type_names tn ON tn.type_id = m.type_id
-INNER JOIN move_names mn ON mn.move_id = m.id
-WHERE pm.pokemon_id=1 AND tn.local_language_id = 9 AND mn.local_language_id = 9
-GROUP BY m.id
-ORDER BY power DESC
-
-list best moves of pokemon A against B
-
-  ]]
 end
 
 local rest = table.concat(t, " ", 2)
@@ -231,10 +251,10 @@ elseif t[1] == "info" or t[1] == "mon" then
   info(rest)
 elseif t[1] == "damage" or t[1] == "dmg" then
   damage(rest)
+elseif t[1] == "defense" or t[1] == "def" then
+  defense(rest)
 elseif t[1] == "item" then
   item(rest)
-elseif t[1] == "vs" then
-  vs(rest)
 else
   --print("unknown subcommand, assuming you meant 'pokemon info "..t[1])
   info(table.concat(t, " "))

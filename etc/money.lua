@@ -255,6 +255,7 @@ end
 
 -- peg cbc to vnd
 rates.CBC = rates.VND / 0.987654321
+--rates.CBC = etc.cbcvalue("USD")
 
 local function convert(amount, from, to)
   if not rates[from] then
