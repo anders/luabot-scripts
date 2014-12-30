@@ -1,8 +1,12 @@
-if Editor then return end
+if Editor then print 'hhhehehe' return end
 
-local APP_ID = 'ccdc436323fd4cb1a51dae367ca9a7ff'
-local CACHE_DURATION = 60 * 5
+-- TODO: better name
+local json = require 'json'
+local cache = plugin.cache(Cache)
 
+-- 8< -------- 8< ----
+
+-- copy/paste from money.lua
 local names = {
   CBC = 'Clownbot Coin',
   BTC = 'Bitcoin',
@@ -146,7 +150,7 @@ local names = {
   TJS = 'Tajikistani Somoni',
   TMT = 'Turkmenistani Manat',
   TND = 'Tunisian Dinar',
-  TOP = 'Tongan Pa\'anga',
+  TOP = 'Tongan Paʻanga',
   TRY = 'Turkish Lira',
   TTD = 'Trinidad and Tobago Dollar',
   TWD = 'New Taiwan Dollar',
@@ -171,71 +175,11 @@ local names = {
   ZAR = 'South African Rand',
   ZMK = 'Zambian Kwacha',
   ZMW = 'Zambian Kwacha',
-  ZWL = 'Zimbabwean Dollar',
-  
-  IMP = "Isle of Man Pound",
-  GGP = "Guernsey Pound",
+  ZWL = 'Zimbabwean Dollar'
 }
 
--- 'money 34.563 SEK USD
--- 'money SEK USD 324.657
--- 'money 342 SEK
--- 'money 434 USD
--- 'money USD
-
-local json = plugin.json()
-local cache = plugin.cache(Cache)
-
---[[
-local settings = plugin.settings(io)
-local key = assert(arg[1], 'expected key')
-if key:sub(1, 1) == '#' then
-  key = chan:lower()..'~'..key:sub(2)
-end
-local user = arg[2] or nick
-local path = 'uvars/'..user:lower()..'.json'
-return settings.load(path)[key:lower()]
-]]
-plugin._april_fools()
-local default_currency = (etc.get('currency', nick) or 'USD'):upper()
-
-local function usage()
-  print('\002Usage:\002 '..etc.cmdchar..'money [amount], code1, [code2]. Tip of the day: '..etc.cmdchar..'set currency <code>')
-end
-
-if not arg[1] then
-  usage()
-  return
-end
-
-local amount = arg[1]:match('%d+%.?%d*')
-
-local codes = {}
-for code in arg[1]:gmatch('%a+') do
-  if #code > 3 then
-    usage()
-    return
-  end
-
-  if #codes == 2 then
-    usage()
-    return
-  end
-
-  code = code:upper()
-  if code ~= 'IN' and code ~= 'TO' and code ~= 'FROM' then
-    codes[#codes + 1] = code
-  end
-end
-
-if #codes == 0 then
-  codes[1] = default_currency
-end
-
-if amount then
-  amount = tonumber(amount)
-end
-
+local APP_ID = 'ccdc436323fd4cb1a51dae367ca9a7ff'
+local CACHE_DURATION = 60 * 5
 local cached = cache.isCached('money.data')
 local rates = cached and cache.get('money.data')
 
@@ -262,74 +206,21 @@ local function get_rate(x)
   return rates[x]
 end
 
-local function convert(amount, from, to)
-  if not rates[from] then
-    return false, 'Unknown currency code `'..tostring(from)..'\'.'
-  elseif not rates[to] then
-    return false, 'Unknown currency code `'..tostring(to)..'\'.'
-  elseif type(amount) ~= 'number' then
-    return false, 'No amount specified.'
-  end
 
-  local amount_in_USD = amount / get_rate(from)
-  local amount_in_new = amount_in_USD * get_rate(to)
 
-  return amount_in_new
+-- 8< -------- 8< ----
+
+local currency = (arg[1] or etc.get('currency', nick) or 'USD'):upper()
+
+assert(rates[currency], 'dunno that currency fr8')
+
+local t = {}
+for code, value_usd in pairs(rates) do
+  t[#t + 1] = {code, get_rate(currency) / value_usd, math.abs(get_rate(currency) - value_usd)}
 end
 
-local function print_convert(amount, from, to)
-  local from_name = names[from] or from
-  local to_name = names[to] or to
+table.sort(t, function(a, b)
+  return a[3] < b[3]
+end)
 
-  local new_amount, e = convert(amount, from, to)
-  if not new_amount then
-    print('\002Error:\002 '..e)
-    return
-  end
-  print(('%g %s = %g %s'):format(amount, from_name, new_amount, to_name))
-end
-
--- 'money 50
-if #codes == 0 and amount then
-  codes[1] = default_currency
-  codes[2] = 'USD'
-end
-
--- 'money SEK
-if #codes == 1 and not amount then
-  local a = rates[codes[1]]
-  local b = rates[default_currency]
-  
-  if a and b then
-    if a < b then
-      print_convert(1, codes[1], default_currency)
-    else
-      print_convert(1, default_currency, codes[1])
-    end
-  else
-    print_convert(1, codes[1], default_currency)
-  end
-  return
-end
-
--- 'money 50 SEK
-if #codes == 1 and amount then
-  codes[2] = default_currency
-  if codes[1] == codes[2] then
-    codes[2] = 'USD'
-  end
-end
-
--- 'money SEK GBP
-if #codes == 2 and not amount then
-  print_convert(1, codes[1], codes[2])
-  return
-end
-
--- 'money 50 SEK GBP
-if #codes == 2 and amount then
-  print_convert(amount, codes[1], codes[2])
-  return
-end
-
-usage()
+for k, v in ipairs(t) do print(v[1], names[v[1]] or '(unknown)', v[2]) end

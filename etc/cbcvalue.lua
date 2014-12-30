@@ -2,7 +2,7 @@ API "1.1"
 
 local sbasevalue, currency
 if arg[1] == '-cache' then
-  if Cache.xau_usd and Cache.xau_usd_time and (os.time() - Cache.xau_usd_time) < 60 * 60 * 12 then
+  if Cache.xau_usd and Cache.xau_usd_time and (os.time() - Cache.xau_usd_time) < 60 * 60 * 6 then
     currency = 'USD -cache'
     sbasevalue = Cache.xau_usd
   end
