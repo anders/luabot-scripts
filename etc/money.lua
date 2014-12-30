@@ -253,9 +253,14 @@ else
   rates = json.decode(rates)
 end
 
--- peg cbc to vnd
-rates.CBC = rates.VND / 0.987654321
---rates.CBC = etc.cbcvalue("USD")
+rates.CBC = 0 -- Get it later.
+
+local function get_rate(x)
+  if x:upper() == 'CBC' and rates.CBC == 0 then
+    rates.CBC = 1 / etc.cbcvalue('USD')
+  end
+  return rates[x]
+end
 
 local function convert(amount, from, to)
   if not rates[from] then
@@ -266,8 +271,8 @@ local function convert(amount, from, to)
     return false, 'No amount specified.'
   end
 
-  local amount_in_USD = amount / rates[from]
-  local amount_in_new = amount_in_USD * rates[to]
+  local amount_in_USD = amount / get_rate(from)
+  local amount_in_new = amount_in_USD * get_rate(to)
 
   return amount_in_new
 end

@@ -197,19 +197,26 @@ else
   rates = json.decode(rates)
 end
 
-rates.CBC = rates.VND * 10
+rates.CBC = 0 -- Get it later.
+
+local function get_rate(x)
+  if x:upper() == 'CBC' and rates.CBC == 0 then
+    rates.CBC = 1 / etc.cbcvalue('USD')
+  end
+  return rates[x]
+end
 
 
 
 -- 8< -------- 8< ----
 
-local currency = arg[1]
+local currency = (arg[1] or etc.get('currency', nick) or 'USD'):upper()
 
 assert(rates[currency], 'dunno that currency fr8')
 
 local t = {}
 for code, value_usd in pairs(rates) do
-  t[#t + 1] = {code, rates[currency] / value_usd, math.abs(rates[currency] - value_usd)}
+  t[#t + 1] = {code, get_rate(currency) / value_usd, math.abs(get_rate(currency) - value_usd)}
 end
 
 table.sort(t, function(a, b)
