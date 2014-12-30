@@ -4,15 +4,25 @@ if Editor then return end
 
 local json = require "json"
 
-local LANG_ES = 7
-local LANG_EN = 9
+local languages = {
+  spanish = 7,
+  english = 9
+}
 
-local LANG = LANG_EN
+local LANG = languages.english
 
 local BASE_URL = "http://pokedexd.sjofn.rfw.name/"
 
+local replacements = {
+  LANG = LANG,
+}
+
 local function query(sql, ...)
-  sql = sql:gsub("%$LANG%$", LANG)
+  -- look up $KEY$ in the table "replacements"
+  sql = sql:gsub("%$(%w+)%$", function(key)
+    return tostring(replacements[key])
+  end)
+
   -- &param=.. for prepared statements
   local url = BASE_URL.."?q="..urlEncode(sql)
   for i=1, select("#", ...) do
@@ -58,7 +68,8 @@ local function ability(name)
   print(("\02%s:\02 %s"):format(name, text))
 end
 
-local function info(name)
+local function pokemon_by_name(name, exact)
+  exact = exact and "=" or "like"
   local res = query([[
     select p.species_id, psn.name, group_concat(pt.slot||':'||tn.name), group_concat(pa.slot||':'||an.name), replace(psft.flavor_text, X'0A', ' ')
     from pokemon p
@@ -72,27 +83,38 @@ local function info(name)
           psn.local_language_id = $LANG$ and
           an.local_language_id = $LANG$ and
           psft.language_id = $LANG$ and
-          (psn.name like ? or p.species_id = ?)
+          (psn.name ]]..exact..[[ ? or p.species_id = ?)
     group by p.id
     order by psn.name asc
+    limit 1
   ]], name.."%", name)
 
   if #res.result.rows < 1 then
-    print("no results")
-    return
+    return false, "no match"
   end
 
   local species_id, name, types, abilities, text = unpack(res.result.rows[1])
-  types = table.concat(sort_types(types), "/")
-  sorted_abilities = sort_types(abilities)
-
-  abilities = table.concat({sorted_abilities[1], sorted_abilities[2]}, ", ")
   
-  if sorted_abilities[3] then
-   abilities = abilities .. ", [" .. sorted_abilities[3] .. "]"
+  return {
+    id = species_id,
+    name = name,
+    types = sort_types(types), -- should be "split_types" or so
+    abilities = sort_types(abilities),
+    text = text
+  }
+end
+
+local function info(name)
+  local t = assert(pokemon_by_name(name))
+  
+  local types = table.concat(t.types, "/")
+  local abilities = table.concat({t.abilities[1], t.abilities[2]}, ", ")
+
+  if t.abilities[3] then
+    abilities = abilities..", ["..t.abilities[3].."]"
   end
 
-  print(("\02#%03d %s:\02 %s (%s; Abilities: %s)"):format(species_id, name, text, types, abilities))
+  print(("\02#%03d %s:\02 %s (%s; Abilities: %s)"):format(t.id, t.name, t.text, types, abilities))
 end
 
 local function move(name)
@@ -171,6 +193,11 @@ local function damage(s)
 end
 
 local function defense(s)
+  local poke = pokemon_by_name(s, true)
+  if poke then
+    s = table.concat(poke.types, "/")
+  end
+
   local target_type, target_type_2 = s:match("(%w+)/?(.*)")
   if not target_type then
     print("Usage: 'pokemon defense target-type[/target-type]")
