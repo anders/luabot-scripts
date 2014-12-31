@@ -258,7 +258,7 @@ local function defense(s)
     damage_names[#damage_names + 1] = ("%gx: %s"):format(factor / 100, table.concat(names, "/"))
   end
 
-  print(("\02%s receiving damage factors:\02 %s"):format(target_name or "N/A???", table.concat(damage_names, ", ")))
+  print(("\02Type effectiveness against %s:\02 %s"):format(target_name or "N/A???", table.concat(damage_names, ", ")))
 end
 
 local function item(name)
