@@ -6,4 +6,4 @@ end
 assert(allCodeTrusted(), "Breached")
 
 -- This is needed because the cbcvalue graph can't do it.
------------ DISABLED: etc.cbcvalue('-cache')
+etc.cbcvalue('-cache')

@@ -4,5 +4,6 @@ local t = {}
 t.title = "Value of CBC"
 t.vlabel = "CBC"
 t.lowerLimit = 0
-t.data = { OneUSD = etc.cbcvalue('-cache') }
+t.scale = false
+t.data = { OneUSD = 1 / etc.cbcvalue('-cache') }
 return t

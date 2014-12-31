@@ -4,7 +4,7 @@ return {
     "botstocks",
     "memusage",
     "threads",
-    -- "cbcvalue", -- bork
+    "cbcvalue", -- make sure cron_cbcvalue caches the value.
     -- "dbotusers", -- breaks munin for unknown reason.
   };
 }
