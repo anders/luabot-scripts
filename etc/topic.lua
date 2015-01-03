@@ -1,3 +1,7 @@
+if not arg[1] then
+  return topic(dest) or ''
+end
+
 local allowChans = { ["#dbot"] = true }
 
 if allowChans[dest] then
