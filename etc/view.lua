@@ -17,7 +17,18 @@ end
 
 local mod, func = what:match("([a-z]+)%.([A-Za-z0-9_]+)")
 if not mod or not func then
-  return false, "See 'help '"..this.."."
+  return --false, "See 'help '"..this.."."
+end
+
+local list = io.fs.list("/pub/scripts/"..mod)
+if not list then return end
+
+for k, path in ipairs(list) do
+  local last = path:match("/([^/]+)%.lua$")
+  if last:lower() == func:lower() then
+    func = last
+    break
+  end
 end
 
 local script_path = "/pub/scripts/"..mod.."/"..func..".lua"

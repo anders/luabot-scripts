@@ -1,14 +1,5 @@
  local LOG = plugin.log(_funcname)
 
--- Temporary:
-
-local hist = _getHistory(0) or ""
-if hist:sub(1, 2) == "'u" then
-  print "'u is deprecated, please use 'user instead."
-  print(etc.user(...) or "")
-  return
-end
-
 --- U(codepoint, fast?) -> UTF-8 encoded codepoint; description
 --- @param fast don't look up character info in the Unicode database
 
