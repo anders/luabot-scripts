@@ -1,3 +1,5 @@
+failNotCodeTrusted()
+
 local x = math.random() + math.random() + math.random() * 0.718281828459
 
 local bestnick = nick
