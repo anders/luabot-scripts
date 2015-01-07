@@ -15,7 +15,7 @@ if not sbasevalue then
     Cache.xau_usd_time = os.time()
   end
 end
-local basevalue = tonumber(sbasevalue)
+local basevalue = assert(tonumber(sbasevalue))
 
 local absTotal = 0
 local count = 0
