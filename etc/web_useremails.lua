@@ -7,7 +7,12 @@ for k, v in ipairs(os.list("uvars")) do
   local user = v:match("uvars/([^.]+).json")
   local name = etc.get("github.name", user)
   local email = etc.get("github.email", user)
-  if name or email then
+  
+  local ok = true
+  if name and not name:match("^[%w%-_%[%] ]+$") then ok = false end
+  if email and not email:match("^[%w%.@%-_ ]+$") then ok = false end
+  
+  if ok and name or email then
     ret[user] = {name = name, email = email}
   end
 end
