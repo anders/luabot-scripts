@@ -33,6 +33,7 @@ local function getfunc(name)
       return nil
     end
     mod = _G[x]
+    name = y
   end
   local f = mod[name]
   if f then
