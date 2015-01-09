@@ -17,6 +17,16 @@ BRANCH_NAME = "master"
 REMOTE_NAME = "origin"
 
 
+EMAIL_MAP = {
+    "anders": "anders1@gmail.com",
+}
+
+
+def extend_list(a, b):
+    a.extend(b)
+    return a
+
+
 def main():
     script_path = os.path.realpath(__file__)
     if os.path.exists(script_path.upper()):
@@ -33,6 +43,9 @@ def main():
     # UNIX timestamp of the last sync commit.
     lastrun = 0
 
+    os.environ["GIT_COMMITTER_NAME"] = AUTHOR_NAME
+    os.environ["GIT_COMMITTER_EMAIL"] = AUTHOR_EMAIL
+
     try:
         p = subprocess.Popen([GIT, "log", "-1", "master", "--format=%ct",
                               "--grep", "Sync."], stdout=subprocess.PIPE)
@@ -41,6 +54,9 @@ def main():
         pass
 
     fnull = open(os.devnull, "w")
+
+    scripts_by_user = {}
+    path_uid = {}
 
     # Add new or modified scripts.
     for mod in j:
@@ -61,26 +77,35 @@ def main():
                 with open(path, "w") as f:
                     f.write(resp)
 
-                subprocess.check_call([GIT, "add", path], stdout=fnull)
+                user = scripts_by_user.setdefault(j[mod][fun]["owner"], [])
+                user.append(path)
+
+                path_uid[path] = j[mod][fun]["uid"]
+
+    for user in scripts_by_user:
+        for path in scripts_by_user[user]:
+            subprocess.check_call(["echo", GIT, "add", path], stdout=fnull)
+        os.environ["GIT_AUTHOR_NAME"] = user
+        os.environ["GIT_AUTHOR_EMAIL"] = EMAIL_MAP.get(user, "user%d@codebust.com" % path_uid[path])
+        subprocess.check_call(extend_list([GIT, "commit", "-m", "Sync."], scripts_by_user[user]), stdout=fnull)
 
     # Find out if a script was deleted or not.
-    # Done by finding Lua scripts that weren"t in the list fetched earlier.
+    # Done by finding Lua scripts that weren't in the list fetched earlier.
     # If a deleted script is found, git rm it.
+    deleted_scripts = []
     for mod in j:
         for path in glob(os.path.join(root, mod) + "/*.lua"):
             name = os.path.splitext(os.path.basename(path))[0]
             if name not in j[mod]:
-                subprocess.check_call([GIT, "rm", path], stdout=fnull)
-
-    commit_message = "Sync."
+                deleted_scripts.append(path)
 
     os.environ["GIT_AUTHOR_NAME"] = AUTHOR_NAME
     os.environ["GIT_AUTHOR_EMAIL"] = AUTHOR_EMAIL
-    os.environ["GIT_COMMITTER_NAME"] = AUTHOR_NAME
-    os.environ["GIT_COMMITTER_EMAIL"] = AUTHOR_EMAIL
 
-    subprocess.call([GIT, "commit", "-m", commit_message],
-                    stdout=fnull, stderr=fnull)
+    if len(deleted_scripts) > 0:
+        subprocess.check_call(extend_list([GIT, "rm"], deleted_scripts), stdout=fnull)
+        subprocess.check_call(extend_list([GIT, "commit", "-m", "Delete old scripts."], deleted_scripts), stdout=fnull)
+
     subprocess.call([GIT, "push", "-u", REMOTE_NAME, BRANCH_NAME],
                     stdout=fnull, stderr=fnull)
 
