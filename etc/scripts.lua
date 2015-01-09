@@ -57,7 +57,8 @@ for _, mod in ipairs{'etc', 'plugin', 'util', 'tests'} do
       outt[mod][f] = {
         owner = getname(ownerid),
         url = boturl..'u/anders/'..raw,
-        mtime = mtime
+        mtime = mtime,
+        uid = ownerid,
       }
     end
   end

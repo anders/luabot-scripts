@@ -1,6 +1,6 @@
 if Editor then return end
 local t = {}
-t.title = "Birthday Countdown - use 'GraphMe and 'set birthday"
+t.title = "Birthday Countdown (use 'GraphMe)"
 t.vlabel = "Days until Birthday"
 t.lowerLimit = 0
 t.scale = false
