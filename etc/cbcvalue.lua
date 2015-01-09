@@ -11,11 +11,14 @@ end
 if not sbasevalue then
   sbasevalue, currency = etc.getOutput(etc.money, '1 XAU ' .. (arg[1] or 'USD')):match('= ([%d%.]+) (.+)')
   if (arg[1] or 'USD'):upper() == 'USD' then
-    Cache.xau_usd = sbasevalue
     Cache.xau_usd_time = os.time()
+    Cache.xau_usd = sbasevalue
   end
 end
-local basevalue = assert(tonumber(sbasevalue))
+local basevalue = tonumber(sbasevalue)
+if not sbasevalue then
+  return nil, "cannot get cbc value"
+end
 
 local absTotal = 0
 local count = 0
