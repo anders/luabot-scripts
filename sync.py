@@ -82,6 +82,16 @@ def main():
 
                 path_uid[path] = j[mod][fun]["uid"]
 
+    # Find out if a script was deleted or not.
+    # Done by finding Lua scripts that weren't in the list fetched earlier.
+    # If a deleted script is found, git rm it.
+    deleted_scripts = []
+    for mod in j:
+        for path in glob(os.path.join(root, mod) + "/*.lua"):
+            name = os.path.splitext(os.path.basename(path))[0]
+            if name not in j[mod]:
+                deleted_scripts.append(path)
+
     for user in scripts_by_user:
         for path in scripts_by_user[user]:
             subprocess.check_call(["echo", GIT, "add", path], stdout=fnull)
@@ -94,16 +104,6 @@ def main():
         os.environ["GIT_AUTHOR_NAME"] = name
         os.environ["GIT_AUTHOR_EMAIL"] = EMAIL_MAP.get(user, "user%d@codebust.com" % path_uid[path])
         subprocess.check_call(extend_list([GIT, "commit", "-m", "Sync."], scripts_by_user[user]), stdout=fnull)
-
-    # Find out if a script was deleted or not.
-    # Done by finding Lua scripts that weren't in the list fetched earlier.
-    # If a deleted script is found, git rm it.
-    deleted_scripts = []
-    for mod in j:
-        for path in glob(os.path.join(root, mod) + "/*.lua"):
-            name = os.path.splitext(os.path.basename(path))[0]
-            if name not in j[mod]:
-                deleted_scripts.append(path)
 
     os.environ["GIT_AUTHOR_NAME"] = AUTHOR_NAME
     os.environ["GIT_AUTHOR_EMAIL"] = AUTHOR_EMAIL
