@@ -29,8 +29,6 @@ def extend_list(a, b):
 
 def main():
     script_path = os.path.realpath(__file__)
-    if os.path.exists(script_path.upper()):
-        raise Exception("Case insensitive filesystems are not supported.")
 
     root = os.path.dirname(script_path)
 
