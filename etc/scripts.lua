@@ -1,3 +1,5 @@
+-- luabot-scripts sync depends on this!
+
 -- FIXME: html escape
 local function htmlEscape(s)
   return (s:gsub('&', '&amp;'))
