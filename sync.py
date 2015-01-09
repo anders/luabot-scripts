@@ -85,7 +85,13 @@ def main():
     for user in scripts_by_user:
         for path in scripts_by_user[user]:
             subprocess.check_call(["echo", GIT, "add", path], stdout=fnull)
-        os.environ["GIT_AUTHOR_NAME"] = user
+
+        # opt-in author, otherwise semi-anonymous
+        name = user
+        if user not in EMAIL_MAP:
+            name = "user%d" % path_uid[path]
+
+        os.environ["GIT_AUTHOR_NAME"] = name
         os.environ["GIT_AUTHOR_EMAIL"] = EMAIL_MAP.get(user, "user%d@codebust.com" % path_uid[path])
         subprocess.check_call(extend_list([GIT, "commit", "-m", "Sync."], scripts_by_user[user]), stdout=fnull)
 
