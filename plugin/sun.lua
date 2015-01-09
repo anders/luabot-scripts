@@ -1,4 +1,5 @@
 -- a direct port of "sunriset.c"
+-- can be found here: http://stjarnhimlen.se/comp/sunriset.c
 local PI = 3.1415926535897932384
 
 local __daylen__
