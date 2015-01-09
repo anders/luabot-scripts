@@ -92,7 +92,7 @@ def main():
 
     for user in scripts_by_user:
         for path in scripts_by_user[user]:
-            subprocess.check_call(["echo", GIT, "add", path], stdout=fnull)
+            subprocess.check_call([GIT, "add", path], stdout=fnull)
 
         # opt-in author, otherwise semi-anonymous
         name = user
