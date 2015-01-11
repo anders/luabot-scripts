@@ -45,7 +45,11 @@ if cmd then
         local result, e = etc.getOutput(etc.munin_graph, t, cmd)
         -- assert(result, e)
         if not result then
-          errors[#errors + 1] = "plugin " .. tostring(param) .. ": " .. tostring(e)
+          if e then
+            errors[#errors + 1] = "plugin " .. tostring(param) .. ": " .. tostring(e)
+          else
+            -- Maybe it just had nothing to output.
+          end
         else
           result = result:gsub("[\r\n]+$", "") .. "\n"
           Munin.write(result)
