@@ -1,4 +1,4 @@
-return etc.gaywords(etc.lacist((arg[1] or etc.getOutput(etc.fml, ...))
+return etc.gaywords(etc.lacist((etc.nogay(arg[1] or etc.getOutput(etc.fml, ...)))
   :gsub("%f[%a]girlfriend%f[%A]", "boyfriend")
   :gsub("%f[%a]Girlfriend%f[%A]", "Boyfriend")
   :gsub("%f[%a]she%f[%A]", "he")
