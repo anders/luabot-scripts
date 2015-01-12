@@ -1,3 +1,6 @@
+-- Example: 'echo something |'trparty tr
+-- It will run etc.tr(something) repeatedly until the output is the same or the time limit is exceeded.
+
 local arg, stdin = etc.stdio(arg)
 local f = assert(guestloadstring("return "..arg[1])())
 
