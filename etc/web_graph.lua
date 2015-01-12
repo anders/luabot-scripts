@@ -40,7 +40,7 @@ output(html:gsub("%%([^%%]+)%%", function(x)
   elseif x == "heading" then
     return "Graph for " .. graph
   elseif x == "graphImgPrefix" then
-    return "/t/graphs/ludebot/"
+    return boturl.."t/graphs/ludebot/"
   end
   return ""
 end):gsub("%%%%", "%%") or "")
