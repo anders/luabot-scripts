@@ -138,7 +138,8 @@ while #str - istr - 1 > linelength do
       break
     end
     if maxlines == 0 then
-      return
+      istr = #str + 1
+      break
     end
   end
 end
