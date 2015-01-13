@@ -26,4 +26,4 @@ if _G[modname][funcname] then
   return
 end
 
-sendNotice(nick, boturl .. 'create?module='..urlEncode(modname)..'&name='..urlEncode(funcname))
+sendNotice(nick, boturl .. 't/create?module='..urlEncode(modname)..'&name='..urlEncode(funcname))
