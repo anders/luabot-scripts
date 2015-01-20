@@ -38,8 +38,9 @@ if allowChans[dest] then
   if oldtopic ~= '' then
     LocalCache.oldtopic = oldtopic
   end
-  singleprint()
-  return dest, "topic set"
+  -- singleprint()
+  -- return dest, "topic set"
+  return true -- ok
 else
   return false, "Permission denied"
 end
