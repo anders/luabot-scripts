@@ -1,7 +1,20 @@
 -- U+200B, ZERO WIDTH SPACE: "\226\128\139"
+-- "\226\128\142" -- LTR
 local s = arg[1] or ''
 local nl = arg[2] -- nicklist
-local zwsp = arg[3] or "\226\128\142" -- LTR
+
+local noalert
+if type(arg[3]) == "string" then
+  noalert = function() return arg[3] end
+elseif type(arg[3]) == "function" then
+  noalert = arg[3]
+else
+  noalert = function(x)
+    return x:sub(1, #x - 1) .. etc.wide(x:sub(#x))
+  end
+end
+
+
 
 if type(nl) == "string" then
   nl = nicklist(nl)
@@ -18,6 +31,6 @@ nlkeys[nick:lower()] = true
 
 return etc.translateWords(s, function(x)
   if nlkeys[x:lower()] then
-    return x:sub(1, 1) .. zwsp .. x:sub(2)
+    return noalert(x)
   end
 end, nil, true)

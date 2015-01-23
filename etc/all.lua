@@ -82,6 +82,6 @@ for i = 1, maxi do
 end
 -- if not plain and print ~= directprint then
 if not plain then
-  return etc.nonickalert(result)
+  return etc.nonickalert(result, nil, _allNoAlert)
 end
 return result
