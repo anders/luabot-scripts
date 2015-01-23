@@ -1,1 +1,1 @@
-return "ok"
+return 'o'..'k'
