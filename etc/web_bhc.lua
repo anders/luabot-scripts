@@ -2,10 +2,10 @@ API "1.1"
 
 if not Web or not Web.GET.msg then return end
 
+Output.mode = "irc"
+Output.printType = "irc"
 _clown()
-
-Output = { tty=true, maxLineLength=400, printTypeConvert='auto', mode='irc', printType='irc', maxLines=4 }
 
 -- print(Web.GET.msg)
 
-print(assert(guestloadstring("etc.cmd(...)"))("'" .. Web.GET.msg))
+print(assert(guestloadstring("_guest(); return etc.cmd(...)"))("'" .. Web.GET.msg))
