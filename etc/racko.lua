@@ -81,10 +81,7 @@ end
 fill_deck = function(state)
   assert(not state.deck_filled, "deck already filled")
 
-  local player_count = 0
-  for _ in pairs(state.players) do
-    player_count = player_count + 1
-  end
+  local player_count = count_players(state)
   
   local counts = {[2] = 40, [3] = 50, [4] = 60}
   assert(counts[player_count], "too few or too many players (expected 2-4)")
