@@ -13,8 +13,8 @@ while true do
   if not line then break end
 
   line = etc.stripCodes(line)
-  
-  if not line:find(etc.cmdprefix..'se?d?[^%w]') and line:match(search) then
+
+  if not line:find('^s/') and not line:find('^'..etc.cmdprefix..'se?d?[^%w]') and line:match(search) then
     line = line:gsub('\031', '') -- strip underline
     
     -- if the line begins with <luabot> strip that
