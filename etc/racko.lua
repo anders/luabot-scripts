@@ -129,7 +129,7 @@ end
 local function rack_string(rack)
   local tmp = {}
   for i, v in ipairs(rack) do
-    tmp[#tmp + 1] = i..":"..v
+    tmp[#tmp + 1] = ("%s%d"):format(string.char(64 + i), v)
   end
   return table.concat(tmp, " ")
 end
@@ -216,8 +216,12 @@ local function msg_handler(state, reply, name, id, line)
 end
 
 local function make_reply_func(nick)
-  return function(msg)
-    print(nick..": "..msg)
+  return function(msg, private)
+    if not private then
+      print(nick..": "..msg)
+    else
+      sendNotice(nick, msg)
+    end
   end
 end
 
