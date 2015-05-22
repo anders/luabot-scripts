@@ -4,7 +4,7 @@ if not chan then return end
 
 local json = require "json"
 
-local Log = plugin.log("Rack-O")
+-- local Log = plugin.log("Rack-O")
 
 --[[
 Rack-O
@@ -35,17 +35,29 @@ discarded. if it was taken from the discard pile, it must be put in the rack.
 first player to get an ascending sequence of 10 cards wins
 ]]
 
+--[[
+
+<anders> 'racko join
+<luabot> anders: You have joined the game, need one more player
+<fooooo> 'racko join
+<luabot> anders: You have joined the game, ready to begin
+<anders> 'racko start
+-luabot- [Rack-O!] Your rack: a1, b2, c3, d4, e5, f6, g7, h8, i9, j10
+<luabot> anders: It's your turn. Use "replace <letter>" to accept the drawn card, "discard" to discard.
+-luabot- [Rack-O!] Drawn card: 7. Top of discard: 9.
+<anders> discard
+or..
+<anders> replace b
+-luabot- [Rack-O!] Your rack: a1, b7, c3, d4, e5, f6, g7, h8, i9, j10
+<luabot> fooooo: It's your turn. . . .
+
+
+]]
+
 local SAVE_DIR = "racko"
 local STALE_TIME = 3600
 local MIN_PLAYERS = 2
 local MAX_PLAYERS = 4
-
-local function clean_slate()
-  return {
-    players = {},
-    order = {}
-  }
-end
 
 local function load_game()
   local state
@@ -62,7 +74,11 @@ local function load_game()
   end
   
   if not state or (state.last_activity and os.time() - state.last_activity > STALE_TIME) then
-    return clean_slate()
+    return {
+      players = {},
+      order = {},
+      turn = 1 -- state.order[state.turn] -> player id
+    }
   else
     return state
   end
@@ -129,18 +145,17 @@ end
 local function rack_string(rack)
   local tmp = {}
   for i, v in ipairs(rack) do
-    tmp[#tmp + 1] = ("%s%d"):format(string.char(64 + i), v)
+    -- Example: a5 b3 c9 d40 e10 . . .
+    tmp[#tmp + 1] = ("%s%d"):format(string.char(96 + i), v)
   end
-  return table.concat(tmp, " ")
+  return table.concat(tmp, ", ")
 end
 
 local function start_game(state)
-  local num_cards = (2 + count_players(state)) * 10
-  
   state.deck = {}
   state.discard = {}
   
-  for i=1, num_cards do state.deck[i] = i end
+  for i=1, (2 + count_players(state)) * 10 do state.deck[i] = i end
   etc.shuffle(state.deck) -- TODO: pass better random func as 2nd arg
   
   -- deal cards to players
@@ -168,8 +183,27 @@ local function msg_handler(state, reply, name, id, line)
   for token in line:gmatch("[^%s]+") do
     tokens[#tokens + 1] = token
   end
+  
+  if state.players[id] then
+    -- In case the player changed their name
+    state.players[id].name = name
+  end
 
-  if tokens[1] == "join" then
+  if tokens[1] == "" or tokens[1] == "racko" then
+    -- player not in game? assume join instead
+    if not state.players[id] then
+      return msg_handler(state, reply, name, id, "join")
+    end
+    
+    -- deal with shouting Rack-O!
+    
+    if is_racko(state.players[id]) then
+      reply("Congratulations! You won the game :-)")
+    else
+      reply("Sorry, but you don't have a valid sequence. Numbers must be ascending.")
+    end
+
+  elseif tokens[1] == "join" then
     local player_count, err = add_player(state, id, name)
     if not player_count then
       reply("Sorry: "..err)
@@ -185,26 +219,15 @@ local function msg_handler(state, reply, name, id, line)
   elseif tokens[1] == "start" then
     local player_count = count_players(state)
     if not (player_count >= MIN_PLAYERS and player_count <= MAX_PLAYERS) then
-      reply("Not enough players / too many players (???)")
+      reply("Need at least "..MIN_PLAYERS.." to play Rack-O.")
       return
     end
     
     start_game(state)
-    reply(rack_string(state.players[id].rack))
-
-  elseif tokens[1] == "racko" then
-    if not state.players[id] then
-      reply("You haven't joined the game")
-      return
-    end
     
-    -- maybe update state.players[id].name
+    -- just to see how the rack would look
+    reply(rack_string(state.players[id].rack), true)
 
-    if is_racko(state.players[id]) then
-      reply("Congratulations")
-    else
-      reply("Sorry, but you don't have a valid sequence")
-    end
 
   elseif tokens[1] == "guest" then
     return msg_handler(state, function(s) reply("(guest) "..s) end, "$guest", 28292717, line:match("guest%s+(.+)"))
@@ -220,7 +243,7 @@ local function make_reply_func(nick)
     if not private then
       print(nick..": "..msg)
     else
-      sendNotice(nick, msg)
+      sendNotice(nick, "[Rack-O] "..msg)
     end
   end
 end
