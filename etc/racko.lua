@@ -248,14 +248,16 @@ local function make_reply_func(nick)
   end
 end
 
+local reply = make_reply_func(nick)
+
 -- 28292717 = $guest
 if not account or account < 1 or account >= 28292717 then
-  print(nick.." * you need to be authenticated to play.")
+  reply("you need to be authenticated to play.")
   return
 end
 
 local state = load_game()
 
-msg_handler(state, make_reply_func(nick), nick, account, arg[1])
+msg_handler(state, reply, nick, account, arg[1])
 
 save_game(state)
