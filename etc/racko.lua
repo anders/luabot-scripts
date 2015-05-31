@@ -8,35 +8,24 @@ local json = require "json"
 
 --[[
 Rack-O
-
 gameplay:
-
 2-4 players
-
 deck:
       2 players: 1-40,
       3 players: 1-50,
       4 players: 1-60
-
 each player has a rack of 10 cards
-
 dealer shuffles and deals 10 cards to each player
-
 player must put each received card in the highest available slot (#10)
-
 goal is to have a sequence of numbers, low to high, starting at slot #1
-
 top card of deck is turned, becomes the discard pile
-
 a turn is taken by taking the top card from the deck, or the discard pile
 and replacing one of the cards in the rack. if the card was taken from the deck, it may be
 discarded. if it was taken from the discard pile, it must be put in the rack.
-
 first player to get an ascending sequence of 10 cards wins
 ]]
 
 --[[
-
 <anders> 'racko join
 <luabot> anders: You have joined the game, need one more player
 <fooooo> 'racko join
@@ -50,8 +39,6 @@ or..
 <anders> replace b
 -luabot- [Rack-O!] Your rack: a1, b7, c3, d4, e5, f6, g7, h8, i9, j10
 <luabot> fooooo: It's your turn. . . .
-
-
 ]]
 
 local SAVE_DIR = "racko"
