@@ -34,7 +34,8 @@ if arg[1] then
   print(f(etc, plugin, input))
   --]]
   
-  local f = assert(godloadstring("return " .. fixer))
+  -- local f = assert(godloadstring("return " .. fixer))
+  local f = assert(guestloadstring("return " .. fixer))
   -- print(f(input))
   return f(input)
   
