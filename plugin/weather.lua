@@ -29,6 +29,10 @@ end
 -- T: temperature in Celsius
 -- R: relative humidity
 function M.heatIndex(T, R)
+  if not (T >= 27 and R >= 40) then
+    return false, "temperature must be >27C and humidity must be at least 40%"
+  end
+
   local c1 = -8.784695
   local c2 = 1.61139411
   local c3 = 2.338549
