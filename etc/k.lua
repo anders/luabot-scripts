@@ -9,10 +9,7 @@ end
 
 local t = {}
 
-local max = 5
-for i = 1, max do
-  local h = hist[math.random(#hist)]
-  local msg = h[1]
+local function k(i, max, msg)
   local want = math.random(2, 4)
   local getting = false
   msg = msg:gsub("\003%d?%d?,?%d?%d?", "")
@@ -37,6 +34,18 @@ for i = 1, max do
       want = want - 1
     end
   end
+end
+
+local max = 5
+local initi = 1
+if arg[1] and #arg[1] then
+  k(initi, max, arg[1])
+  initi = initi + 1
+end
+for i = initi, max do
+  local h = hist[math.random(#hist)]
+  local msg = h[1]
+  k(i, max, msg)
 end
 
 local outline = table.concat(t, " ")
