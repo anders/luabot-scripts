@@ -10,7 +10,7 @@ local user = arg[1] ~= '' and arg[1]
 local API_KEY = '142e172267537d16cc28336c89339871'
 user = etc.get('last.fm', arg[1]) or user or etc.get('last.fm', nick) or nick
 
-local url = 'http://ws.audioscrobbler.com/2.0?method=user.getrecenttracks&format=json&user='..user..'&api_key='..API_KEY
+local url = 'http://ws.audioscrobbler.com/2.0?limit=2&method=user.getrecenttracks&format=json&user='..user..'&api_key='..API_KEY
 local data = httpGet(url)
 local parsed = assert(json.load(data))
 
