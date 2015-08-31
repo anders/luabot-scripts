@@ -6,6 +6,7 @@
 -- 2012-06-30: handle errors
 -- 2012-07-01: byte[] fixed unicode escapes
 -- 2014-05-12: remove luabot dependencies
+-- 2015-08-31: try to fix surrogate pairs
 --
 -----------------------------------------------------------------------------
 -- JSON4Lua: JSON encoding / decoding support for the Lua language.
@@ -29,7 +30,7 @@
 -- CHANGELOG
 --   0.9.20 Introduction of local Lua functions for private functions (removed _ function prefix). 
 --          Fixed Lua 5.1 compatibility issues.
---   		Introduced json.null to have null values in associative arrays.
+--          Introduced json.null to have null values in associative arrays.
 --          encode() performance improvement (more than 50%) through table.concat rather than ..
 --          Introduced decode ability to ignore /**/ comments in the JSON string.
 --   0.9.10 Fix to array encoding / decoding to correctly manage nil/null values in arrays.
@@ -79,22 +80,22 @@ end
 
 -- Array type which supports null/undefined/nil holes.
 local ArrayMT = {
-    __index = function(t, k)
-        local v = rawget(t, k)
-        if v == null then
-            return nil
-        end
-    end;
-    __newindex = function(t, k, v)
-        if v == nil then
-            v = null
-        end
-        rawset(t, k, v)
-    end;
+  __index = function(t, k)
+    local v = rawget(t, k)
+    if v == null then
+      return nil
+    end
+  end,
+  __newindex = function(t, k, v)
+    if v == nil then
+      v = null
+    end
+    rawset(t, k, v)
+  end
 }
 
 local function create_array()
-    return setmetatable({}, ArrayMT)
+  return setmetatable({}, ArrayMT)
 end
 
 -----------------------------------------------------------------------------
@@ -113,7 +114,7 @@ function encode (v)
 
   -- Handle strings
   if vtype=='string' then    
-    return '"' .. encodeString(v) .. '"'	    -- Need to handle encoding in string
+    return '"' .. encodeString(v) .. '"'        -- Need to handle encoding in string
   end
   
   -- Handle booleans
@@ -130,7 +131,7 @@ function encode (v)
       for i = 1,maxCount do
         table.insert(rval, encode(v[i]))
       end
-    else	-- An object, not an array
+    else    -- An object, not an array
       for i,j in base.pairs(v) do
         if isEncodable(i) and isEncodable(j) then
           table.insert(rval, '"' .. encodeString(i) .. '":' .. encode(j))
@@ -287,8 +288,8 @@ function decode_scanNumber(s,startPos)
   local stringLen = string.len(s)
   local acceptableChars = "+-0123456789.e"
   while (string.find(acceptableChars, string.sub(s,endPos,endPos), 1, true)
-	and endPos<=stringLen
-	) do
+    and endPos<=stringLen
+    ) do
     endPos = endPos + 1
   end
   local stringValue = 'return ' .. string.sub(s,startPos, endPos-1)
@@ -330,7 +331,7 @@ function decode_scanObject(s,startPos)
     base.assert(startPos<=stringLen, 'JSON string ended unexpectedly searching for value of key ' .. key)
     value, startPos = decode(s,startPos)
     object[key]=value
-  until false	-- infinite loop while key-value pairs are found
+  until false   -- infinite loop while key-value pairs are found
 end
 
 --- Scans a JSON string from the opening inverted comma or single quote to the
@@ -352,7 +353,7 @@ function decode_scanString(s,startPos)
   repeat
     local curChar = string.sub(s,endPos,endPos)
     -- Character escaping is only used to escape the string delimiters
-    if not escaped then	
+    if not escaped then 
       if curChar==[[\]] then
         escaped = true
       else
@@ -370,7 +371,19 @@ function decode_scanString(s,startPos)
   -- base.assert(stringEval, 'Failed to load string [ ' .. stringValue .. '] in JSON4Lua.decode_scanString at position ' .. startPos .. ' : ' .. endPos)
   -- return stringEval(), endPos  
   local stringValue = string.sub(s, startPos + 1, endPos - 2)
-  local stringEval = stringValue:gsub("\\(.)(%w?%w?%w?%w?)", function(x, y)
+
+  -- deal with escaped surrogate pairs
+  local stringEval = stringValue:gsub("\\u(%w%w%w%w)\\u(%w%w%w%w)", function(a, b)
+    a, b = tonumber(a, 16), tonumber(b, 16)
+
+    if not ((a >= 0xd800 and a <= 0xdbff) and (b >= 0xdc00 and b <= 0xdfff)) then
+      return
+    end
+
+    return unichr(((a - 0xd800) * 0x400) + (b - 0xdc00) + 0x10000)
+  end)
+  
+  stringEval = stringEval:gsub("\\(.)(%w?%w?%w?%w?)", function(x, y)
     if x == 'b' then return "\b" .. y end
     if x == 'f' then return "\f" .. y end
     if x == 'n' then return "\n" .. y end
@@ -431,8 +444,8 @@ function isArray(t)
   -- (with the possible exception of 'n')
   local maxIndex = 0
   for k,v in base.pairs(t) do
-    if (base.type(k)=='number' and math.floor(k)==k and 1<=k) then	-- k,v is an indexed pair
-      if (not isEncodable(v)) then return false end	-- All array elements must be encodable
+    if (base.type(k)=='number' and math.floor(k)==k and 1<=k) then  -- k,v is an indexed pair
+      if (not isEncodable(v)) then return false end -- All array elements must be encodable
       maxIndex = math.max(maxIndex,k)
     else
       if (k=='n') then
