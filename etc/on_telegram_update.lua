@@ -15,6 +15,7 @@ local json = require("json")
 local rsp = json.decode(T.update)
 
 if rsp.ok and type(rsp.result) == "table" then
+  local LOG = plugin.log(_funcname)
   for i = 1, #rsp.result do
     local r = rsp.result[i]
     if r.message then
@@ -58,8 +59,12 @@ if rsp.ok and type(rsp.result) == "table" then
             T.sendMessage(chat.id, printbuf)
           end
         else
-          _clown()
-          print("Telegram from " .. from.first_name .. ": " .. msg)
+          -- _clown()
+          -- print("Telegram from " .. from.first_name .. ": " .. msg)
+          local sender = from.first_name .. "!" .. from.username .. '@' .. from.id .. ".telegram."
+          LOG.debug("doChatbot call:", msg, chat.id, from.first_name, sender)
+          local cbr = T.doChatbot(msg, chat.id, from.first_name, sender)
+          LOG.debug("doChatbot return:", type(cbr), tostring(cbr))
         end
       else
         -- got non-chat message
