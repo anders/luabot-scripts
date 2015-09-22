@@ -76,4 +76,8 @@ local array = {
 [[jvaq]],
 }
 
-return etc.rot13(pickone(array))
+local prefix = ""
+if arg[1] and not Output.brief then
+  prefix = tostring(arg[1]) .. ": "
+end
+return prefix .. etc.rot13(pickone(array))

@@ -8,7 +8,7 @@ end
 
 local func = etc[t[math.random(#t)]]
 local prefix = ""
-if arg[1] then
+if arg[1] and not Output.brief then
   prefix = tostring(arg[1]) .. ": "
 end
 return prefix .. etc.getOutput(func)
