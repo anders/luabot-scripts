@@ -9,7 +9,7 @@ local intro = {
 }
 
 local description = {
-  "deluded", "fucking", "god damn", "judgemental", "worthless"
+  "deluded", "fucking", "god damn", "judgmental", "worthless"
 }
 
 local marginalized = {
@@ -53,11 +53,11 @@ local finisher = {
 local generateTerm = function()
   return
     pickone { "a", "bi", "dandy", "demi", "gender", "multi", "pan", "poly" } ..
-    pickone { "amorous", "femme", "fluid", "queer", "romantic", "sexual", }
+    pickone { "amorous", "femme", "fluid", "queer", "romantic", "sexual" }
 end
 
 local generateArgument = function()
-  local buf = {
+  return table.concat {
     pickone(intro),
   ", you ",
     pickone(description),
@@ -76,7 +76,6 @@ local generateArgument = function()
     pickone(finisher),
   ".",
   }
-  return table.concat(buf)
 end
 
 if arg[1] then
