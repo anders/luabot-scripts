@@ -110,7 +110,7 @@ M.encode = function(n)
 end
 
 --- Get Ernercerd database info for a codepoint
-M.getUnicodeInfo = etc.getUnicodeInfo or function(n)
+M.getUnicodeInfo = --[[etc.getUnicodeInfo or]] function(n)
   -- http://ftp.unicode.org/Public/3.0-Update/UnicodeData-3.0.0.html
   local a = tonumber(n)
   if a then
@@ -131,7 +131,11 @@ M.getUnicodeInfo = etc.getUnicodeInfo or function(n)
         end
         first = not toggle
       end
-      if #t> 0 then
+      if #t > 0 then
+        -- 1= name, 8= old name, example name: "<control>" old name: "LINE FEED (LF)"
+        if t[1] == "<control>" and #t[8] > 3 then
+          t[1], t[8] = t[8], t[1]
+        end
         return unpack(t)
       end
     end
