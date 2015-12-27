@@ -21,10 +21,14 @@ print(("Sunrise: %s %s; Sunset: %s %s. Day is %s long."):format(
 
 local ts_rise, offset_rise, tz_code_rise = etc.timezone(who, "%H:%M", rise_past, true)
 local ts_set, offset_set, tz_code_set = etc.timezone(who, "%H:%M", set_past, true)
+
+local diff = (length - length_past) * 3600
+diff = diff>=0 and ("+"..etc.duration(diff)) or ("-"..etc.duration(math.floor(diff)))
+
 print(("A week ago: Sunrise: %s %s; Sunset: %s %s. The day was %s long. Difference: %s."):format(
   ts_rise, tz_code_rise,
   ts_set, tz_code_set,
-  etc.duration(math.floor(length_past * 3600)), etc.duration(math.floor((length - length_past) * 3600))))
+  etc.duration(math.floor(length_past * 3600)), diff))
 
 -- print(('sunrise: %s %s, sunset: %s %s. day is %s long'):format(
 --rise, tzcr, set, tzcs, etc.duration(math.floor(butt.set - butt.rise)))
