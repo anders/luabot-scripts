@@ -28,7 +28,7 @@ local shitpost_generators = {
     return ">"..os.date("%Y").."\n<q66> >not q66posting"
   end,
   function()
-    return "nice andersing"
+    return "nice anderspost"
   end,
   function()
     return ":V :V :V"
