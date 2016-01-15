@@ -1,5 +1,10 @@
 API "1.1"
 
+if nick:find("gmcabrita") then
+  print("<gmcabrita> meme")
+  return
+end
+
 local history = {}
 local activenicks = {}
 for i=1, 25 do
