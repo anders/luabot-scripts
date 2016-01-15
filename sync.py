@@ -5,10 +5,19 @@ import json
 import re
 import subprocess
 from glob import glob
+import ssl
+
+# http://legacy.python.org/dev/peps/pep-0476/
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 
 
-SCRIPTS_URL = "http://portal.cloud1.codebust.com/u/anders/scripts.lua?json"
-MAP_URL = "http://portal.cloud1.codebust.com/u/anders/web_useremails.lua"
+SCRIPTS_URL = "https://www.codebust.com/cloud1/user/u/anders/scripts.lua?json"
+MAP_URL = "https://www.codebust.com/cloud1/user/u/anders/web_useremails.lua"
 
 # git settings
 GIT = "git"
