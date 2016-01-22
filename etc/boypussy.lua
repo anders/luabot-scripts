@@ -1,3 +1,10 @@
 API "1.1"
 
-return '<supergauntlet> dude '..pickone{rnick(), 'weed'}..' lmao'
+return pickone({
+function()
+  return '<supergauntlet> dude '..pickone{rnick(), 'weed'}..' lmao'
+end,
+function()
+  return '<supergauntlet> classic '..rnick()
+end,
+})()
