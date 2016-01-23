@@ -1,0 +1,90 @@
+API "1.1"
+-- Usage: etc.isPronoun(word, wantScore)
+
+local w, wantScore = ...
+
+local t = {
+  all=1,
+  another=1,
+  any=1,
+  anybody=1,
+  anyone=1,
+  anything=1,
+  both=1,
+  each=1,
+  eachother=1, -- 2 words
+  either=1,
+  everybody=1,
+  everyone=1,
+  everything=1,
+  few=1,
+  he=1,
+  her=1,
+  hers=1,
+  herself=1,
+  him=1,
+  himself=1,
+  his=1,
+  it=1,
+  its=1,
+  itself=1,
+  little=1,
+  many=1,
+  me=1,
+  mine=1,
+  more=1,
+  most=1,
+  much=1,
+  my=1,
+  myself=1,
+  neither=1,
+  noone=1, -- 2 words
+  nobody=1,
+  none=1,
+  nothing=1,
+  one=1,
+  oneanother=1, -- 2 words
+  other=1,
+  others=1,
+  our=1,
+  ours=1,
+  ourselves=1,
+  several=1,
+  she=1,
+  some=1,
+  somebody=1,
+  someone=1,
+  something=1,
+  that=1,
+  their=1,
+  theirs=1,
+  them=1,
+  themselves=1,
+  these=1,
+  they=1,
+  this=1,
+  those=1,
+  us=1,
+  we=1,
+  what=1,
+  whatever=1,
+  which=1,
+  whichever=1,
+  who=1,
+  whoever=1,
+  whom=1,
+  whomever=1,
+  whose=1,
+  you=1,
+  your=1,
+  yours=1,
+  yourself=1,
+  yourselves=1,
+}
+
+local score = t[w] or 0
+if wantScore then
+  return score
+else
+  return score > 0.75
+end
