@@ -1,5 +1,5 @@
 API "1.1"
--- Usage: etc.isAdverb(word, wantScore) - this is not really implemented!
+-- Usage: etc.isVerb(word, wantScore) - this is not really implemented!
 
 local w, wantScore = ...
 
@@ -109,14 +109,12 @@ local t = {
 local score = t[w] or 0
 
 if score == 0 and w and type(w) == "string" then
+  -- huge guess:
   if w:find(".ed$") then
-    local wx1 wx2 = w:match("^((.*).)ed$")
-    -- huge guess:
-    if etc.isVerb(wx1) or etc.isVerb(wx2) then
-      score = 0.75
-    else
-      score = (t[wx1] or t[wx2] or 0.8) / 5 * 4
-    end
+    local wx1, wx2 = w:match("^((.*).)ed$")
+    score = (t[wx1] or t[wx2] or 0.8) / 5 * 4
+  else
+    score = 0.25 -- not even going to try, but it could be a verb...
   end
 end
 
