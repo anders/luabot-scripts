@@ -86,5 +86,5 @@ local score = t[w] or 0
 if wantScore then
   return score
 else
-  return score > 0.75
+  return score >= 0.75
 end
