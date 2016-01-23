@@ -8,6 +8,7 @@ local t = {
   { "pronoun", etc.isPronoun, },
   { "adverb", etc.isAdverb, },
   { "adjective", etc.isAdjective, },
+  { "preposition", etc.isPreposition, },
   { "verb", etc.isVerb, },
   { "noun", etc.isNoun, },
 }

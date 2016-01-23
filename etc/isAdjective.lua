@@ -1,5 +1,5 @@
 API "1.1"
--- Usage: etc.isVerb(word, wantScore) - this is not really implemented!
+-- Usage: etc.isAdjective(word, wantScore) - this is not really implemented!
 
 local w, wantScore = ...
 
