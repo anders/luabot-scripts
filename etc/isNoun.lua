@@ -110,7 +110,8 @@ local score = t[w] or 0
 
 if score == 0 and w and type(w) == "string" then
   -- huge guess:
-  local x = math.max(etc.isVerb(w, true), etc.isDeterminer(w, true), etc.isAdverb(w, true), etc.isPronoun(w, true))
+  local x = math.max(etc.isVerb(w, true), etc.isAdjective(w, true),
+    etc.isDeterminer(w, true), etc.isAdverb(w, true), etc.isPronoun(w, true))
   if x >= 0.5 then
     score = 1.0 - x
   else

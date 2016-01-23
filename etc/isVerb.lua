@@ -110,7 +110,10 @@ local score = t[w] or 0
 
 if score == 0 and w and type(w) == "string" then
   -- huge guess:
-  if w:find(".ed$") then
+  if w:find(".s$") then
+    local wx = w:match("(.*)s$")
+    score = t[wx] and (t[wx] / 10 * 9) or 0.25
+  elseif w:find(".ed$") then
     local wx1, wx2 = w:match("^((.*).)ed$")
     score = (t[wx1] or t[wx2] or 0.8) / 5 * 4
   else
