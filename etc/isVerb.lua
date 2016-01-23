@@ -116,6 +116,14 @@ if score == 0 and w and type(w) == "string" then
   elseif w:find(".ed$") then
     local wx1, wx2 = w:match("^((.*).)ed$")
     score = (t[wx1] or t[wx2] or 0.8) / 5 * 4
+  elseif w:find("..ing$") then
+    if #w <= 4 then
+      score = 0.75
+    elseif #w == 5 then
+      score = 0.78
+    else
+      score = 0.80
+    end
   else
     score = 0.25 -- not even going to try, but it could be a verb...
   end
