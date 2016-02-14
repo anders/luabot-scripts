@@ -102,6 +102,15 @@ local function reekize(s)
   end
 end
 
+local function addDayOfWeek(date)
+  -- date is YYYY-mm-dd
+  local year, month, day = date:sub(1, 4), date:sub(6, 7), date:sub(9, 10)
+  year, month, day = tonumber(year), tonumber(month), tonumber(day)
+  local d = os.date("*t", os.time{year=year, month=month, day=day, hour=0, min=0, sec=0})
+  local days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
+  return date.." ("..days[d.wday]..")"
+end
+
 local weatherData = WorldWeatherOnline(coords)
 
 cache.auto(cacheKey, CACHE_DURATION, function()
@@ -148,7 +157,7 @@ cache.auto(cacheKey, CACHE_DURATION, function()
       local tmp = {}
       local winddirDegree = math.floor(v.winddirDegree/10+0.5)*10
       
-      tmp[#tmp + 1] = ('\002%s:\002'):format(v.date)
+      tmp[#tmp + 1] = ('\002%s:\002'):format(addDayOfWeek(v.date))
       tmp[#tmp + 1] = (' max: %d°C,'):format(v.tempMaxC)
       tmp[#tmp + 1] = (' min: %d°C,'):format(v.tempMinC)
       
