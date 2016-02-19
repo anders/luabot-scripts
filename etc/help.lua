@@ -8,28 +8,7 @@ Help = {} -- This variable will be set, you can check for it to respond to help.
 local LOG = plugin.log(_funcname);
 
 if not arg[1] then
-  local t = etc.find("*", true)
-  local nfound = 0
-  local maxtries = 20
-  for i = 1, maxtries do
-    if nfound < 5 then
-      local r = math.random(#t)
-      local isbad = t[r]:find("^on_") or t[r]:find("^cron_")
-      local code = getCode('etc', t[r])
-      local hasusage = code:find("Usage", 1, true)
-      local foolish = code:find("[Dd]eprecated") or code:find("[Ee]xperiment")
-      local desperate = i >= ((maxtries - 7) - nfound)
-      local lonely = i >= (maxtries - nfound)
-      if lonely or (not isbad and hasusage and (not foolish or desperate)) then
-        nfound = nfound + 1
-        t[nfound], t[r] = t[r], t[nfound]
-      end
-    end
-  end
-  local s = ""
-  for i = 1, 5 do
-    s = s .. " " .. etc.cmdprefix .. t[i]
-  end
+  local s = etc.helpmore(5)
   return "What do you want help with? I have so many commands, here's a few: " .. etc.cmdprefix .. "help " .. etc.cmdprefix .. "find" .. s
 elseif arg[1] == "find" or arg[1] == "'find" then
   return "Use the find command to find commands by name! " .. etc.cmdprefix .. "find cat - Use wildcards like * and ?, or enclose in quotes to be more specific."

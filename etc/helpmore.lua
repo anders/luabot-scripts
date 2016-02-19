@@ -1,13 +1,15 @@
 API "1.1"
 
-local WANT = 15
+-- This is called by 'help to show some commands you might want to call.
+
+local WANT = tonumber(arg[0]) or 15
 local t = etc.find("*", true)
 local nfound = 0
 local maxtries = 20
 for i = 1, maxtries do
   if nfound < WANT then
     local r = math.random(#t)
-    local isbad = t[r]:find("^on_") or t[r]:find("^cron_")
+    local isbad = t[r]:find("^on_") or t[r]:find("^cron_") or t[r]:find("^_")
     local code = getCode('etc', t[r])
     local hasusage = code:find("Usage", 1, true)
     local foolish = code:find("[Dd]eprecated") or code:find("[Ee]xperiment")
