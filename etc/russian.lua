@@ -552,7 +552,7 @@ zalgo = function(text, intensity)
   return table.concat(zalgoized)
 end
 
-return remap(maps.ru, arg)
+return remap(maps.ru, arg[1])
 
 --[======[
 return {
