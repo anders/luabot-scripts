@@ -4,14 +4,16 @@ local time = require "time"
 local now = os.time()
 
 local places = {
-  {pickone{ "Los Angeles", "Redmond", "Cupertino", "Mountain View" }, "America/Los_Angeles"},
-  {"New York", "America/New_York"},
-  {"London", "Europe/London"},
-  {"Stockholm", "Europe/Stockholm"},
-  {pickone{ "Helsinki", "Helstinki" }, "Europe/Helsinki"},
-  {"Tokyo", "Asia/Tokyo"},
-  {"Sydney", "Australia/Sydney"},
-  {"Wellington", "Pacific/Auckland" },
+  {"Los Angeles",   "America/Los_Angeles"},
+  {"New York",      "America/New_York"   },
+  {"London",        "Europe/London"      },
+  {"Stockholm",     "Europe/Stockholm"   },
+  {pickone{"Helsinki", "Helstinki"       },
+                     "Europe/Helsinki"   },
+  {"Mфscфш",         "Europe/Moscow"     },
+  {"Tokyo",          "Asia/Tokyo"        },
+  {"Sydney",         "Australia/Sydney"  },
+  {"Wellington",     "Pacific/Auckland"  },
 }
 
 local buf = {}
