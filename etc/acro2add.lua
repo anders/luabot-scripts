@@ -1,7 +1,6 @@
 assert(type(arg[1]) == "string" and #arg[1] > 0, "gimme a word 2 worx with")
 
-require "spam"
-spam.detect(Cache, "acro", 5, 2)
+assert(require("spam").detect(Cache, "acro", 5, 2))
 
 require "storage"
 local lookups = storage.load(io, "acro")

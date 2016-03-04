@@ -6,9 +6,9 @@ local nickpat = arg[4]
 
 local prev = 1
 local result = ""
-local pat = "()([%w'%-]+)()"
+local pat = "()([%w'%-\194-\244\128-\191]+)()"
 if nickpat then
-  pat = "()([%w_'%-%{%}%[%]`%^]+)()"
+  pat = "()([%w'%-\194-\244\128-\191_%{%}%[%]`%^]+)()"
 end
 for wpos, w, wposEnd in str:gmatch(pat) do
   local wnew = callback(w)

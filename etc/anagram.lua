@@ -1,5 +1,4 @@
-require "spam"
-spam.detect(Cache, "anagram", 4, 10)
+assert(require("spam").detect(Cache, "anagram", 4, 10))
 
 assert(arg[1], "anagram of what?")
 local s, err = httpGet("http://www.wordsmith.org/anagram/anagram.cgi?t=100&anagram=" .. urlEncode(arg[1]))
