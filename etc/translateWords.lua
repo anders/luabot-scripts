@@ -1,5 +1,5 @@
 -- Usage: etc.translateWords(s ,callback) the callback can return new word, false to skip, or nil to keep the same word.
-local str = assert(arg[1])
+local str = assert(arg[1], "Must input some text")
 local callback = assert(arg[2], "Callback expected")
 local fixCase = arg[3] == nil or arg[3] == true
 local nickpat = arg[4]
