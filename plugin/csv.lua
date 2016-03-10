@@ -1,5 +1,5 @@
--- From http://lua-users.org/wiki/LuaCsv
-local function ParseCSVLine (line,sep) 
+-- Modified from http://lua-users.org/wiki/LuaCsv
+local function ParseCSVLine(line,sep) 
 	local res = {}
 	local pos = 1
 	sep = sep or ','
@@ -21,7 +21,10 @@ local function ParseCSVLine (line,sep)
 				--   value1,"blub""blip""boing",value3  will result in blub"blip"boing  for the middle
 			until (c ~= '"')
 			table.insert(res,txt)
-			assert(c == sep or c == "")
+			if c ~= sep and c ~= "" then
+              assert(c ~= "\r", "Found extraneous carriage return")
+              error("Found extraneous text")
+            end
 			pos = pos + 1
 		else	
 			-- no quotes used, just look for the first separator
