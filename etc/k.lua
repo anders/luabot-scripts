@@ -1,3 +1,5 @@
+-- Usage: just call me for amusing stuff!
+
 local hist = {}
 for i = 1, 20 do
   local h = { _getHistory(i) }
