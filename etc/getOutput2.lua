@@ -12,6 +12,7 @@ Output.mode = 'pipe'
 local _otty1 = Output.tty
 Output.tty = false
 local _omaxLines = Output.maxLines
+Output.maxLinesLast = Output.maxLinesLast or Output.maxLines -- Not always present, and might get removed!
 Output.maxLines = 500
 if Input and Input.maxLines then
   Output.maxLines = Input.maxLines

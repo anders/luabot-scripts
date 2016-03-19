@@ -7,15 +7,16 @@ local plain = arg[5]
 Output.brief = true -- Please check for this and make your output brief :D
 
 if not foo or Help then
-  halp = "'all <function> runs the function on all nicks, like 'all'tr"
+  halp = etc.cmdprefix .. "all <function> runs the function on all nicks, like 'all'tr"
   if Help then
     print(halp)
     Help.handled = true
+    return
   else
     -- Let's direct print it in case someone incorrectly uses it and pipes the halp output.
     directprint(halp)
+    return ""
   end
-  return
 end
 
 if not all then
