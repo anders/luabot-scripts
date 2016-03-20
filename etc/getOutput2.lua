@@ -13,7 +13,8 @@ local _otty1 = Output.tty
 Output.tty = false
 local _omaxLines = Output.maxLines
 Output.maxLinesLast = Output.maxLinesLast or Output.maxLines -- Not always present, and might get removed!
-Output.maxLines = 500
+Output.maxLines = Output.maxLinesSet or 500
+Output.maxLinesSet = nil
 if Input and Input.maxLines then
   Output.maxLines = Input.maxLines
 end

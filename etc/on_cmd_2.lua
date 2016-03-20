@@ -7,7 +7,9 @@
 -- local LOG = plugin.log(_funcname);
 -- LOG.debug(etc.t(arg))
 
-if LocalCache and LocalCache.lastmsg and LocalCache.lastmsg:sub(1, 1) == etc.cmdchar then
+local cmdprefix = etc.cmdprefix
+
+if LocalCache and LocalCache.lastmsg and LocalCache.lastmsg:sub(1, #cmdprefix) == cmdprefix then
   LocalCache.lastcmd = LocalCache.lastmsg
   LocalCache.lastcmdnick = LocalCache.lastmsgnick
 end
@@ -59,16 +61,17 @@ Input.piped = nil
 -- Parse through the pipes and multiple commands:
 if type(params) == "string" then
   local results
-  local cmdchar = etc.cmdchar
   local istart = 1
   local curcmd = cmd
   local cursepch = ';'
   local onfirst = true
   while true do
     local iend, sepch, nextcmd, inext =
-      params:match("() *([;%|]) *" .. cmdchar .. " *([a-zA-Z_0-9%.]+) ?()", istart)
+      params:match("() *([;%|]) *" .. cmdprefix .. " *([a-zA-Z_0-9%.]+) ?()", istart)
+    local is_last_cmd = true
     if iend then
       iend = iend - 1
+      is_last_cmd = false
     else
       iend = #params
     end
@@ -92,6 +95,10 @@ if type(params) == "string" then
       return etc.getReturn(func(curparams))
     else
       assert(func, "Function not found: " .. curcmd)
+      -- Notice sepch is for the next command, and cursepch was the one before this command.
+      if is_last_cmd or sepch ~= '|' then
+        Output.maxLinesSet = Output.maxLines -- Make sure getOutput doesn't change the maxLines.
+      end
       if cursepch == '|' then
         if not curparams then
           curparams = results
