@@ -11,17 +11,14 @@ if today.month == 4 and today.day == 1 then
     return table.concat(tmp, ' ')
   end
   
-  function print(...)
+  local print = function(...)
+    _G.print = _print
     local s = dolan(...)
     
-    --[[if math.random(1, 2) == 1 then
-      _print((s:gsub('[AOUEIYaoueiy]', function (c)
-        if c:upper() == c then return 'O' else return 'o' end
-      end)))
-    else
-      _print(etc.er(s))
-    end]]
-    _print(etc.us(etc.funny(s)))
+    _print(etc.funny(s))
+    _G.print = print
   end
+  
+  _G.print = print
 end
 return {}
