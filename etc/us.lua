@@ -15,7 +15,9 @@ if arg[1] then
   end
   assert(type(input) == "string", "Expected a string")
   
-  print(etc.pm(etc.F(input)))
+  local result = etc.pm(etc.F(input))
+  -- print(result)
+  return result
   
 else
   assert(false, "Nothing to do, use 'us'something")
