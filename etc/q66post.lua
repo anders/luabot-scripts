@@ -30,7 +30,7 @@ local disagree_with = pickone(history)
 
 local shitpost_generators = {
   function()
-    return ">"..os.date("%Y").."\n<q66> >not q66posting"
+    return ">"..os.date("%Y").."\n<q69> >not q69posting"
   end,
   function()
     return "nice anderspost"
@@ -45,5 +45,5 @@ local shitpost_generators = {
 
 local q66post = pickone(shitpost_generators)()
 
-print("<q66> "..disagree_with)
-print("<q66> "..q66post)
+print("<q69> "..disagree_with)
+print("<q69> "..q66post)
