@@ -1,9 +1,8 @@
--- death to non-metric
 if Web then return end
 
 require("spam").detect(Cache, "weather", 4, 10)
 
-plugin._april_fools()
+-- plugin._april_fools()
 
 local json = require 'json'
 local weather = require 'weather'
@@ -113,6 +112,10 @@ end
 
 local weatherData = WorldWeatherOnline(coords)
 
+local function trim(s)
+  return (s:gsub("^%s*", ""):gsub("%s*$", ""))
+end
+
 cache.auto(cacheKey, CACHE_DURATION, function()
   if not forecast then
     local cur = weatherData.data.current_condition[1]
@@ -147,7 +150,7 @@ cache.auto(cacheKey, CACHE_DURATION, function()
     tmp[#tmp + 1] = (' \002humidity:\002 %d%%,'):format(R)
     tmp[#tmp + 1] = (' \002precipitation:\002 %d mm,'):format(round(precipMM))
     tmp[#tmp + 1] = (' \002cloud coverage:\002 %d%%'):format(cloudCoverage)
-    tmp[#tmp + 1] = (' (%s)'):format(description)
+    tmp[#tmp + 1] = (' (%s)'):format(trim(description))
     
     print(reekize(table.concat(tmp)))
   else
@@ -163,7 +166,7 @@ cache.auto(cacheKey, CACHE_DURATION, function()
       
       tmp[#tmp + 1] = (' \002wind:\002 %d m/s (%d°),'):format(round(v.windspeedKmph / 3.6), winddirDegree)
       tmp[#tmp + 1] = (' \002precipitation:\002 %d mm'):format(round(v.precipMM))
-      tmp[#tmp + 1] = (' (%s)'):format(v.weatherDesc[1].value)
+      tmp[#tmp + 1] = (' (%s)'):format(trim(v.weatherDesc[1].value))
   
       print(reekize(table.concat(tmp)))
     end
