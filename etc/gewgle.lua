@@ -16,7 +16,7 @@ if data:sub(1, 1) ~= '{' then
 end
 
 local resp = assert(json.decode(data))
-assert(resp.responseData, 'no response data')
+assert(resp.responseData, resp.responseDetails or 'no response data')
 
 local res = resp.responseData.results
 if res[1] then
