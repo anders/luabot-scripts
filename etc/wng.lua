@@ -43,7 +43,8 @@ if not place then
 end
 
 local function WorldWeatherOnline(coords)
-  local API_KEY = 'wjz9shwya2r62q29tpqcq79r'
+  -- local API_KEY = 'kxz3zwcq55a7rkb48tqxjh9e' -- premium
+  local API_KEY = 'wjz9shwya2r62q29tpqcq79r' -- free
   local API_URL = 'http://api.worldweatheronline.com/free/v1/weather.ashx'
   
   local params = {
@@ -63,7 +64,9 @@ local function WorldWeatherOnline(coords)
     --callback = ''
   }
 
-  local jsonData = assert(httpGet(API_URL..'?'..urlencode(params)))
+  local finalURL = API_URL..'?'..urlencode(params)
+  -- print(finalURL)
+  local jsonData = assert(httpGet(finalURL))
 
   if #jsonData == 0 then
     print('\002Error:\002 no weather data received from API')
