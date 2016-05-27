@@ -157,7 +157,9 @@ cache.auto(cacheKey, CACHE_DURATION, function()
     
     print(reekize(table.concat(tmp)))
   else
-    print(('Forecast for \002%s:\002'):format(place))
+    if not etc.get('fourcast', nick) then
+      print(('Forecast for \002%s:\002'):format(place))
+    end
     
     for k, v in ipairs(weatherData.data.weather) do
       local tmp = {}
