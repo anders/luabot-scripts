@@ -17,14 +17,10 @@ local sin, cos, tan, atan, asin, acos, atan2, sqrt, floor, abs =
   math.atan2, math.sqrt, math.floor, math.abs
 
 to_epoch = function(t, year, month, day)
+  -- used to add 3600, but maybe "isdst" should be checked instead
   local function get_timezone()
     local now = os.time()
-    local t = os.date("!*t", now)
-    local tz = os.difftime(now, os.time(t))
-    if os.date("*t").isdst then
-      tz = tz + 3600
-    end
-    return tz
+    return os.difftime(now, os.time(os.date("!*t", now)))
   end
   timezone = get_timezone()
   
@@ -233,4 +229,15 @@ GMST0 = function(d)
   return sidtim0
 end
 
-return {calc = main, opt_calc = main2}
+return {calc = main, opt_calc = main2,
+  _internal = {
+    __daylen__ = __daylen__,
+    __sunriset__ = __sunriset__,
+    sunpos = sunpos,
+    sun_RA_dec = sun_RA_dec,
+    revolution = revolution,
+    rev180 = rev180,
+    GMST0 = GMST0,
+    to_epoch = to_epoch
+  },
+}
