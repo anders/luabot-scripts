@@ -10,7 +10,7 @@ end
 local key = etc.rot13('NVmnFlPgZTnKY71YpQvGhN98f6irxsBsCl9Efn8')
 local cx = '011942350363630310124:w111ktxbioi'
 
-local data, err = httpGet('https://www.googleapis.com/customsearch/v1?key='..key..'&cx='..cx..'&q='..urlEncode(query))
+local data, err = httpGet('https://www.googleapis.com/customsearch/v1?num=1&key='..key..'&cx='..cx..'&q='..urlEncode(query))
 if not data then
   return false, err
 end
