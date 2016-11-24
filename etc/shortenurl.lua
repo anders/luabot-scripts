@@ -36,11 +36,11 @@ for i, url in ipairs(urls) do
         req.headers["Content-Type"] = "application/json"
         req:setRequestBody(json.encode{longUrl=url})
         local resp = req:getResponseBody()
-        if resp and resp.id then
-            local decoded = json.decode(resp)
-            ret[i] = resp.id
-            ret[url] = resp.id
-            Cache['url_'..url] = resp.id
+        local decoded = resp and json.decode(resp)
+        if resp then
+            ret[i] = decoded.id
+            ret[url] = decoded.id
+            Cache['url_'..url] = decoded.id
         else
             ret[i], ret[url] = url, url
         end
