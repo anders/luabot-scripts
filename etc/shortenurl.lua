@@ -1,37 +1,50 @@
-local LOG = plugin.log(_funcname)
+--[[
+POST https://www.googleapis.com/urlshortener/v1/url
+Content-Type: application/json
+
+{"longUrl": "http://www.google.com/"}
+]]
+
+--[[
+{
+ "kind": "urlshortener#url",
+ "id": "http://goo.gl/fbsS",
+ "longUrl": "http://www.google.com/"
+}
+]]
+
 local json = require "json"
 local urls, cb = ...
 
 if type(urls) == "string" then
-  urls = {urls}
+    urls = {urls}
 end
 
 assert(type(urls) == "table", "this function takes a table of URLs")
 
-local request = {urls = urls}
-local ok, resp = pcall(httpPost, "http://fgsfd.se/tzapi/shorten", json.encode(request))
+local apiKey = etc.rot13("NVmnFlPgZTnKY71YpQvGhN98f6irxsBsCl9Efn8")
 local ret = {}
 
-local data
-LOG.debug("httpPost ok is "..tostring(ok).." and resp is "..tostring(resp))
-if ok then
-  ok, data = pcall(json.decode, resp)
-  LOG.debug("json.decode ok is "..tostring(ok).." and data is "..tostring(data))
-  if not ok then LOG.debug(data) end
-end
+for i, url in ipairs(urls) do
+    if Cache['url_'..url] then
+        ret[i], ret[url] = Cache['url_'..url], Cache['url_'..url]
+    else
+        local payload = json.encode{longUrl = url}
+        --	hlp.httpRequest = "Returns a HTTP request object. Optional arguments: url, method. Properties: url, method, headers[key=value], mimeType, charset, responseHeaders, responseStatusCode, responseStatusDescription. Methods: setRequestBody, getResponseBody, getResponseStream"
 
-if ok and data then
-  LOG.debug("ok and data")
-  for i, url in ipairs(urls) do
-    ret[url] = data.short[i]
-    ret[i] = data.short[i]
-  end
-else
-  LOG.debug("not ok")
-  for i, url in ipairs(urls) do
-    ret[url] = url
-    ret[i] = url
-  end
+        local ok, req = pcall(httpRequest, "https://www.googleapis.com/urlshortener/v1/url?key="..apiKey, "POST")
+        req.headers["Content-Type"] = "application/json"
+        req:setRequestBody(json.encode{longUrl=url})
+        local resp = req:getResponseBody()
+        if resp and resp.id then
+            local decoded = json.decode(resp)
+            ret[i] = resp.id
+            ret[url] = resp.id
+            Cache['url_'..url] = resp.id
+        else
+            ret[i], ret[url] = url, url
+        end
+    end
 end
 
 return ret
