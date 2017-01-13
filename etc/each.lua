@@ -19,14 +19,27 @@ if code and code ~= "" then
   local ln = 0
   for line in io.stdin:lines() do
     ln = ln + 1
-    local x, y = etc.getOutput(fn, line)
-    if x then
-      print(x)
+    if line:sub(1, #etc.cmdprefix) == etc.cmdprefix or line:find("|" .. etc.cmdprefix) then
+          LOG.trace("Line " .. tostring(ln) .. " skipped, not processing commands")
     else
-      if y ~= nil then
-        LOG.trace("Line " .. tostring(ln) .. " error: " .. tostring(y))
+      local ok, x, y = pcall(etc.getOutput2, true, fn, line)
+      if ok then
+        if type(x) == "string" and x:sub(1, 7) == "Error: " then
+          -- HACK
+          y = x:sub(8)
+          x = nil
+        end
+        if x and x ~= "" then
+          print(x)
+        end
+        if y and y ~= "" then
+          LOG.trace("Line " .. tostring(ln) .. " error: " .. tostring(y))
+        end
+        if (not x or x == "") and (not y or y == "") then
+          LOG.trace("Line " .. tostring(ln) .. " no output")
+        end
       else
-        LOG.trace("Line " .. tostring(ln) .. " no output")
+         LOG.trace("Line " .. tostring(ln) .. " error: " .. tostring(x))
       end
     end
   end
