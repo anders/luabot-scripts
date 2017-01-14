@@ -8,7 +8,8 @@ local function _loadtz(zone)
   local tzdata = f:read('*a')
   f:close()
   
-  return loadstring('return '..tzdata)()
+  local fn = assert(guestloadstring('return '..tzdata))
+  return fn()
 end
 --[[
 local function _loadtz()
