@@ -1,11 +1,11 @@
 API "1.2"
--- Usage: 'stuff|'each <otherstuff> runs otherstuff on each line from stuff.
+-- Usage: 'cmd|'each <code> runs code on each line from cmd.
 
 local LOG = plugin.log(_funcname)
 arg, io.stdin = etc.stdio(arg)
 
 local code = arg[1]
-LOG.trace("code = " .. tostring(code))
+LOG.trace("code =", tostring(code))
 if code and code ~= "" then
   local fn
   if code:sub(1, #etc.cmdprefix) == etc.cmdprefix then
@@ -20,7 +20,8 @@ if code and code ~= "" then
   for line in io.stdin:lines() do
     ln = ln + 1
     if line:sub(1, #etc.cmdprefix) == etc.cmdprefix or line:find("|" .. etc.cmdprefix) then
-          LOG.trace("Line " .. tostring(ln) .. " skipped, not processing commands")
+      -- HACK, BUG or FEATURE: you pick.
+      LOG.trace("Line", tostring(ln), "skipped, not processing commands")
     else
       local ok, x, y = pcall(etc.getOutput2, true, fn, line)
       if ok then
@@ -33,17 +34,17 @@ if code and code ~= "" then
           print(x)
         end
         if y and y ~= "" then
-          LOG.trace("Line " .. tostring(ln) .. " error: " .. tostring(y))
+          LOG.trace("Line", ln, "error:", tostring(y))
         end
         if (not x or x == "") and (not y or y == "") then
-          LOG.trace("Line " .. tostring(ln) .. " no output")
+          LOG.trace("Line", ln, "no output")
         end
       else
-         LOG.trace("Line " .. tostring(ln) .. " error: " .. tostring(x))
+         LOG.trace("Line", ln, "error:", tostring(x))
       end
     end
   end
-  LOG.trace("" .. tostring(ln) .. " lines")
+  LOG.trace(tostring(ln), "lines")
 else
   LOG.trace("Nothing to do")
   return nil, "Nothing to do"
