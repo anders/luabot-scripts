@@ -76,4 +76,13 @@ local function f(number)
     return words
 end
 
-return f(math.floor(assert(tonumber(arg[1]), "Number expected")))
+local n = assert(tonumber(arg[1]), "Number expected")
+local floorn = math.floor(n)
+local suff = ""
+if n ~= floorn then
+  suff = suff .. " point"
+  for ds in tostring(n-floorn):match("%d+$"):gmatch("%d") do
+    suff = suff .. " " .. f(tonumber(ds))
+  end
+end
+return f(floorn) .. suff
