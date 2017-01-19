@@ -77,12 +77,15 @@ local function f(number)
 end
 
 local n = assert(tonumber(arg[1]), "Number expected")
-local floorn = math.floor(n)
+local intn = math.floor(n)
+if n < 0 then
+  intn = math.ceil(n)
+end
 local suff = ""
-if n ~= floorn then
+if n ~= intn then
   suff = suff .. " point"
-  for ds in tostring(n-floorn):match("%d+$"):gmatch("%d") do
+  for ds in tostring(n-intn):match("%d+$"):gmatch("%d") do
     suff = suff .. " " .. f(tonumber(ds))
   end
 end
-return f(floorn) .. suff
+return f(intn) .. suff
