@@ -16,6 +16,7 @@ if not cmd or cmd == "skip" or not Cache.gabA then
   if not cmd and Cache.gabQ and Cache.gabA then
     hint = Cache.gabQ
   else
+    print("It was " .. etc.rot13(Cache.gabA or "?"))
     require "csv"
     local ent = csv.parseLine(etc.randomLine("gab13.csv", io) or "?,?")
     hint = etc.rot13(ent[1] or "?")
