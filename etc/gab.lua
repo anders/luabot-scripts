@@ -16,7 +16,11 @@ if not cmd or cmd == "skip" or not Cache.gabA then
   if not cmd and Cache.gabQ and Cache.gabA then
     hint = Cache.gabQ
   else
-    print("It was " .. etc.rot13(Cache.gabA or "?"))
+    if 1 ~= math.random(1, 3) then
+      print(pickone{"Giving up so soon?", "Come on, keep trying", "No.. try 'gab hint"})
+      return
+    end
+    print("It was: " .. etc.rot13(Cache.gabA or "?"))
     require "csv"
     local ent = csv.parseLine(etc.randomLine("gab13.csv", io) or "?,?")
     hint = etc.rot13(ent[1] or "?")
@@ -45,7 +49,7 @@ if cmd == "guess" or cmd == "solve" then
     Cache.gabA = nil
   else
     local xs = ""
-    if 1 == math.random(1, 4) then
+    if 1 == math.random(1, 3) then
       xs = ". If this one is too hard you can use 'gab skip"
     end
     print("Sorry " .. nick .. ", that's not it" .. xs)
