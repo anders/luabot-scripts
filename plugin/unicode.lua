@@ -47,22 +47,25 @@ M.decode = function(stream, i)
   local n
 
   if msB < 0x80 then
+    -- 1 byte
     return msB, i + 1
   elseif msB < 0xc0 then
     return false, 'byte values between 0x80 to 0xbf cannot start a multibyte sequence'
   elseif msB < 0xe0 then
+    -- 2 byte
     b0 = stream:byte(i + 1)
-    if not (b0 > 0x7f and b0 < 0xbf) then
+    if not (b0 >= 0x80 and b0 <= 0xbf) then
       return false, 'expected 1 continuation byte'
     end
     local res = (msB - 0xc0) * 0x40 + b0 % 0x40
     if res < 0x80 or res > 0x7ff then
-      return false, "overlong encoding"
+      return false, ("overlong encoding for $%02x"):format(res)
     end
     return res, i + 2
   elseif msB < 0xf0 then
+    -- 3 byte
     b1, b0 = stream:byte(i + 1, i + 2)
-    if not (b0 > 0x7f and b0 < 0xbf) and (b1 > 0x7f and b1 < 0xbf) then
+    if not (b0 >= 0x80 and b0 <= 0xbf) and (b1 >= 0x80 and b1 <= 0xbf) then
       return false, 'expected 2 continuation bytes'
     end
     local res = (msB - 0xe0) * 0x1000 + b1 % 0x40 * 0x40 + b0 % 0x40
@@ -70,17 +73,18 @@ M.decode = function(stream, i)
       return false, 'UTF-16 surrogate lead are not valid codepoints'
     end
     if res < 0x800 or res > 0xffff then
-      return false, "overlong encoding"
+      return false, ("2overlong encoding for $%02x, %02x"):format(res)
     end
     return res, i + 3
   elseif msB < 0xf8 then
+    -- 4 byte
     b2, b1, b0 = stream:byte(i + 1, i + 3)
-    if not (b0 > 0x7f and b0 < 0xbf) and (b1 > 0x7f and b1 < 0xbf) and (b2 > 0x7f and b2 < 0xbf) then
+    if not (b0 >= 0x80 and b0 <= 0xbf) and (b1 >= 0x80 and b1 <= 0xbf) and (b2 >= 0x80 and b2 <= 0xbf) then
       return false, 'expected 3 continuation bytes'
     end
     local res = (msB - 0xf0) * 0x40000 + b2 % 0x40 * 0x1000 + b1 % 0x40 * 0x40 + b0 % 0x40
     if res < 0x10000 or res > 0x1fffff then
-      return false, "overlong encoding"
+      return false, ("3overlong encoding for $%02x"):format(res)
     end
     return res, i + 4
   end
