@@ -51,14 +51,17 @@ print(("A week ago: Sunrise: %s %s; Sunset: %s %s. The day was %s long. %s."):fo
   etc.duration(math.floor(length_past * 3600)), diff_string))
 ]]
 
--- TODO: transform
--- 01:34 ABC - 23:00 ABC to 01:34 - 23:00 ABC (same time zone)
-
-etc.printf("Today: %s %s - %s %s (%s). A week ago: %s %s - %s %s (%s). %s.",
-           ts_rise, tz_code_rise,
-           ts_set, tz_code_set,
-           etc.duration(math.floor(length * 3600)),
-           ts_rise2, tz_code_rise2,
-           ts_set2, tz_code_set2,
-           etc.duration(math.floor(length_past * 3600)),
-           diff_string)
+local tmp = ("Today: %s %s - %s %s (%s). A week ago: %s %s - %s %s (%s). %s."):format(
+            ts_rise, tz_code_rise,
+            ts_set, tz_code_set,
+            etc.duration(math.floor(length * 3600)),
+            ts_rise2, tz_code_rise2,
+            ts_set2, tz_code_set2,
+            etc.duration(math.floor(length_past * 3600)),
+            diff_string)
+tmp = tmp:gsub("(%d%d:%d%d)(%s[A-Z]+) %- (%d%d:%d%d)(%s[A-Z]+)", function(atime, atz, btime, btz)
+	if atz == btz then
+		return atime.." - "..btime..btz
+	end
+end)
+print(tmp)
