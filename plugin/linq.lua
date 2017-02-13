@@ -1171,7 +1171,7 @@ function linq:foreach(func)
 	until index == nil
 end
 
-function _each(it)
+local function _each(it)
 	local value, index = it()
 	return index, value
 end
