@@ -4,8 +4,6 @@ local APP_ID = 'ccdc436323fd4cb1a51dae367ca9a7ff'
 local CACHE_DURATION = 60 * 5
 
 local names = {
-  CBC = 'Clownbot Coin',
-
   AED = 'United Arab Emirates Dirham',
   AFN = 'Afghan Afghani',
   ALL = 'Albanian Lek',
@@ -239,8 +237,9 @@ if amount then
   amount = tonumber(amount)
 end
 
-local cached = cache.isCached('money.data')
-local rates = cached and cache.get('money.data')
+local cacheKey = 'money$data'
+local cached = cache.isCached(cacheKey)
+local rates = cached and cache.get(cacheKey)
 
 if not rates then
   local exchange_data, e = httpGet('http://openexchangerates.org/api/latest.json?app_id='..APP_ID)
@@ -251,21 +250,26 @@ if not rates then
 
   local exchange_rates = json.load(exchange_data)
   rates = assert(exchange_rates.rates, 'Expected rates')
-  cache.set('money.data', json.encode(rates), CACHE_DURATION)
+  cache.set(cacheKey, json.encode(rates), CACHE_DURATION)
 else
   rates = json.decode(rates)
 end
 
-rates.CBC = 0 -- Get it later.
-
 local function get_rate(x)
-  if x:upper() == 'CBC' and rates.CBC == 0 then
-    rates.CBC = 1 / etc.cbcvalue('USD')
+  if not rates[x] then
+    local f = etc['_money_' .. x:lower()]
+    if f then
+      local val, name = f('USD')
+      rates[x] = 1 / val
+      names[x] = name
+    end
   end
   return rates[x]
 end
 
 local function convert(amount, from, to)
+  get_rate(from)
+  get_rate(to)
   if not rates[from] then
     return false, 'Unknown currency code `'..tostring(from)..'\'.'
   elseif not rates[to] then
@@ -281,14 +285,13 @@ local function convert(amount, from, to)
 end
 
 local function print_convert(amount, from, to)
-  local from_name = names[from] or from
-  local to_name = names[to] or to
-
   local new_amount, e = convert(amount, from, to)
   if not new_amount then
     print('\002Error:\002 '..e)
     return
   end
+  local from_name = names[from] or from
+  local to_name = names[to] or to
   print(('%g %s = %g %s'):format(amount, from_name, new_amount, to_name))
 end
 
