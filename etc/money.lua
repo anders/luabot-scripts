@@ -213,10 +213,12 @@ local amount = arg[1]:match('%d+%.?%d*')
 
 local codes = {}
 for code in arg[1]:gmatch('%a+') do
+  --[[
   if #code > 3 then
     usage()
     return
   end
+  ]]
 
   if #codes == 2 then
     usage()
