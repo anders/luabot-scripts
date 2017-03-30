@@ -1,5 +1,5 @@
 -- The next line shows how to supply your own usage via comment directive.
--- Usage: specify a command or function and receive help. Supply your own help using the -- Usage: directive, or check the Help global variable, see ''help for more info.
+-- Usage: specify a command or function and receive help. Supply your own help using the -- Usage: directive, or check the Help global variable, see {{etc.cmdchar}}{{etc.cmdchar}}help for more info.
 
 Help = {} -- This variable will be set, you can check for it to respond to help.
 -- You can set Help.handled = true to fully control the help output.
@@ -10,12 +10,12 @@ local LOG = plugin.log(_funcname);
 if not arg[1] then
   local s = etc.helpmore(5)
   return "What do you want help with? I have so many commands, here's a few: " .. etc.cmdprefix .. "help " .. etc.cmdprefix .. "find" .. s
-elseif arg[1] == "find" or arg[1] == "'find" then
+elseif arg[1] == "find" or arg[1] == "'find" or arg[1] == etc.cmdprefix .. "find" then
   return "Use the find command to find commands by name! " .. etc.cmdprefix .. "find cat - Use wildcards like * and ?, or enclose in quotes to be more specific."
 else
   local x = arg[1]
   if arg[2] == '-tryagain' then
-    x = x:match("[^%.']+$") or x
+    x = x:match("[^%." .. etc.cmdchar .. "']+$") or x
     local nbwithin = #x * 1.5 + 2
     local nbest = nbwithin
     local best = nil
@@ -44,7 +44,7 @@ else
     if best then
       local what
       if bestmod == 'etc' then
-        what = "'" .. best
+        what = etc.cmdprefix .. best
       else
         what = bestmod .. "." .. best
       end
@@ -82,9 +82,7 @@ else
     end
   end
   if not func then
-    -- x = x:match("^'?(.*)$")
-    -- func = etc[x]
-    local pfx, a, b = x:match("^('?)([^%.]*)%.?(.*)$")
+    local pfx, a, b = x:match("^([" .. etc.cmdchar .. "']?)([^%.]*)%.?(.*)$")
     if a and b and #a > 0 then
       if #b > 0 then
         if type(_G[a]) == "table" then
@@ -92,14 +90,14 @@ else
           x = a .. '.' .. b
         end
       end
-      if not func and pfx == "'" then
+      if not func and (pfx == etc.cmdprefix or pfx == "'") then
         func = etc[a]
         x = a
       end
     end
-    if func and pfx == "'" then
+    if func and (pfx == etc.cmdprefix or pfx == "'") then
       -- x = "etc." .. x
-      x = "'" .. x
+      x = etc.cmdprefix .. x
     end
   end
   atTimeout("Sorry, I couldn't get any information about " .. tostring(x))
@@ -112,7 +110,7 @@ else
     else
       if etc[x] then
         -- return nil, "Sorry, I don't know about " .. x .. ", did you mean '" .. x
-        return "Looking up '" .. x .. " instead", "-", etc.getReturn(etc.help("'" .. x))
+        return "Looking up " .. etc.cmdprefix .. x .. " instead", "-", etc.getReturn(etc.help(etc.cmdprefix .. x))
       else
         if tx == "string" and arg[2] ~= '-tryagain' then
           return etc.help(x, '-tryagain')
@@ -123,6 +121,38 @@ else
   end
   local usage = src:match("%-%-%[?=*%[? *[Uu]sage: *([^\r\n]+)")
   if usage then
+    if usage:find("{{", 1, true) then
+      usage = usage:gsub("({{( *.- *)}})", function(wholex, x)
+        if x == "etc.cmdchar" then
+          return etc.cmdchar
+        elseif x == "etc.cmdprefix" then
+          return etc.cmdchar
+        elseif x == "" then
+          return "" -- Can use {{}} if you just want to stop the auto cmd prefix fixer.
+        else -- TODO: support more stuff.
+          return wholex
+        end
+      end)
+    else -- No {{ found, so we'll just try to fix broken uses of cmd prefix.
+      local name = arg[1]:match("[a-zA-Z_][^ ]*")
+      if name then
+        --[[
+        -- I could make sure the pattern ends with %f[%w]
+        -- so 'foo doesn't also change 'foobar, but if it has the same prefix, maybe it's good fixed.
+        usage = usage:gsub("'" .. name, etc.cmdprefix .. name)
+        -- Do it for / prefix too, so the reverse happens when needed...
+        usage = usage:gsub("/" .. name, etc.cmdprefix .. name)
+        --]]
+        -- Let's just do it for everything with any cmd prefix that's a valid etc func...
+        usage = usage:gsub("(['/]([%w%.]+))", function(wholex, x)
+          if etc[x] then
+            return etc.cmdprefix .. x
+          else
+            return wholex
+          end
+        end)
+      end
+    end
     return x .. " usage:", usage
   end
   

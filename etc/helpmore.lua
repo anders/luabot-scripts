@@ -5,7 +5,7 @@ API "1.1"
 local WANT = tonumber(arg[0]) or 15
 local t = etc.find("*", true)
 local nfound = 0
-local maxtries = 20
+local maxtries = 50
 for i = 1, maxtries do
   if nfound < WANT then
     local r = math.random(#t)
