@@ -1,4 +1,4 @@
--- Usage: etc.userfile(name) returns path,err given the user-specified file name. If name starts with etc.cmdchar then it's considered to be user code. Also see etc.userfileopen.
+-- Usage: etc.userfile(name) returns path,err given the user-specified file name. If name starts with ' then it's considered to be user code. Also see etc.userfileopen.
 
 local LOG = plugin.log(_funcname);
 
@@ -13,7 +13,8 @@ local user = arg[2] or nick
 
 local firstch = name:sub(1, 1)
 
-if firstch == etc.cmdchar then
+-- Uses ' hardcoded, otherwise / conflicts with the FS!
+if firstch == "'" then
   local func, funcname = etc.parseFunc(name)
   if not func then
     return func, funcname

@@ -1,6 +1,7 @@
 if type(arg[1]) == "function" then
   return arg[1], arg[2]
 end
+-- Uses ' hardcoded, otherwise / conflicts with the FS!
 local pfx, a, b = (arg[1] or ''):match("^('?)([^'%.]*'?)%.?(.*)$")
 -- print("Debug:", "pfx=", pfx, "a=",a,"b=",b)
 if a and b then
