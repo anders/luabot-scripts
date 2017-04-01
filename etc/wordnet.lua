@@ -1,7 +1,5 @@
 -- alias: wn
 
--- Partially implemented! nouns only...
-
 local w = arg[1]
 assert(type(w) == "string", "Need word")
 
