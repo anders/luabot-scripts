@@ -316,7 +316,7 @@ elseif type(arg[1]) == "string" and #arg[1] > 2 then
     -- return etc.todo("", arg[2])
   end
 else
-  print("Usage: '" .. which .. " <add|list|done|wontfix|invalid|reopen|append|find|raise|lower|#> ...")
+  print("Usage: " .. etc.cmdprefix .. which .. " <add|list|done|wontfix|invalid|reopen|append|find|raise|lower|#> ...")
 end
 
 
