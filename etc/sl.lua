@@ -7,4 +7,12 @@ local data, mime, charset, status = httpGet(url)
 
 assert(data, mime)
 
-etc.printf("%s;%s;%s;%s", tostring(data), tostring(mime), tostring(charset), tostring(status))
+local resp = assert(json.decode(data))
+
+local Train = "🚃"
+local Warning = "⚠️"
+
+for i, info in ipairs(resp.ResponseData) do
+  etc.printf("%s %s %s %s", Warning, info.Header, Train, info.Scope)
+  etc.printf("%s", info.Details)
+end
