@@ -6,8 +6,11 @@ local now = os.time()
 local nowT = os.date("!*t", now)
 
 local marketInfo = {
+  --[[
   NASDAQ = { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
   NYSE =   { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
+  ]]
+  US  =    { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
   TSX =    { tz = "America/Toronto",   hours = { 0930, 1600 }, country = "ca", },
   LSE =    { tz = "Europe/London",     hours = { 0800, 1630 }, country = "gb", },
   STO =    { tz = "Europe/Stockholm",  hours = { 0900, 1730 }, country = "se", },
@@ -28,8 +31,7 @@ local specialDates = {
     },
     [07] = {
       [03] = {
-        NASDAQ = { 0900, 1300 },
-        NYSE   = { 0900, 1300 },
+        US = { 0900, 1300 },
       },
     },
     [11] = {
@@ -37,8 +39,7 @@ local specialDates = {
         STO = { 0900, 1300 },
       },
       [24] = {
-        NASDAQ = { 0900, 1300 },
-        NYSE   = { 0900, 1300 },
+        US = { 0900, 1300 },
       },
     },
   },
@@ -60,11 +61,11 @@ local holidays = {
   {   -1, 05, 01, { "STO", "OSL", "FIN", "LSE", } }, -- Worker's Day
   {   -1, 05, 17, { "OSL" } },                       -- Norwegian National Day
   {   -1, 06, 06, { "STO" } },                       -- Swedish National Day
-  {   -1, 07, 04, { "NASDAQ", "NYSE" } },            -- May the 4th be with you
+  {   -1, 07, 04, { "US" } },            -- May the 4th be with you
                                                      -- Christmas Day
-  {   -1, 12, 25, { "NASDAQ", "NYSE", "TSX", "STO", "CPH", "OSL", "FIN", "LSE", } },
+  {   -1, 12, 25, { "US", "TSX", "STO", "CPH", "OSL", "FIN", "LSE", } },
                                                      -- Boxing Day(?)
-  {   -1, 12, 26, {                   "TSX", "STO", "CPH", "OSL", "FIN", "LSE", } },
+  {   -1, 12, 26, {       "TSX", "STO", "CPH", "OSL", "FIN", "LSE", } },
 
   -- TODO: yearly ones, move them
   -- TODO: generate this list automatically
@@ -72,12 +73,12 @@ local holidays = {
   { 2017, 05, 12, { "CPH" } },
   { 2017, 05, 22, { "TSX" } },
   { 2017, 05, 25, { "STO", "CPH", "OSL", "FIN" } },
-  { 2017, 05, 29, { "NASDAQ", "NYSE" } },
+  { 2017, 05, 29, { "US" } },
   { 2017, 06, 05, { "OSL", "CPH" } },
   { 2017, 06, 23, { "STO", "FIN" } },
   { 2017, 08, 07, { "TSX" } },
   { 2017, 09, 04, { "TSX" } },
-  { 2017, 10, 04, { "NASDAQ", "NYSE" } }, -- Labor Day
+  { 2017, 10, 04, { "US" } }, -- Labor Day
 }
 
 for _, t in ipairs(holidays) do
@@ -93,7 +94,7 @@ for _, t in ipairs(holidays) do
   end
 end
 
-local markets = { "NYSE", "NASDAQ", "TSX", "LSE", "STO", "CPH", "OSL", "FIN", "TSE" }
+local markets = { "US", "TSX", "LSE", "STO", "CPH", "OSL", "FIN", "TSE" }
 
 -- hm(0930) -> return 9, 30
 local function hm(t)
