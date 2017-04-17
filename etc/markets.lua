@@ -6,30 +6,78 @@ local now = os.time()
 local nowT = os.date("!*t", now)
 
 local marketInfo = {
-  NASDAQ = { tz = "America/New_York",  hours = {0900, 1600}, country = "us", },
-  NYSE =   { tz = "America/New_York",  hours = {0900, 1600}, country = "us", },
-  TSX =    { tz = "America/Toronto",   hours = {0930, 1600}, country = "ca", },
-  STO =    { tz = "Europe/Stockholm",  hours = {0900, 1730}, country = "se", },
-  CPH =    { tz = "Europe/Copenhagen", hours = {0900, 1700}, country = "dk", },
-  TSE =    { tz = "Asia/Tokyo",        hours = {0900, 1500}, country = "jp",
-                                       lunch = {1130, 1230}, },
-  OSL =    { tz = "Europe/Oslo",       hours = {0900, 1630}, country = "no" },
-  FIN =    { tz = "Europe/Helsinki",   hours = {1000, 1830}, country = "fi" },
+  NASDAQ = { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
+  NYSE =   { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
+  TSX =    { tz = "America/Toronto",   hours = { 0930, 1600 }, country = "ca", },
+  LSE =    { tz = "Europe/London",     hours = { 0800, 1630 }, country = "gb", },
+  STO =    { tz = "Europe/Stockholm",  hours = { 0900, 1730 }, country = "se", },
+  CPH =    { tz = "Europe/Copenhagen", hours = { 0900, 1700 }, country = "dk", },
+  TSE =    { tz = "Asia/Tokyo",        hours = { 0900, 1500 }, country = "jp",
+                                       lunch = { 1130, 1230 }, },
+  OSL =    { tz = "Europe/Oslo",       hours = { 0900, 1630 }, country = "no", },
+  FIN =    { tz = "Europe/Helsinki",   hours = { 1000, 1830 }, country = "fi", },
 }
 
 -- [year][month][day][market] = false or {open, close}
-local specialDates = {}
+local specialDates = {
+  [2017] = {
+    [05] = {
+      [24] = {
+        STO = { 0900, 1300 },
+      },
+    },
+    [07] = {
+      [03] = {
+        NASDAQ = { 0900, 1300 },
+        NYSE   = { 0900, 1300 },
+      },
+    },
+    [11] = {
+      [03] = {
+        STO = { 0900, 1300 },
+      },
+      [24] = {
+        NASDAQ = { 0900, 1300 },
+        NYSE   = { 0900, 1300 },
+      },
+    },
+  },
+}
+
+--[[
+LSE Holidays:
+  New Year's Day,
+  Good Friday,
+  Easter Monday,
+  May Bank Holiday,
+  Spring Bank Holiday,
+  Summer Bank Holiday,
+  Christmas Day.
+]]
 
 local holidays = {
   -- yearly
-  {   -1, 05, 01, { "STO", "OSL", "FIN", } },
-  {   -1, 05, 17, { "OSL" } },
-  {   -1, 07, 04, { "NASDAQ", "NYSE" } },
+  {   -1, 05, 01, { "STO", "OSL", "FIN", "LSE", } }, -- Worker's Day
+  {   -1, 05, 17, { "OSL" } },                       -- Norwegian National Day
+  {   -1, 06, 06, { "STO" } },                       -- Swedish National Day
+  {   -1, 07, 04, { "NASDAQ", "NYSE" } },            -- May the 4th be with you
+                                                     -- Christmas Day
+  {   -1, 12, 25, { "NASDAQ", "NYSE", "TSX", "STO", "CPH", "OSL", "FIN", "LSE", } },
+                                                     -- Boxing Day(?)
+  {   -1, 12, 26, {                   "TSX", "STO", "CPH", "OSL", "FIN", "LSE", } },
 
-  -- dunno
-  { 2017, 04, 17, { "STO", "CPH", "OSL", "FIN", } },
+  -- TODO: yearly ones, move them
+  -- TODO: generate this list automatically
+  { 2017, 04, 17, { "STO", "CPH", "OSL", "FIN", "LSE", } },
   { 2017, 05, 12, { "CPH" } },
+  { 2017, 05, 22, { "TSX" } },
+  { 2017, 05, 25, { "STO", "CPH", "OSL", "FIN" } },
   { 2017, 05, 29, { "NASDAQ", "NYSE" } },
+  { 2017, 06, 05, { "OSL", "CPH" } },
+  { 2017, 06, 23, { "STO", "FIN" } },
+  { 2017, 08, 07, { "TSX" } },
+  { 2017, 09, 04, { "TSX" } },
+  { 2017, 10, 04, { "NASDAQ", "NYSE" } }, -- Labor Day
 }
 
 for _, t in ipairs(holidays) do
@@ -45,7 +93,7 @@ for _, t in ipairs(holidays) do
   end
 end
 
-local markets = { "NYSE", "NASDAQ", "TSX", "STO", "CPH", "OSL", "FIN", "TSE" }
+local markets = { "NYSE", "NASDAQ", "TSX", "LSE", "STO", "CPH", "OSL", "FIN", "TSE" }
 
 -- hm(0930) -> return 9, 30
 local function hm(t)
@@ -71,6 +119,8 @@ do
   local alias = {
     ["America/Toronto"]   = "America/New_York",
     ["Europe/Copenhagen"] = "Europe/Stockholm",
+    ["Europe/Helsinki"]   = "Europe/Stockholm",
+    ["Europe/Oslo"]       = "Europe/Stockholm",
   }
   local cached = {}
   function getTimezone(path, time)
@@ -103,12 +153,16 @@ for _, market in ipairs(markets) do
     weekend = true
   end
 
+  local openHour, openMinute
+  local closeHour, closeMinute
+  local lunchCloseHour, lunchCloseMin
+  local lunchOpenHour, lunchOpenMin
   
   if holiday then
     open = false
   else
-    local openHour, openMinute   = hm(m.hours[1])
-    local closeHour, closeMinute = hm(m.hours[2])
+    openHour, openMinute   = hm(m.hours[1])
+    closeHour, closeMinute = hm(m.hours[2])
 
     local special = specialDates[t.year]
     if special then
@@ -143,10 +197,12 @@ for _, market in ipairs(markets) do
       
       status = localNow >= openTime and localNow <= closeTime
 
+      if m.lunch then
+        lunchCloseHour, lunchCloseMin = hm(m.lunch[1])
+        lunchOpenHour, lunchOpenMin   = hm(m.lunch[2])
+      end
+
       if m.lunch and status then
-        local lunchCloseHour, lunchCloseMin = hm(m.lunch[1])
-        local lunchOpenHour, lunchOpenMin   = hm(m.lunch[2])
-        
         tmp.hour = lunchCloseHour
         tmp.min  = lunchCloseMin
         local lunchCloseTime = os.time(tmp)
@@ -173,7 +229,11 @@ for _, market in ipairs(markets) do
   if m.country then
     flag = flagEmoji(m.country).." "
   end
-  buf[#buf + 1] = ("%s\2%s\2: %s%s"):format(flag, market, status and "open" or "closed", tmp)
+  local openStr = ("open %02d:%02d-%02d:%02d"):format(openHour, openMinute, closeHour, closeMinute)
+  if m.lunch then
+    openStr = openStr..(", lunch %02d:%02d-%02d:%02d"):format(lunchCloseHour, lunchCloseMin, lunchOpenHour, lunchOpenMin)
+  end
+  buf[#buf + 1] = ("%s\2%s\2: %s%s"):format(flag, market, status and openStr or "closed", tmp)
 end
 
 local longOutput = Editor or network == "Telegram"
