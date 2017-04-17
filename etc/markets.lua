@@ -21,11 +21,15 @@ local marketInfo = {
 local specialDates = {}
 
 local holidays = {
-  { 2017, 04, 17, { "STO", "CPH" } },
-  {   -1, 05, 01, { "STO" } },
+  -- yearly
+  {   -1, 05, 01, { "STO", "OSL", "FIN", } },
+  {   -1, 05, 17, { "OSL" } },
+  {   -1, 07, 04, { "NASDAQ", "NYSE" } },
+
+  -- dunno
+  { 2017, 04, 17, { "STO", "CPH", "OSL", "FIN", } },
   { 2017, 05, 12, { "CPH" } },
   { 2017, 05, 29, { "NASDAQ", "NYSE" } },
-  {   -1, 07, 04, { "NASDAQ", "NYSE" } },
 }
 
 for _, t in ipairs(holidays) do
@@ -172,4 +176,5 @@ for _, market in ipairs(markets) do
   buf[#buf + 1] = ("%s\2%s\2: %s%s"):format(flag, market, status and "open" or "closed", tmp)
 end
 
-return table.concat(buf, network == "Telegram" and "\n" or ", ")
+local longOutput = Editor or network == "Telegram"
+return table.concat(buf, longOutput and "\n" or ", ")
