@@ -32,6 +32,13 @@ if not Web.GET.json then
   <body>]])
 end
 
+local filterTime
+if Web and Web.GET and Web.GET.since then
+  if #Web.GET.since>0 then
+    filterTime = tonumber(Web.GET.since)
+  end
+end
+
 local outt = {}
 
 for _, mod in ipairs{'etc', 'plugin', 'util', 'tests'} do
@@ -47,21 +54,23 @@ for _, mod in ipairs{'etc', 'plugin', 'util', 'tests'} do
   
   for i, f in ipairs(funcs) do
     local url = boturl..'t/view?module='..urlEncode(mod)..'&name='..urlEncode(f)
-    local dunno, dunno, mtime, ownerid = _getCallInfo(mod, f)
-    local raw = 'scripts.lua?mod='..mod..'&fun='..f
-    if not Web.GET.json then
-      Web.write('<tr>')
-      Web.write('<td><a href="'..url..'">'..f..'</a></td>')
-      Web.write('<td>'..getname(ownerid)..'</td>')
-      Web.write('<td><a href="'..htmlEscape(raw)..'">src</a></td>')
-      Web.write('</tr>')
-    else
-      outt[mod][f] = {
-        owner = getname(ownerid),
-        url = boturl..'u/anders/'..raw,
-        mtime = mtime,
-        uid = ownerid,
-      }
+    local _, _, mtime, ownerid = _getCallInfo(mod, f)
+    if not filterTime or (filterTime and mtime > filterTime) then
+      local raw = 'scripts.lua?mod='..mod..'&fun='..f
+      if not Web.GET.json then
+        Web.write('<tr>')
+        Web.write('<td><a href="'..url..'">'..f..'</a></td>')
+        Web.write('<td>'..getname(ownerid)..'</td>')
+        Web.write('<td><a href="'..htmlEscape(raw)..'">src</a></td>')
+        Web.write('</tr>')
+      else
+        outt[mod][f] = {
+          owner = getname(ownerid),
+          url = boturl..'u/anders/'..raw,
+          mtime = mtime,
+          uid = ownerid,
+        }
+      end
     end
   end
   
