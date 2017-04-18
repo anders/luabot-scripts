@@ -5,6 +5,15 @@ local unicode = require 'unicode'
 local now = os.time()
 local nowT = os.date("!*t", now)
 
+--1=formatted time
+--2=offset
+--3=tz code
+--4=table {hour=12, min=43, wday=3, day=18, month=4, year=2017, sec=26, yday=108, isdst=false}
+local userTz = {etc.timezone(nick, nil, nil, true)}
+if not userTz[1] then
+  userTz = {"...", 0, "UTC", os.date("!*t")}
+end
+
 local marketInfo = {
   --[[
   NASDAQ = { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
@@ -143,6 +152,10 @@ for _, market in ipairs(markets) do
   local t = os.date("!*t", now + tz.offset)
   local localNow = os.time(t)
   
+  local function localhm(h, m)
+    
+  end
+  
   local open = true
   local holiday = false
   local weekend = false
@@ -154,17 +167,20 @@ for _, market in ipairs(markets) do
     weekend = true
   end
 
-  local openHour, openMinute
-  local closeHour, closeMinute
+  local openHour, openMinute   = hm(m.hours[1])
+  local closeHour, closeMinute = hm(m.hours[2])
+  
   local lunchCloseHour, lunchCloseMin
   local lunchOpenHour, lunchOpenMin
+  
+  if m.lunch then
+    lunchCloseHour, lunchCloseMin = hm(m.lunch[1])
+    lunchOpenHour, lunchOpenMin   = hm(m.lunch[2])
+  end
   
   if holiday then
     open = false
   else
-    openHour, openMinute   = hm(m.hours[1])
-    closeHour, closeMinute = hm(m.hours[2])
-
     local special = specialDates[t.year]
     if special then
       special = special[t.month]
@@ -198,11 +214,6 @@ for _, market in ipairs(markets) do
       
       status = localNow >= openTime and localNow <= closeTime
 
-      if m.lunch then
-        lunchCloseHour, lunchCloseMin = hm(m.lunch[1])
-        lunchOpenHour, lunchOpenMin   = hm(m.lunch[2])
-      end
-
       if m.lunch and status then
         tmp.hour = lunchCloseHour
         tmp.min  = lunchCloseMin
@@ -230,11 +241,15 @@ for _, market in ipairs(markets) do
   if m.country then
     flag = flagEmoji(m.country).." "
   end
+  
   local openStr = ("open %02d:%02d-%02d:%02d"):format(openHour, openMinute, closeHour, closeMinute)
   if m.lunch then
     openStr = openStr..(", lunch %02d:%02d-%02d:%02d"):format(lunchCloseHour, lunchCloseMin, lunchOpenHour, lunchOpenMin)
   end
-  buf[#buf + 1] = ("%s\2%s\2: %s%s"):format(flag, market, status and openStr or "closed", tmp)
+  
+  local closedStr = ("closed, opens %02d:%02d"):format(openHour, openMinute)
+  
+  buf[#buf + 1] = ("%s\2%s\2: %s%s"):format(flag, market, status and openStr or closedStr, tmp)
 end
 
 local longOutput = Editor or network == "Telegram"
