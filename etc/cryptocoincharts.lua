@@ -17,7 +17,7 @@ end
 
 local url = "http://www.cryptocoincharts.info/v2/api/listCoins"
 if arg[1] then
-  url = "http://www.cryptocoincharts.info/v2/api/tradingPair/" .. arg[1]:lower() .. "_BTC"
+  url = "http://www.cryptocoincharts.info/v2/api/tradingPair/" .. arg[1] .. "_" .. (arg[2] or 'btc')
 end
 
 local data = assert(httpGet(url))

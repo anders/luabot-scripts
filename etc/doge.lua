@@ -1,1 +1,1 @@
-return etc.cryptocoin("doge")
+return util.money_single('doge', ...)
