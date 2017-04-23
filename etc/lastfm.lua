@@ -7,10 +7,10 @@ local settings = plugin.settings(io)
 
 local user = arg[1] ~= '' and arg[1]
 
-local API_KEY = '142e172267537d16cc28336c89339871'
-user = etc.get('last.fm', arg[1]) or user or etc.get('last.fm', nick) or nick
+local API_KEY = "142e172267537d16cc28336c89339871"
+user = etc.get("last.fm", arg[1]) or user or etc.get("last.fm", nick) or nick
 
-local url = 'http://ws.audioscrobbler.com/2.0?limit=2&method=user.getrecenttracks&format=json&user='..user..'&api_key='..API_KEY
+local url = "http://ws.audioscrobbler.com/2.0?limit=2&method=user.getrecenttracks&format=json&user="..user.."&api_key="..API_KEY
 local data = httpGet(url)
 local parsed = assert(json.load(data))
 
@@ -36,61 +36,27 @@ assert(errorCodes[2] == "Invalid service - This service does not exist")
 assert(errorCodes[1337] == "Unknown error")
 
 if parsed.error then
-  print('\002Last.fm API error:\002 '..parsed.message..' (code: '..parsed.error..', '..errorCodes[tonumber(parsed.error)]..')')
+  print("\002Last.fm API error:\002 "..parsed.message.." (code: "..parsed.error..", "..errorCodes[tonumber(parsed.error)]..")")
   return
 end
 
 local track = parsed.recenttracks.track and parsed.recenttracks.track[1]
 if not track then
-  print('\002Error:\002 No recently played tracks!')
+  print("\002Error:\002 No recently played tracks!")
   return
 end
 
 
-local artist = track.artist['#text'] or 'artist?'
-local title = track.name or 'title?'
-local is_playing = track['@attr'] and track['@attr'].nowplaying
-local user = parsed.recenttracks['@attr'].user or 'user?'
-local url = track.url or 'url?'
+local artist = track.artist["#text"] or "artist?"
+local title = track.name or "title?"
+local is_playing = track["@attr"] and track["@attr"].nowplaying
+local user = parsed.recenttracks["@attr"].user or "user?"
+local url = track.url or "url?"
 
+local is_playing_str = is_playing and "is playing" or "last played"
 
-local is_playing_str = is_playing and 'is playing' or 'last played'
-
-local url_str = url and ' '..url or ''
-
-print(('♫♪ \002%s\002 %s \002%s\002 by \002%s\002%s ♪♫'):format(user, is_playing_str, title, artist, url_str))
-
-
-
--- print('♫♪ Last.fm:  ♪♫')
-
--- print('Currently playing track: recenttracks.track[1].artist['#text'], .name, @attr.nowplaying = true/false
---[[
-
-
-
-local s = {}
-
-s[#s+1] = '♫ ♪ '
-s[#s+1] = parsed.recenttracks['@attr'].user
-
-if nowplaying then
-  s[#s+1] = ' is playing '
+if not (network == "Telegram" and chan == "#-1677851") then
+  print(("♫♪ \2%s\2 %s \2%s\2 by \2%s\2%s ♪♫"):format(user, is_playing_str, title, artist, url_str))
 else
-  s[#s+1] = ' last played '
+  etc.printf("\1MD 🎧　[%s](%s) %s [%s](%s) by [%s](%s)", user, "http://last.fm/user/"..user, is_playing_str, title, url, artist, url)
 end
-
-s[#s+1] = name
-s[#s+1] = ' by '
-s[#s+1] = artist
-
-if not nowplaying then
-  s[#s+1] = ' on '
-  s[#s+1] = os.date('!%Y-%m-%d %H:%M', tonumber(track.date.uts))
-  s[#s+1] = ' (UTC)'
-end
-
-s[#s+1] = ' ♪ ♫'
-
-print(table.concat(s, ''))
-]]
