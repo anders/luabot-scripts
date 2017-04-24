@@ -8,12 +8,11 @@ local places = {
   {"New York",      "America/New_York"   },
   {"London",        "Europe/London"      },
   {"Stockholm",     "Europe/Stockholm"   },
-  {pickone{"Helsinki", "Helstinki"       },
-                     "Europe/Helsinki"   },
-  {"Mфscфш",         "Europe/Moscow"     },
-  {"Tokyo",          "Asia/Tokyo"        },
-  {"Sydney",         "Australia/Sydney"  },
-  {"Wellington",     "Pacific/Auckland"  },
+  {"Helsinki",      "Europe/Helsinki"    },
+  {"Moscow",        "Europe/Moscow"      },
+  {"Tokyo",         "Asia/Tokyo"         },
+  {"Sydney",        "Australia/Sydney"   },
+  {"Wellington",    "Pacific/Auckland"   },
 }
 
 local buf = {}
@@ -25,4 +24,9 @@ for _, placezone in pairs(places) do
   buf[#buf + 1] = ("\2%s:\2 %s"):format(place, localtime)
 end
 
-return table.concat(buf, ", ")
+local ret = table.concat(buf, ", ")
+if network == "Telegram" then
+  ret = ret:gsub(", ", "\n")
+end
+return ret
+
