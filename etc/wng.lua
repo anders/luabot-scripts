@@ -33,7 +33,7 @@ local query, forecast = ...
 query = etc.get('location', query) or query or etc.get('location', nick)
 
 if not query then
-  return false, "Please set your location using 'set location place."
+  return false, "Please set your location using "..etc.cmdchar.."set location <your location>."
 end
 
 local place, coords = geocode.simple(query)
