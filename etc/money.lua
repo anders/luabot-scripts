@@ -273,9 +273,9 @@ local function convert(amount, from, to)
   get_rate(from)
   get_rate(to)
   if not rates[from] then
-    return false, 'Unknown currency code `'..tostring(from)..'\'.'
+    return false, 'Unknown currency code '..tostring(from)..'.'
   elseif not rates[to] then
-    return false, 'Unknown currency code `'..tostring(to)..'\'.'
+    return false, 'Unknown currency code '..tostring(to)..'.'
   elseif type(amount) ~= 'number' then
     return false, 'No amount specified.'
   end
