@@ -148,10 +148,17 @@ cache.auto(cacheKey, CACHE_DURATION, function()
     if perceived then
       tmp[#tmp + 1] = (' (feels like %d°C)'):format(round(perceived))
     end
-    
-    tmp[#tmp + 1] = (', \002wind:\002 %d m/s (%d°),'):format(round(V), winddirDegree)
-    tmp[#tmp + 1] = (' \002humidity:\002 %d%%,'):format(R)
-    tmp[#tmp + 1] = (' \002precipitation:\002 %d mm,'):format(round(precipMM))
+    local ms = round(V)
+    if ms >= 0.001 then
+      tmp[#tmp + 1] = (', \002wind:\002 %d m/s,'):format(ms)
+    end
+    if R >= 0.001 then
+      tmp[#tmp + 1] = (' \002humidity:\002 %d%%,'):format(R)
+    end
+    local pmm = round(precipMM)
+    if pmm >= 0.001 then
+      tmp[#tmp + 1] = (' \002precipitation:\002 %d mm,'):format(pmm)
+    end
     tmp[#tmp + 1] = (' \002cloud coverage:\002 %d%%'):format(cloudCoverage)
     tmp[#tmp + 1] = (' (%s)'):format(trim(description))
     
@@ -169,8 +176,14 @@ cache.auto(cacheKey, CACHE_DURATION, function()
       tmp[#tmp + 1] = (' max: %d°C,'):format(v.tempMaxC)
       tmp[#tmp + 1] = (' min: %d°C,'):format(v.tempMinC)
       
-      tmp[#tmp + 1] = (' \002wind:\002 %d m/s (%d°),'):format(round(v.windspeedKmph / 3.6), winddirDegree)
-      tmp[#tmp + 1] = (' \002precipitation:\002 %d mm'):format(round(v.precipMM))
+      local ms = round(v.windspeedKmph / 3.6)
+      if ms >= 0.001 then
+        tmp[#tmp + 1] = (' \002wind:\002 %d m/s,'):format(ms)
+      end
+      local pmm = round(v.precipMM)
+      if pmm >= 0.001 then
+        tmp[#tmp + 1] = (' \002precipitation:\002 %d mm'):format(pmm)
+      end
       tmp[#tmp + 1] = (' (%s)'):format(trim(v.weatherDesc[1].value))
   
       print(reekize(table.concat(tmp)))
