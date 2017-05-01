@@ -1,10 +1,10 @@
-assert(account == 2, 'u aint anders')
+assert(account == 2 or network == "Telegram" and nick == "andersman", 'u aint anders')
 
 arg[1] = arg[1] or ''
 
 local user, key, value = arg[1]:match('([%w%p]+) ([%w%p]+) (.+)')
 if Help or not user or not key or not value then
-  print('\002Usage:\002 '..etc.cmdchar..'set nick key value')
+  print('\002Usage:\002 '..etc.cmdchar..'godset nick key value')
   return
 end
 

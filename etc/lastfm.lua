@@ -56,7 +56,7 @@ local url = track.url or "url?"
 local is_playing_str = is_playing and "is playing" or "last played"
 
 if not (network == "Telegram" and chan == "#-1677851") then
-  print(("♫♪ \2%s\2 %s \2%s\2 by \2%s\2%s ♪♫"):format(user, is_playing_str, title, artist, url_str))
+  print(("♫♪ \2%s\2 %s \2%s\2 by \2%s\2%s ♪♫"):format(user, is_playing_str, title, artist, url))
 else
   etc.printf("\1MD 🎧　[%s](%s) %s [%s](%s) by [%s](%s)", user, "http://last.fm/user/"..user, is_playing_str, title, url, artist, url)
 end
