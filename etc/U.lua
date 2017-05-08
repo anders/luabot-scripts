@@ -60,6 +60,8 @@ if fast then return c end
 local desc, cat = unicode.getUnicodeInfo(n)
 if cat == 'Character not found' then cat = nil end -- hack
 
+if n == 0x1F438 then desc = "PEPE FROG" end
+
 -- Don't print control characters, but do allow private use chars.
 if cat and cat:sub(1, 1) == 'C' and cat ~= 'Co' then
   return '', ('U+%04X%s'):format(n, desc and ', ' .. desc or '')
