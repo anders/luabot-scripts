@@ -18,8 +18,10 @@ if res then
   -- TODO: maybe override using the geocoded name from Google
 end
 
+--[[
 if not setinfo.god then
   sendNotice(setinfo.user, "If you want to set your locale settings then do 'set locale en_US etc xD")
 end
+]]
 
 return loc, extra
