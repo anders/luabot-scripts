@@ -6,6 +6,18 @@ local MINIMUM = 100
 
 local arg1 = arg[1] or "1234 1235 1236 1237"
 
+local n = select("#", ...)
+if n > 1 then
+  local tmp = {}
+  for i=1, n do
+    local a = select(i, ...)
+    if type(a) == "number" then
+      tmp[#tmp+1] = tostring(a)
+    end
+  end
+  arg1 = table.concat(tmp, " ")
+end
+
 local innehav = {}
 
 for n in arg1:gmatch("%d+") do
