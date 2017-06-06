@@ -76,6 +76,7 @@ local function WorldWeatherOnline(coords)
   local weatherData = assert(json.decode(jsonData))
   if not weatherData.data.current_condition then
     print('\002Error:\002 insufficient result from weather API')
+    print(jsonData)
     halt()
   end
   
