@@ -34,7 +34,7 @@ local sum = 0
 local tmp = {}
 for i=1, #innehav do
   local max = max
-  if diff < 100 then max = max + 100 end
+  if max - innehav[i] < 100 then max = max + 100 end
   sum = sum + max - innehav[i]
   tmp[#tmp + 1] = ("%d: %d kr (%.1f%%)"):format(i, max - innehav[i], innehav[i] / innehavSum * 100)
 end
