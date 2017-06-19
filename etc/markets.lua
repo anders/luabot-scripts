@@ -19,7 +19,7 @@ local marketInfo = {
   NASDAQ = { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
   NYSE =   { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
   ]]
-  US  =    { tz = "America/New_York",  hours = { 0900, 1600 }, country = "us", },
+  US  =    { tz = "America/New_York",  hours = { 0930, 1600 }, country = "us", },
   TSX =    { tz = "America/Toronto",   hours = { 0930, 1600 }, country = "ca", },
   LSE =    { tz = "Europe/London",     hours = { 0800, 1630 }, country = "gb", },
   STO =    { tz = "Europe/Stockholm",  hours = { 0900, 1730 }, country = "se", },
@@ -40,7 +40,7 @@ local specialDates = {
     },
     [07] = {
       [03] = {
-        US = { 0900, 1300 },
+        US = { 0930, 1300 },
       },
     },
     [11] = {
@@ -48,7 +48,7 @@ local specialDates = {
         STO = { 0900, 1300 },
       },
       [24] = {
-        US = { 0900, 1300 },
+        US = { 0930, 1300 },
       },
     },
   },
