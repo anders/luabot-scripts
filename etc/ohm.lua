@@ -1,15 +1,28 @@
--- Voltage (V) = Current (I) * Resistance (R) 
--- Power (P) = Voltage (V) * Current (I)
+--[[
+V=I*R
+I=V/R
+R=V/I
 
--- P / V = I
--- P / I = V
--- V * I = P
+P=V*I
+
+I=Ampere
+R=Ohm
+V=Volt
+P=Watt
+]]
+
+local function human(n)
+  return etc.hsize(n)
+end
 
 local A = arg[1] or ""
 
-local power      = A:match("([%d%.]+[ukmM]?[WwPpVv])")
-local current    = A:match("([%d%.]+[ukmM]?[IiAa])")
-local resistance = A:match("([%d%.]+[ukmM]?[Rr])")
+
+local V = A:match("([%d%.]+[ukmM]?[Vv])")
+local I = A:match("([%d%.]+[ukmM]?[AaIi])")
+local R = A:match("([%d%.]+[ukmM]?[RrOo])")
+--local P = A:match("([%d%.]+[ukmM]?[Ww])")
+local P
 
 local function num(s)
   local n, u = s:match("([%d%.]+)([ukmM]?)[A-Za-z]")
@@ -21,18 +34,18 @@ local function num(s)
   return n
 end
 
-power = power and num(power) or nil
-current = current and num(current) or nil
-resistance = resistance and num(resistance) or nil
+V = V and num(V)
+I = I and num(I)
+R = R and num(R)
 
-if current and resistance then
-  print("voltage: "..current*resistance)
-elseif voltage and current then
-  print("power: "..voltage*current)
+if I and R then
+  V = I * R
+elseif V and R then
+  I = V / R
+elseif V and I then
+  R = V / I
 end
 
---[[
-print("power: "..(power or "n/a"))
-print("current: "..(current or "n/a"))
-print("resistance: "..(resistance or "n/a"))
-]]
+P = V * I
+
+etc.printf("V=%sV, I=%sA, R=%sΩ, P=%sW", human(V), human(I), human(R), human(P))
