@@ -1,7 +1,8 @@
 local cache = plugin.cache(Cache)
 local json = plugin.json()
 
-local API_URL = 'http://maps.googleapis.com/maps/api/geocode/json'
+local API_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
+local API_KEY = etc.rot13('NVmnFlQ914bytxijRx_lGZxQ4zMIuYE85pjo6cV')
 
 local M = {}
 
@@ -29,7 +30,7 @@ function M.lookup(address, options)
     params = '&'..params
   end
   
-  local data, err = httpGet(API_URL .. '?address=' .. urlEncode(address) .. '&sensor=false' .. params)
+  local data, err = httpGet(API_URL .. '?key=' .. API_KEY .. '&address=' .. urlEncode(address) .. '&sensor=false' .. params)
   if not data then
     return false, err
   end
