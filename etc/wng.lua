@@ -45,7 +45,8 @@ end
 local function WorldWeatherOnline(coords)
   -- local API_KEY = 'kxz3zwcq55a7rkb48tqxjh9e' -- premium
   local API_KEY = 'wjz9shwya2r62q29tpqcq79r' -- free
-  local API_URL = 'http://api.worldweatheronline.com/free/v1/weather.ashx'
+  --local API_URL = 'http://api.worldweatheronline.com/free/v1/weather.ashx'
+  local API_URL = 'http://weather-wwo.anders/free/v1/weather.ashx'
   
   local params = {
     -- required
@@ -74,7 +75,8 @@ local function WorldWeatherOnline(coords)
   end
   
   local weatherData = assert(json.decode(jsonData))
-  if not weatherData.data.current_condition then
+  -- weatherData.data.current_condition
+  if not weatherData.current_condition then
     print('\002Error:\002 insufficient result from weather API')
     print(jsonData)
     halt()
@@ -122,7 +124,8 @@ end
 
 cache.auto(cacheKey, CACHE_DURATION, function()
   if not forecast then
-    local cur = weatherData.data.current_condition[1]
+    --local cur = weatherData.data.current_condition[1]
+    local cur = weatherData.current_condition[1]
     
     local T = tonumber(cur.temp_C)
     local Tf = weather.c2f(T)
@@ -156,11 +159,11 @@ cache.auto(cacheKey, CACHE_DURATION, function()
     if R >= 0.001 then
       tmp[#tmp + 1] = (' \002humidity:\002 %d%%,'):format(R)
     end
-    local pmm = round(precipMM)
+    local pmm = precipMM and round(precipMM) or 0
     if pmm >= 0.001 then
-      tmp[#tmp + 1] = (' \002precipitation:\002 %d mm,'):format(pmm)
+      tmp[#tmp + 1] = (' \002precipitation:\002 %d mm'):format(pmm)
     end
-    tmp[#tmp + 1] = (' \002cloud coverage:\002 %d%%'):format(cloudCoverage)
+    if cloudCoverage then tmp[#tmp + 1] = (', \002cloud coverage:\002 %d%%'):format(cloudCoverage) end
     tmp[#tmp + 1] = (' (%s)'):format(trim(description))
     
     print(reekize(table.concat(tmp)))
@@ -169,7 +172,7 @@ cache.auto(cacheKey, CACHE_DURATION, function()
       print(('Forecast for \002%s:\002'):format(place))
     end
     
-    for k, v in ipairs(weatherData.data.weather) do
+    for k, v in ipairs(weatherData.weather) do
       local tmp = {}
       local winddirDegree = math.floor(v.winddirDegree/10+0.5)*10
       
@@ -177,11 +180,11 @@ cache.auto(cacheKey, CACHE_DURATION, function()
       tmp[#tmp + 1] = (' max: %d°C,'):format(v.tempMaxC)
       tmp[#tmp + 1] = (' min: %d°C,'):format(v.tempMinC)
       
-      local ms = round(v.windspeedKmph / 3.6)
+      local ms = v.windspeedKmph and round(v.windspeedKmph / 3.6) or 0
       if ms >= 0.001 then
         tmp[#tmp + 1] = (' \002wind:\002 %d m/s,'):format(ms)
       end
-      local pmm = round(v.precipMM)
+      local pmm = v.precipMM and round(v.precipMM) or 0
       if pmm >= 0.001 then
         tmp[#tmp + 1] = (' \002precipitation:\002 %d mm'):format(pmm)
       end
