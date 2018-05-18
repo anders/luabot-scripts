@@ -270,18 +270,19 @@ local function get_rate(x)
 end
 
 local function convert(amount, from, to)
-  get_rate(from)
-  get_rate(to)
-  if not rates[from] then
+  local from_rate = get_rate(from)
+  local to_rate = get_rate(to)
+
+  if not from_rate then
     return false, 'Unknown currency code '..tostring(from)..'.'
-  elseif not rates[to] then
+  elseif not to_rate then
     return false, 'Unknown currency code '..tostring(to)..'.'
   elseif type(amount) ~= 'number' then
     return false, 'No amount specified.'
   end
 
-  local amount_in_USD = amount / get_rate(from)
-  local amount_in_new = amount_in_USD * get_rate(to)
+  local amount_in_USD = amount / from_rate
+  local amount_in_new = amount_in_USD * to_rate
 
   return amount_in_new
 end
@@ -294,7 +295,10 @@ local function print_convert(amount, from, to)
   end
   local from_name = names[from] or from
   local to_name = names[to] or to
-  print(('%g %s = %g %s'):format(amount, from_name, new_amount, to_name))
+  local rate = amount / new_amount
+  local rateInv = 1/rate
+  print(('%g %s = %g %s (1 %s = %g %s, 1 %s = %g %s)'):format(amount, from_name, new_amount, to_name,
+                                                              to, rate, from, from, rateInv, to))
 end
 
 -- 'money 50
