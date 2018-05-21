@@ -351,12 +351,12 @@ local function print_convert(amount, from, to)
 
   local buf = {}
 
-  -- XYZ 1.2345
-  buf[#buf+1] = format_num(amount, 4, from.." ")
+  -- XYZ 1.2345 (Xy Yy Zz dollar)
+  buf[#buf+1] = format_num(amount, 4, from.." ").." ("..from_name..")"
   -- =
   buf[#buf+1] = " = "
-  -- XYZ 1.2345
-  buf[#buf+1] = format_num(new_amount, 4, to.." ")
+  -- XYZ 1.2345 (Foo Bar dollar)
+  buf[#buf+1] = format_num(new_amount, 4, to.." ").." ("..to_name..")"
   -- (XYZXYZ 1.2345,
   buf[#buf+1] = " ("..from..format_num(rateInv, 4, to.." ")..", "
   --  XYZXYZ 1.2345)
