@@ -29,13 +29,13 @@ local names = {
   BTN = 'Bhutanese Ngultrum',
   BWP = 'Botswanan Pula',
   BYN = 'Belarusian Ruble',
-  BYR = 'Belarusian Ruble (pre-2016)',
   BZD = 'Belize Dollar',
   CAD = 'Canadian Dollar',
   CDF = 'Congolese Franc',
   CHF = 'Swiss Franc',
   CLF = 'Chilean Unit of Account (UF)',
   CLP = 'Chilean Peso',
+  CNH = 'Chinese Yuan (Offshore)',
   CNY = 'Chinese Yuan',
   COP = 'Colombian Peso',
   CRC = 'Costa Rican Colón',
@@ -47,7 +47,6 @@ local names = {
   DKK = 'Danish Krone',
   DOP = 'Dominican Peso',
   DZD = 'Algerian Dinar',
-  EEK = 'Estonian Kroon',
   EGP = 'Egyptian Pound',
   ERN = 'Eritrean Nakfa',
   ETB = 'Ethiopian Birr',
@@ -93,8 +92,6 @@ local names = {
   LKR = 'Sri Lankan Rupee',
   LRD = 'Liberian Dollar',
   LSL = 'Lesotho Loti',
-  LTL = 'Lithuanian Litas',
-  LVL = 'Latvian Lats',
   LYD = 'Libyan Dinar',
   MAD = 'Moroccan Dirham',
   MDL = 'Moldovan Leu',
@@ -103,8 +100,8 @@ local names = {
   MMK = 'Myanma Kyat',
   MNT = 'Mongolian Tugrik',
   MOP = 'Macanese Pataca',
-  MRO = 'Mauritanian Ouguiya',
-  MTL = 'Maltese Lira',
+  MRO = 'Mauritanian Ouguiya (pre-2018)',
+  MRU = 'Mauritanian Ouguiya',
   MUR = 'Mauritian Rupee',
   MVR = 'Maldivian Rufiyaa',
   MWK = 'Malawian Kwacha',
@@ -140,7 +137,9 @@ local names = {
   SLL = 'Sierra Leonean Leone',
   SOS = 'Somali Shilling',
   SRD = 'Surinamese Dollar',
-  STD = 'São Tomé and Príncipe Dobra',
+  SSP = 'South Sudanese Pound',
+  STD = 'São Tomé and Príncipe Dobra (pre-2018)',
+  STN = 'São Tomé and Príncipe Dobra',
   SVC = 'Salvadoran Colón',
   SYP = 'Syrian Pound',
   SZL = 'Swazi Lilangeni',
@@ -148,7 +147,7 @@ local names = {
   TJS = 'Tajikistani Somoni',
   TMT = 'Turkmenistani Manat',
   TND = 'Tunisian Dinar',
-  TOP = 'Tongan Pa?anga',
+  TOP = 'Tongan Pa\'anga',
   TRY = 'Turkish Lira',
   TTD = 'Trinidad and Tobago Dollar',
   TWD = 'New Taiwan Dollar',
@@ -173,9 +172,8 @@ local names = {
   XPT = 'Platinum Ounce',
   YER = 'Yemeni Rial',
   ZAR = 'South African Rand',
-  ZMK = 'Zambian Kwacha (pre-2013)',
   ZMW = 'Zambian Kwacha',
-  ZWL = 'Zimbabwean Dollar',
+  ZWL = 'Zimbabwean Dollar'
 }
 
 -- 'money 34.563 SEK USD
@@ -187,17 +185,6 @@ local names = {
 local json = plugin.json()
 local cache = plugin.cache(Cache)
 
---[[
-local settings = plugin.settings(io)
-local key = assert(arg[1], 'expected key')
-if key:sub(1, 1) == '#' then
-  key = chan:lower()..'~'..key:sub(2)
-end
-local user = arg[2] or nick
-local path = 'uvars/'..user:lower()..'.json'
-return settings.load(path)[key:lower()]
-]]
-plugin._april_fools()
 local default_currency = (etc.get('currency', nick) or 'USD'):upper()
 
 local function usage()
@@ -213,13 +200,6 @@ local amount = arg[1]:match('%d+%.?%d*')
 
 local codes = {}
 for code in arg[1]:gmatch('%a+') do
-  --[[
-  if #code > 3 then
-    usage()
-    return
-  end
-  ]]
-
   if #codes == 2 then
     usage()
     return
