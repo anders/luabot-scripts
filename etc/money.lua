@@ -176,6 +176,77 @@ local names = {
   ZWL = 'Zimbabwean Dollar'
 }
 
+-- from sam_lie
+-- Compatible with Lua 5.0 and 5.1.
+-- Disclaimer : use at own risk especially for hedge fund reports :-)
+
+---============================================================
+-- add comma to separate thousands
+-- 
+local function comma_value(amount)
+  local formatted = tostring(amount)
+  while true do  
+    formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", '%1,%2')
+    if k == 0 then
+      break
+    end
+  end
+  return formatted
+end
+
+---============================================================
+-- rounds a number to the nearest decimal places
+--
+local function round(val, decimal)
+  if decimal then
+    return math.floor( (val * 10^decimal) + 0.5) / (10^decimal)
+  else
+    return math.floor(val + 0.5)
+  end
+end
+
+--===================================================================
+-- given a numeric value formats output with comma to separate thousands
+-- and rounded to given decimal places
+--
+--
+local function format_num(amount, decimal, prefix, neg_prefix)
+  local str_amount,  formatted, famount, remain
+
+  decimal = decimal or 2  -- default 2 decimal places
+  neg_prefix = neg_prefix or "-" -- default negative sign
+
+  famount = math.abs(round(amount, decimal))
+  famount = math.floor(famount)
+
+  remain = round(math.abs(amount) - famount, decimal)
+
+  -- comma to separate the thousands
+  formatted = comma_value(famount)
+
+  -- attach the decimal portion
+  if decimal > 0 then
+    remain = tostring(remain):sub(3)
+    formatted = formatted .. "." .. remain .. ("0"):rep(decimal - #remain)
+  end
+
+  -- if value is negative then format accordingly
+  if amount < 0 then
+    if neg_prefix == "()" then
+      formatted = "("..formatted ..")"
+    else
+      formatted = neg_prefix .. formatted 
+    end
+  end
+
+  -- attach prefix string e.g '$' 
+  formatted = (prefix or "") .. formatted 
+
+  return formatted
+end
+
+-- End of sam_lie code
+
 -- 'money 34.563 SEK USD
 -- 'money SEK USD 324.657
 -- 'money 342 SEK
@@ -277,8 +348,21 @@ local function print_convert(amount, from, to)
   local to_name = names[to] or to
   local rate = amount / new_amount
   local rateInv = 1/rate
-  print(('%g %s = %g %s (1 %s = %g %s, 1 %s = %g %s)'):format(amount, from_name, new_amount, to_name,
-                                                              to, rate, from, from, rateInv, to))
+
+  local buf = {}
+
+  -- XYZ 1.2345
+  buf[#buf+1] = format_num(amount, 4, from.." ")
+  -- =
+  buf[#buf+1] = " = "
+  -- XYZ 1.2345
+  buf[#buf+1] = format_num(new_amount, 4, to.." ")
+  -- (XYZXYZ 1.2345,
+  buf[#buf+1] = " ("..from..format_num(rateInv, 4, to.." ")..", "
+  --  XYZXYZ 1.2345)
+  buf[#buf+1] = to..format_num(rate, 4, from.." ")..")"
+
+  print(table.concat(buf, ""))
 end
 
 -- 'money 50
