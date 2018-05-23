@@ -179,17 +179,21 @@ local function print_convert(amount, from, to)
   local rateInv = 1/rate
 
   local buf = {}
+  
+  local fn = function(...)
+    return format_num(...):gsub("%.0000", ""), nil
+  end
 
   -- XYZ 1.2345 (Xy Yy Zz dollar)
-  buf[#buf+1] = format_num(amount, 4, from.." ").." ("..from_name..")"
+  buf[#buf+1] = fn(amount, 4, from.." ").." ("..from_name..")"
   -- =
   buf[#buf+1] = " = "
   -- XYZ 1.2345 (Foo Bar dollar)
-  buf[#buf+1] = format_num(new_amount, 4, to.." ").." ("..to_name..")"
+  buf[#buf+1] = fn(new_amount, 4, to.." ").." ("..to_name..")"
   -- (XYZXYZ 1.2345,
-  buf[#buf+1] = " ("..from..format_num(rateInv, 4, to.." ").."; "
+  buf[#buf+1] = " ("..from..fn(rateInv, 4, to.." ").."; "
   --  XYZXYZ 1.2345)
-  buf[#buf+1] = to..format_num(rate, 4, from.." ")..")"
+  buf[#buf+1] = to..fn(rate, 4, from.." ")..")"
 
   print(table.concat(buf, ""))
 end
