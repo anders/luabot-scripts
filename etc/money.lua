@@ -2,8 +2,8 @@ if Editor then return end
 
 local LOG = plugin.log(_funcname)
 
-local APP_ID = 'ccdc436323fd4cb1a51dae367ca9a7ff'
-local CACHE_DURATION = 60 * 30
+local APP_ID = etc.decrypt "0q4163n2s4q9407q85111n5q6s2n8s99"
+local CACHE_DURATION = 3600
 
 local names = etc._currencies()
 
