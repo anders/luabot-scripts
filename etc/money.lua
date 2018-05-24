@@ -1,7 +1,9 @@
 if Editor then return end
 
+local LOG = plugin.log(_funcname)
+
 local APP_ID = 'ccdc436323fd4cb1a51dae367ca9a7ff'
-local CACHE_DURATION = 60 * 5
+local CACHE_DURATION = 60 * 30
 
 local names = etc._currencies()
 
@@ -121,7 +123,9 @@ end
 
 local cacheKey = 'money$data'
 local cached = cache.isCached(cacheKey)
+LOG.trace("cached(money$data) = "..tostring(cached))
 local rates = cached and cache.get(cacheKey)
+LOG.trace("rates = "..tostring(rates):sub(1, 15))
 
 if not rates then
   local exchange_data, e = httpGet('http://openexchangerates.org/api/latest.json?app_id='..APP_ID)
@@ -133,6 +137,7 @@ if not rates then
   local exchange_rates = json.load(exchange_data)
   rates = assert(exchange_rates.rates, 'Expected rates')
   cache.set(cacheKey, json.encode(rates), CACHE_DURATION)
+  LOG.trace("cache.set("..cacheKey..", cache.isCached("..cacheKey..") = "..tostring(cache.isCached(cacheKey)))
 else
   rates = json.decode(rates)
 end
