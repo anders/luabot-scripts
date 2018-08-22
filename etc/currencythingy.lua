@@ -35,13 +35,13 @@ local names = {
   BTN = 'Bhutanese Ngultrum',
   BWP = 'Botswanan Pula',
   BYN = 'Belarusian Ruble',
-  BYR = 'Belarusian Ruble (pre-2016)',
   BZD = 'Belize Dollar',
   CAD = 'Canadian Dollar',
   CDF = 'Congolese Franc',
   CHF = 'Swiss Franc',
   CLF = 'Chilean Unit of Account (UF)',
   CLP = 'Chilean Peso',
+  CNH = 'Chinese Yuan (Offshore)',
   CNY = 'Chinese Yuan',
   COP = 'Colombian Peso',
   CRC = 'Costa Rican Colón',
@@ -53,7 +53,6 @@ local names = {
   DKK = 'Danish Krone',
   DOP = 'Dominican Peso',
   DZD = 'Algerian Dinar',
-  EEK = 'Estonian Kroon',
   EGP = 'Egyptian Pound',
   ERN = 'Eritrean Nakfa',
   ETB = 'Ethiopian Birr',
@@ -99,8 +98,6 @@ local names = {
   LKR = 'Sri Lankan Rupee',
   LRD = 'Liberian Dollar',
   LSL = 'Lesotho Loti',
-  LTL = 'Lithuanian Litas',
-  LVL = 'Latvian Lats',
   LYD = 'Libyan Dinar',
   MAD = 'Moroccan Dirham',
   MDL = 'Moldovan Leu',
@@ -109,8 +106,8 @@ local names = {
   MMK = 'Myanma Kyat',
   MNT = 'Mongolian Tugrik',
   MOP = 'Macanese Pataca',
-  MRO = 'Mauritanian Ouguiya',
-  MTL = 'Maltese Lira',
+  MRO = 'Mauritanian Ouguiya (pre-2018)',
+  MRU = 'Mauritanian Ouguiya',
   MUR = 'Mauritian Rupee',
   MVR = 'Maldivian Rufiyaa',
   MWK = 'Malawian Kwacha',
@@ -146,7 +143,9 @@ local names = {
   SLL = 'Sierra Leonean Leone',
   SOS = 'Somali Shilling',
   SRD = 'Surinamese Dollar',
-  STD = 'São Tomé and Príncipe Dobra',
+  SSP = 'South Sudanese Pound',
+  STD = 'São Tomé and Príncipe Dobra (pre-2018)',
+  STN = 'São Tomé and Príncipe Dobra',
   SVC = 'Salvadoran Colón',
   SYP = 'Syrian Pound',
   SZL = 'Swazi Lilangeni',
@@ -154,7 +153,7 @@ local names = {
   TJS = 'Tajikistani Somoni',
   TMT = 'Turkmenistani Manat',
   TND = 'Tunisian Dinar',
-  TOP = 'Tongan Pa?anga',
+  TOP = 'Tongan Pa\'anga',
   TRY = 'Turkish Lira',
   TTD = 'Trinidad and Tobago Dollar',
   TWD = 'New Taiwan Dollar',
@@ -164,7 +163,8 @@ local names = {
   USD = 'United States Dollar',
   UYU = 'Uruguayan Peso',
   UZS = 'Uzbekistan Som',
-  VEF = 'Venezuelan Bolívar Fuerte',
+  VEF = 'Venezuelan Bolívar Fuerte (Old)',
+  VES = 'Venezuelan Bolívar Soberano',
   VND = 'Vietnamese Dong',
   VUV = 'Vanuatu Vatu',
   WST = 'Samoan Tala',
@@ -179,12 +179,22 @@ local names = {
   XPT = 'Platinum Ounce',
   YER = 'Yemeni Rial',
   ZAR = 'South African Rand',
-  ZMK = 'Zambian Kwacha (pre-2013)',
   ZMW = 'Zambian Kwacha',
   ZWL = 'Zimbabwean Dollar',
 }
 
-local APP_ID = 'ccdc436323fd4cb1a51dae367ca9a7ff'
+local ignore = {}
+for _, v in pairs {
+  -- UK
+  'JEP', 'FKP', 'SHP', 'GGP', 'IMP', 'GIP',
+  
+  -- USD
+  'BMD', 'PAB', 'BSD', 'CUC',
+} do
+  ignore[v] = true
+end
+
+local APP_ID = etc.decrypt "0q4163n2s4q9407q85111n5q6s2n8s99"
 local CACHE_DURATION = 60 * 5
 local cached = cache.isCached('money.data')
 local rates = cached and cache.get('money.data')
@@ -222,7 +232,9 @@ assert(rates[currency], 'dunno that currency fr8')
 
 local t = {}
 for code, value_usd in pairs(rates) do
-  t[#t + 1] = {code, get_rate(currency) / value_usd, math.abs(get_rate(currency) - value_usd)}
+  if not ignore[code] then
+    t[#t + 1] = {code, get_rate(currency) / value_usd, math.abs(get_rate(currency) - value_usd)}
+  end
 end
 
 table.sort(t, function(a, b)
