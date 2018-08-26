@@ -2,6 +2,7 @@ local cache = plugin.cache(Cache)
 
 local url = 'https://www.skanetrafiken.se/handlers/LocationSearch.ashx?action=loaddeparturesfromstop&fromPointId=14300&fromPointName=R%C3%B6st%C3%A5nga+busstn&noOfRowsToFetch=10'
 
+--[[
 local cacheKey = "röstånga"
 
 local data = cache.get(cacheKey)
@@ -9,6 +10,9 @@ if not data then
   data = assert(httpGet(url))
   cache.set(cacheKey, data, 60 * 15)
 end
+]]
+
+local data = assert(httpGet(url))
 
 local json = require "json"
 
