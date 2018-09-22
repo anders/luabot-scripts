@@ -74,7 +74,13 @@ local function WorldWeatherOnline(coords)
     halt()
   end
   
-  local weatherData = assert(json.decode(jsonData))
+  local weatherData, err = json.decode(jsonData)
+  if not weatherData and err then
+    --if err:find("character") then
+    print('\002Error:\002 weird error, couldnt parse: '..jsonData)
+    halt()
+    --end
+  end
   -- weatherData.data.current_condition
   if not weatherData.current_condition then
     print('\002Error:\002 insufficient result from weather API')
