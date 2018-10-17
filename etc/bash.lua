@@ -38,7 +38,7 @@ while true do
   end
 
   local quote = data:sub(endpos + 1, quoteend - 1)
-  quote = html2text(quote:gsub('<br />', '  '))
+  quote = html2text(quote:gsub("<br />", network ~= "Telegram" and "  " or "\n"))
   if #quote < 350 then
     quotes[#quotes + 1] = quote
   end
