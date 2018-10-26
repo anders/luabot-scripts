@@ -15,7 +15,7 @@ if not cmd or cmd == "skip" or not Cache.gabA then
   local hint
   if not cmd and Cache.gabQ and Cache.gabA then
     hint = Cache.gabQ
-  else
+  elseif Cache.gabA then
     if 1 ~= math.random(1, 3) then
       print(pickone{"Giving up so soon?", "Come on, keep trying", "No.. try 'gab hint"})
       return

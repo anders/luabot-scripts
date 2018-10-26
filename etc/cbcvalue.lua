@@ -9,7 +9,11 @@ if arg[1] == '-cache' then
   arg[1] = 'USD'
 end
 if not sbasevalue then
-  sbasevalue, currency = etc.getOutput(etc.money, '1 XAU ' .. (arg[1] or 'USD')):match('= ([%d%.]+) (.+)')
+  -- sbasevalue, currency = etc.getOutput(etc.money, '1 XAU ' .. (arg[1] or 'USD')):match('= ([%d%.]+) (.+)')
+  currency, sbasevalue = etc.getOutput(etc.money, '1 XAU ' .. (arg[1] or 'USD')):match('= ([^ ]+) ([%d%.,]+)')
+  if sbasevalue then
+    sbasevalue = sbasevalue:gsub(",", "")
+  end
   if (arg[1] or 'USD'):upper() == 'USD' then
     Cache.xau_usd_time = os.time()
     Cache.xau_usd = sbasevalue
