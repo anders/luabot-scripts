@@ -8,7 +8,7 @@ local extra = {}
 if res then
   local lat, lon = res.geometry.location.lat, res.geometry.location.lng
 
-  local tzinfo = httpGet('http://fgsfd.se/tzapi/coord2tz?lat='..lat..'&lon='..lon)
+  local tzinfo = httpGet('https://onyx-sequencer-833.appspot.com/tzapi/coord2tz?lat='..lat..'&lon='..lon)
   if tzinfo and tzinfo:byte(1) == 123 then
     local tz = json.decode(tzinfo)
     extra.timezone = tz.timeZoneId
