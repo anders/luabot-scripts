@@ -5,6 +5,7 @@ local now = os.time()
 
 local places = {
   {"Los Angeles",   "America/Los_Angeles"},
+  {"Chicago",       "America/Chicago"    },
   {"New York",      "America/New_York"   },
   {"London",        "Europe/London"      },
   {"Stockholm",     "Europe/Stockholm"   },
