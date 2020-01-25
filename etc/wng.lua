@@ -43,52 +43,31 @@ if not place then
 end
 
 local function WorldWeatherOnline(coords)
-  -- local API_KEY = 'kxz3zwcq55a7rkb48tqxjh9e' -- premium
-  local API_KEY = 'wjz9shwya2r62q29tpqcq79r' -- free
-  --local API_URL = 'http://api.worldweatheronline.com/free/v1/weather.ashx'
-  local API_URL = 'http://weather-wwo.anders/free/v1/weather.ashx'
-  
-  local params = {
-    -- required
-    q = coords,
-    num_of_days = 5,
-    key = API_KEY,
-    
-    -- optional
-    --extra = '',
-    --date = '',
-    --fx = '',
-    --cc = '',
-    --includeLocation = '',
-    format = 'json',
-    --show_comments = '',
-    --callback = ''
+  local lat, lon = coords:match("([%d%.]+),([%d%.]+)")
+
+  local jsonData = assert(httpGet('https://api.openweathermap.org/data/2.5/weather?lat='..lat..'&lon='..lon..'&appid=a922227733fb47927e1093fcbfd5a1cf'))
+  local wd, err = json.decode(jsonData)
+  if not wd and err then
+    print('\002Error:\002 ' .. jsonData)
+    halt()
+  end
+
+  local result = {
+    current_condition = {
+      {
+        temp_C = wd.main.temp-273.15,
+        windspeedKmph = wd.wind.speed,
+        humidity = 77,
+        cloudcover = wd.clouds.all,
+        weatherDesc = {{value = wd.weather[1].main}},
+        precipMM = 0,
+        visibility = 100,
+        winddirDegree = wd.wind.deg,
+      }
+    }
   }
-
-  local finalURL = API_URL..'?'..urlencode(params)
-  -- print(finalURL)
-  local jsonData = assert(httpGet(finalURL))
-
-  if #jsonData == 0 then
-    print('\002Error:\002 no weather data received from API')
-    halt()
-  end
   
-  local weatherData, err = json.decode(jsonData)
-  if not weatherData and err then
-    --if err:find("character") then
-    print('\002Error:\002 weird error, couldnt parse: '..jsonData)
-    halt()
-    --end
-  end
-  -- weatherData.data.current_condition
-  if not weatherData.current_condition then
-    print('\002Error:\002 insufficient result from weather API')
-    print(jsonData)
-    halt()
-  end
-  
-  return weatherData
+  return result
 end
 
 local _, user_cc_locale = locale.parse(etc.get('locale', nick) or 'en_SE')
