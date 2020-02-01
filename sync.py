@@ -7,8 +7,8 @@ import subprocess
 from glob import glob
 
 
-SCRIPTS_URL = "http://bot.lua.run/u/anders/scripts.lua?json"
-MAP_URL = "http://bot.lua.run/u/anders/web_useremails.lua"
+SCRIPTS_URL = "https://bot.lua.run/u/anders/scripts.lua?json"
+MAP_URL = "https://bot.lua.run/u/anders/web_useremails.lua"
 
 # git settings
 GIT = "git"
