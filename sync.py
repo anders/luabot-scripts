@@ -76,7 +76,7 @@ def main():
             new = not os.path.exists(path)
 
             if not os.path.exists(path) or lastrun < j[mod][fun]["mtime"]:
-                req = urllib.urlopen(j[mod][fun]["url"])
+                req = urllib.urlopen(j[mod][fun]["url"].replace("http:", "https:"))
                 resp = req.read()
                 with open(path, "w") as f:
                     f.write(resp)
